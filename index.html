@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    <meta name="description" content="DDS (Digital Drug Store) platform featuring Step 1 System Registration & Gateway, Step 2 Role-Based Pharmacy Store Workstation (POS, FEFO Inventory, Rx Verification), and Step 3 Financial Close Z-Reports & Master Fleet Audit." />
+    <meta property="og:title" content="Kaziniya Drug Store" />
+    <meta property="og:description" content="DDS (Digital Drug Store) platform featuring Step 1 System Registration & Gateway, Step 2 Role-Based Pharmacy Store Workstation (POS, FEFO Inventory, Rx Verification), and Step 3 Financial Close Z-Reports & Master Fleet Audit." />
+    <title>Kaziniya Drug Store</title>
+    <script>
+      // Gracefully prevent benign Vite HMR websocket connection errors from surfacing as app unhandled rejection banners
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason;
+        var msg = String((reason && (reason.message || reason)) || '');
+        if (
+          msg.indexOf('WebSocket') !== -1 ||
+          msg.indexOf('[vite]') !== -1 ||
+          msg.indexOf('closed without opened') !== -1
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation && event.stopImmediatePropagation();
+        }
+      });
+      window.addEventListener('error', function (event) {
+        var msg = String((event && event.message) || '');
+        if (
+          msg.indexOf('WebSocket') !== -1 ||
+          msg.indexOf('[vite]') !== -1 ||
+          msg.indexOf('closed without opened') !== -1
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation && event.stopImmediatePropagation();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

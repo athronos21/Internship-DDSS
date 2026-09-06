@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Sleek custom scrollbars for webkit and modern browsers */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  /* Light content scrollbars */
+  .content-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  .content-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .content-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .content-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  .content-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
+
+/* Thermal Receipt & Label Printing CSS Styles */
+#receipt-printable-area {
+  font-family: 'Courier New', Courier, monospace, system-ui;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#receipt-printable-area .receipt-logo {
+  filter: grayscale(100%) contrast(140%);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide all non-receipt screen elements during print */
+  nav, header, aside, footer, button, .print\:hidden, #receipt-printable-area .print\:hidden, #receipt-printable-area button, [role="dialog"] > div:not(#receipt-printable-area):not(#qr-printable-label) {
+    display: none !important;
+  }
+
+  /* Ensure the printable area takes full control of thermal slip page */
+  #receipt-printable-area, #qr-printable-label {
+    display: block !important;
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 4mm 2mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #receipt-printable-area * {
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  #receipt-printable-area .receipt-logo-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin-bottom: 4px !important;
+  }
+
+  #receipt-printable-area .receipt-logo {
+    display: block !important;
+    max-width: 52px !important;
+    max-height: 52px !important;
+    filter: grayscale(100%) contrast(200%) !important;
+  }
+
+  #receipt-printable-area .receipt-divider {
+    border-top: 1px dashed #000000 !important;
+    margin: 6px 0 !important;
+  }
+
+  #receipt-printable-area .receipt-double-divider {
+    border-top: 2px solid #000000 !important;
+    margin: 6px 0 !important;
+  }
+
+  #receipt-printable-area table,
+  #receipt-printable-area .receipt-row {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Kaziniya Drug Store",
+  "description": "DDS (Digital Drug Store) platform featuring Step 1 System Registration & Gateway, Step 2 Role-Based Pharmacy Store Workstation (POS, FEFO Inventory, Rx Verification), and Step 3 Financial Close Z-Reports & Master Fleet Audit.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
