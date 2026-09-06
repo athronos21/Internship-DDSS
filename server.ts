@@ -9,6 +9,7 @@ import { computeMLDemandForecast } from './src/utils/mlForecasting.js';
 import { User, UserRole } from './src/types.js';
 import { requireRole, requirePermission, getAuthenticatedUser, AuthenticatedRequest } from './src/server/roleGuard.js';
 import { ROLE_CONFIGS, PERMISSION_DOMAINS, getEffectiveRole, hasPermission } from './src/utils/roleManager.js';
+import { parsePackagingText } from './src/utils/pharmaPackagingParser.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,7 @@ function getGenAI(): GoogleGenAI | null {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
   // Enforce HTTPS and trust reverse proxy (Cloud Run / Nginx)
   app.set('trust proxy', 1);
@@ -39,8 +40,10 @@ async function startServer() {
     if (proto && proto !== 'https' && process.env.NODE_ENV === 'production') {
       return res.redirect(301, `https://${req.headers.host}${req.url}`);
     }
-    // HSTS (HTTP Strict Transport Security)
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    // HSTS (HTTP Strict Transport Security) only in production
+    if (process.env.NODE_ENV === 'production') {
+      res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
     next();
   });
 
@@ -1090,7 +1093,8 @@ Provide a structured, highly professional response in JSON format with:
   // Scans the whole or essential part of the medicine packaging (blister strip, box, bottle, vial, ampoule)
   app.post('/api/gemini/scan-medicine', async (req, res) => {
     try {
-      const { image, medicineHint } = req.body;
+      const image = req.body.image || req.body.base64Image;
+      const medicineHint = req.body.medicineHint || req.body.hint;
       if (!image) {
         return res.status(400).json({ success: false, message: 'Image data is required for medicine packaging scan' });
       }
@@ -1193,124 +1197,166 @@ Inspect the whole or essential visible parts of the medicine to identify and ext
         }
       }
 
-      // Intelligent pharmaceutical recognition fallback if Gemini API is offline or unparsed
+      // If Gemini AI did not produce a valid extraction (e.g. invalid API key or offline):
       if (!extractedData || !extractedData.name) {
-        const sampleMeds = [
-          {
-            name: 'Amoxil 500mg Capsules',
-            genericName: 'Amoxicillin Trihydrate',
-            brandName: 'Amoxil',
-            strength: '500mg',
-            dosageForm: 'Capsule',
-            category: 'Antibiotics',
-            manufacturer: 'EPHARM Pharmaceuticals',
-            batchNumber: 'KZ-AMX-2025',
-            expDate: '2027-08-30',
-            mfgDate: '2024-09-01',
-            unit: 'Strip',
-            packageSize: 'Strip of 10 Capsules',
-            suggestedSellingPrice: 35,
-            suggestedPurchasePrice: 22,
-            suggestedQuantity: 60,
-            reorderLevel: 20,
-            shelfLocation: 'Shelf A-03',
-            prescriptionRequired: true,
-            detectedText: 'AMOXIL 500mg Amoxicillin Trihydrate BP Strip EPHARM Exp 08/2027',
-            confidence: 0.94,
-          },
-          {
-            name: 'Paracetamol 500mg Tablets',
-            genericName: 'Paracetamol / Acetaminophen',
-            brandName: 'Panadol / Para-Denk',
-            strength: '500mg',
-            dosageForm: 'Tablet',
-            category: 'Analgesics & Antipyretics',
-            manufacturer: 'Cadila Pharmaceuticals',
-            batchNumber: 'KZ-PCM-8842',
-            expDate: '2028-03-15',
-            mfgDate: '2025-01-10',
-            unit: 'Box',
-            packageSize: 'Box of 100 Tablets (10 Strips)',
-            suggestedSellingPrice: 20,
-            suggestedPurchasePrice: 12,
-            suggestedQuantity: 100,
-            reorderLevel: 30,
-            shelfLocation: 'Shelf B-01',
-            prescriptionRequired: false,
-            detectedText: 'PARACETAMOL 500mg Tablets BP Cadila Batch KZ-PCM Exp 03/2028',
-            confidence: 0.96,
-          },
-          {
-            name: 'Ciprofloxacin 500mg',
-            genericName: 'Ciprofloxacin Hydrochloride',
-            brandName: 'Cipro-Denk',
-            strength: '500mg',
-            dosageForm: 'Tablet',
-            category: 'Antibiotics',
-            manufacturer: 'Medochemie Ltd',
-            batchNumber: 'KZ-CIP-4019',
-            expDate: '2027-11-20',
-            mfgDate: '2024-11-15',
-            unit: 'Strip',
-            packageSize: 'Strip of 10 Tablets',
-            suggestedSellingPrice: 45,
-            suggestedPurchasePrice: 28,
-            suggestedQuantity: 50,
-            reorderLevel: 15,
-            shelfLocation: 'Shelf A-04',
-            prescriptionRequired: true,
-            detectedText: 'CIPROFLOXACIN 500mg Film-coated Medochemie Lot 4019 Exp 11/2027',
-            confidence: 0.92,
-          },
-          {
-            name: 'Metformin 850mg Tablets',
-            genericName: 'Metformin Hydrochloride',
-            brandName: 'Glucophage',
-            strength: '850mg',
-            dosageForm: 'Tablet',
-            category: 'Antidiabetic',
-            manufacturer: 'Julphar Pharmaceuticals',
-            batchNumber: 'KZ-MET-5502',
-            expDate: '2027-06-15',
-            mfgDate: '2024-06-01',
-            unit: 'Box',
-            packageSize: 'Box of 60 Tablets',
-            suggestedSellingPrice: 55,
-            suggestedPurchasePrice: 35,
-            suggestedQuantity: 40,
-            reorderLevel: 15,
-            shelfLocation: 'Shelf C-02',
-            prescriptionRequired: true,
-            detectedText: 'GLUCOPHAGE Metformin HCl 850mg Julphar Exp 06/2027',
-            confidence: 0.91,
-          },
-          {
-            name: 'Omeprazole 20mg Delayed-Release',
-            genericName: 'Omeprazole',
-            brandName: 'Omez',
-            strength: '20mg',
-            dosageForm: 'Capsule',
-            category: 'Gastrointestinal',
-            manufacturer: 'Cadila Pharmaceuticals',
-            batchNumber: 'KZ-OMZ-7120',
-            expDate: '2027-09-30',
-            mfgDate: '2024-10-01',
-            unit: 'Strip',
-            packageSize: 'Strip of 14 Capsules',
-            suggestedSellingPrice: 38,
-            suggestedPurchasePrice: 24,
-            suggestedQuantity: 75,
-            reorderLevel: 25,
-            shelfLocation: 'Shelf B-04',
-            prescriptionRequired: false,
-            detectedText: 'OMEZ 20mg Omeprazole Gastro-resistant Cadila Exp 09/2027',
-            confidence: 0.95,
-          },
-        ];
+        // If client-side OCR text or multi-line packaging hint was provided, parse it deterministically
+        const textToParse = req.body.ocrText || medicineHint;
+        if (textToParse && typeof textToParse === 'string' && textToParse.trim().length > 0) {
+          const parsed = parsePackagingText(textToParse, (db.medicines || []) as any);
+          if (parsed.name && parsed.name !== 'Unidentified Medicine') {
+            extractedData = {
+              name: parsed.name,
+              genericName: parsed.genericName,
+              brandName: parsed.brandName,
+              strength: parsed.strength,
+              dosageForm: parsed.dosageForm,
+              category: parsed.suggestedCategory,
+              manufacturer: parsed.manufacturer || 'EPHARM',
+              batchNumber: parsed.batchNumber || `KZ-BAT-${Date.now().toString().slice(-4)}`,
+              expDate: parsed.expDate || '2027-12-31',
+              mfgDate: parsed.mfgDate || '2024-06-01',
+              unit: parsed.suggestedUnit,
+              packageSize: `${parsed.suggestedUnit} of ${parsed.strength}`,
+              suggestedSellingPrice: 25,
+              suggestedPurchasePrice: 15,
+              suggestedQuantity: 50,
+              reorderLevel: 15,
+              shelfLocation: 'Shelf A-02',
+              prescriptionRequired: false,
+              detectedText: parsed.rawText,
+              confidence: parsed.confidence,
+            };
+          }
+        }
 
-        // Check if medicineHint matches any sample
-        const hint = (medicineHint || '').toLowerCase();
-        extractedData = sampleMeds.find((s) => s.name.toLowerCase().includes(hint) || s.genericName.toLowerCase().includes(hint)) || sampleMeds[0];
+        // If an explicit preset test hint was selected by the user (e.g. clicked test chip):
+        if (!extractedData && medicineHint && typeof medicineHint === 'string' && medicineHint.trim().length > 0) {
+          const sampleMeds = [
+            {
+              name: 'Amoxil 500mg Capsules',
+              genericName: 'Amoxicillin Trihydrate',
+              brandName: 'Amoxil',
+              strength: '500mg',
+              dosageForm: 'Capsule',
+              category: 'Antibiotics',
+              manufacturer: 'EPHARM Pharmaceuticals',
+              batchNumber: 'KZ-AMX-2025',
+              expDate: '2027-08-30',
+              mfgDate: '2024-09-01',
+              unit: 'Strip',
+              packageSize: 'Strip of 10 Capsules',
+              suggestedSellingPrice: 35,
+              suggestedPurchasePrice: 22,
+              suggestedQuantity: 60,
+              reorderLevel: 20,
+              shelfLocation: 'Shelf A-03',
+              prescriptionRequired: true,
+              detectedText: 'AMOXIL 500mg Amoxicillin Trihydrate BP Strip EPHARM Exp 08/2027',
+              confidence: 0.94,
+            },
+            {
+              name: 'Paracetamol 500mg Tablets',
+              genericName: 'Paracetamol / Acetaminophen',
+              brandName: 'Panadol / Para-Denk',
+              strength: '500mg',
+              dosageForm: 'Tablet',
+              category: 'Analgesics & Antipyretics',
+              manufacturer: 'Cadila Pharmaceuticals',
+              batchNumber: 'KZ-PCM-8842',
+              expDate: '2028-03-15',
+              mfgDate: '2025-01-10',
+              unit: 'Box',
+              packageSize: 'Box of 100 Tablets (10 Strips)',
+              suggestedSellingPrice: 20,
+              suggestedPurchasePrice: 12,
+              suggestedQuantity: 100,
+              reorderLevel: 30,
+              shelfLocation: 'Shelf B-01',
+              prescriptionRequired: false,
+              detectedText: 'PARACETAMOL 500mg Tablets BP Cadila Batch KZ-PCM Exp 03/2028',
+              confidence: 0.96,
+            },
+            {
+              name: 'Ciprofloxacin 500mg',
+              genericName: 'Ciprofloxacin Hydrochloride',
+              brandName: 'Cipro-Denk',
+              strength: '500mg',
+              dosageForm: 'Tablet',
+              category: 'Antibiotics',
+              manufacturer: 'Medochemie Ltd',
+              batchNumber: 'KZ-CIP-4019',
+              expDate: '2027-11-20',
+              mfgDate: '2024-11-15',
+              unit: 'Strip',
+              packageSize: 'Strip of 10 Tablets',
+              suggestedSellingPrice: 45,
+              suggestedPurchasePrice: 28,
+              suggestedQuantity: 50,
+              reorderLevel: 15,
+              shelfLocation: 'Shelf A-04',
+              prescriptionRequired: true,
+              detectedText: 'CIPROFLOXACIN 500mg Film-coated Medochemie Lot 4019 Exp 11/2027',
+              confidence: 0.92,
+            },
+            {
+              name: 'Metformin 850mg Tablets',
+              genericName: 'Metformin Hydrochloride',
+              brandName: 'Glucophage',
+              strength: '850mg',
+              dosageForm: 'Tablet',
+              category: 'Antidiabetic',
+              manufacturer: 'Julphar Pharmaceuticals',
+              batchNumber: 'KZ-MET-5502',
+              expDate: '2027-06-15',
+              mfgDate: '2024-06-01',
+              unit: 'Box',
+              packageSize: 'Box of 60 Tablets',
+              suggestedSellingPrice: 55,
+              suggestedPurchasePrice: 35,
+              suggestedQuantity: 40,
+              reorderLevel: 15,
+              shelfLocation: 'Shelf C-02',
+              prescriptionRequired: true,
+              detectedText: 'GLUCOPHAGE Metformin HCl 850mg Julphar Exp 06/2027',
+              confidence: 0.91,
+            },
+            {
+              name: 'Omeprazole 20mg Delayed-Release',
+              genericName: 'Omeprazole',
+              brandName: 'Omez',
+              strength: '20mg',
+              dosageForm: 'Capsule',
+              category: 'Gastrointestinal',
+              manufacturer: 'Cadila Pharmaceuticals',
+              batchNumber: 'KZ-OMZ-7120',
+              expDate: '2027-09-30',
+              mfgDate: '2024-10-01',
+              unit: 'Strip',
+              packageSize: 'Strip of 14 Capsules',
+              suggestedSellingPrice: 38,
+              suggestedPurchasePrice: 24,
+              suggestedQuantity: 75,
+              reorderLevel: 25,
+              shelfLocation: 'Shelf B-04',
+              prescriptionRequired: false,
+              detectedText: 'OMEZ 20mg Omeprazole Gastro-resistant Cadila Exp 09/2027',
+              confidence: 0.95,
+            },
+          ];
+
+          const hint = medicineHint.toLowerCase();
+          const match = sampleMeds.find((s) => s.name.toLowerCase().includes(hint) || s.genericName.toLowerCase().includes(hint));
+          if (match) {
+            extractedData = match;
+          }
+        }
+      }
+
+      if (!extractedData || !extractedData.name) {
+        return res.status(422).json({
+          success: false,
+          message: 'Could not extract legible medicine text. Use the continuous on-device live camera to accumulate packaging details in real-time.',
+        });
       }
 
       // Generate a unique internal product SKU/code so the medicine is uniquely identified even without barcode
@@ -1816,7 +1862,9 @@ CREATE INDEX idx_inv_tx_created ON inventory_transactions(created_at);
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Kaziniya Drug Store API Running at http://0.0.0.0:${PORT}`);
+    console.log(`\n  🚀 Kaziniya Drug Store is running!`);
+    console.log(`  ➜ Local:   http://localhost:${PORT}/`);
+    console.log(`  ➜ Network: http://127.0.0.1:${PORT}/\n`);
   });
 }
 

@@ -23,8 +23,17 @@ import {
   Scan,
   RefreshCw,
   Package,
+  Zap,
+  Pause,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import {
+  parsePackagingText,
+  accumulatePackagingData,
+  ParsedPackagingData,
+} from '../../utils/pharmaPackagingParser';
 
 interface CategoryOption {
   id: string;
@@ -144,34 +153,46 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
   const [isScanning, setIsScanning] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [scannedResult, setScannedResult] = useState<any>(null);
+  const [scannedResult, setScannedResult] = useState<ParsedPackagingData | null>(null);
   const [selectedPresetHint, setSelectedPresetHint] = useState<string>('Amoxil 500mg');
+  const [torchEnabled, setTorchEnabled] = useState(false);
+  const [isScanPaused, setIsScanPaused] = useState(false);
+  const [liveDetectedWords, setLiveDetectedWords] = useState<string[]>([]);
+  const [framesScannedCount, setFramesScannedCount] = useState(0);
+
   const scannerVideoRef = useRef<HTMLVideoElement | null>(null);
   const packagingFileInputRef = useRef<HTMLInputElement | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const continuousIntervalRef = useRef<number | null>(null);
+  const isFrameBusyRef = useRef(false);
+  const accumulatedDataRef = useRef<ParsedPackagingData | null>(null);
 
   // Stop camera on unmount
   useEffect(() => {
     return () => {
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      }
+      stopCamera();
     };
   }, []);
 
-  // Start Live Camera
+  // Start Live Camera with Continuous Multi-Frame Inspection
   const startCamera = async () => {
     setCameraError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1920, min: 1280 },
+          height: { ideal: 1080, min: 720 },
+        },
       });
       mediaStreamRef.current = stream;
       if (scannerVideoRef.current) {
         scannerVideoRef.current.srcObject = stream;
-        scannerVideoRef.current.play();
+        await scannerVideoRef.current.play();
       }
       setIsCameraActive(true);
+      setIsScanPaused(false);
+      startContinuousScannerLoop();
     } catch (err: any) {
       console.warn('Camera stream error:', err);
       setCameraError('Camera access denied or unavailable. You can upload a photo or select sample packaging below.');
@@ -181,6 +202,10 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
 
   // Stop Live Camera
   const stopCamera = () => {
+    if (continuousIntervalRef.current) {
+      clearInterval(continuousIntervalRef.current);
+      continuousIntervalRef.current = null;
+    }
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
@@ -189,9 +214,85 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
       scannerVideoRef.current.srcObject = null;
     }
     setIsCameraActive(false);
+    setTorchEnabled(false);
   };
 
-  // Capture Frame & Execute AI Scan
+  // Toggle Hardware Torch / Flashlight (Crucial for reflective blister packs or foil)
+  const toggleTorch = async () => {
+    if (!mediaStreamRef.current) return;
+    const track = mediaStreamRef.current.getVideoTracks()[0];
+    if (!track) return;
+    try {
+      const next = !torchEnabled;
+      await (track as any).applyConstraints({
+        advanced: [{ torch: next }],
+      });
+      setTorchEnabled(next);
+      showToast(next ? 'Flashlight ON' : 'Flashlight OFF', 'info');
+    } catch (err) {
+      showToast('Flashlight not supported on this device/browser', 'info');
+    }
+  };
+
+  // Reset Continuous Accumulator to scan a new package
+  const resetAccumulator = () => {
+    accumulatedDataRef.current = null;
+    setScannedResult(null);
+    setLiveDetectedWords([]);
+    setFramesScannedCount(0);
+    showToast('Scanner reset. Ready for next package.', 'info');
+  };
+
+  // Start continuous frame inspection loop ("Stay and Scan in Detail")
+  const startContinuousScannerLoop = () => {
+    if (continuousIntervalRef.current) {
+      clearInterval(continuousIntervalRef.current);
+    }
+
+    const hasTextDetector = typeof (window as any).TextDetector !== 'undefined';
+    const textDetector = hasTextDetector ? new (window as any).TextDetector() : null;
+
+    continuousIntervalRef.current = window.setInterval(async () => {
+      if (!scannerVideoRef.current || isFrameBusyRef.current || isScanPaused) return;
+      const video = scannerVideoRef.current;
+      if (video.readyState < 2 || video.videoWidth === 0) return;
+
+      isFrameBusyRef.current = true;
+      try {
+        let frameText = '';
+
+        if (textDetector) {
+          // Native Android Chrome hardware ML Kit OCR
+          const detected = await textDetector.detect(video);
+          if (detected && detected.length > 0) {
+            frameText = detected.map((d: any) => d.rawValue || '').join('\n');
+          }
+        }
+
+        if (frameText.trim()) {
+          const merged = accumulatePackagingData(accumulatedDataRef.current, frameText, medicinesList as any);
+          accumulatedDataRef.current = merged;
+          setScannedResult({ ...merged });
+          setFramesScannedCount((c) => c + 1);
+
+          const tokens = frameText
+            .split(/\s+/)
+            .map((w) => w.trim().replace(/[^a-zA-Z0-9.%/]/g, ''))
+            .filter((w) => w.length >= 3 && !['FOR', 'THE', 'AND'].includes(w.toUpperCase()))
+            .slice(0, 10);
+          if (tokens.length > 0) {
+            setLiveDetectedWords((prev) => Array.from(new Set([...tokens, ...prev])).slice(0, 12));
+          }
+        }
+      } catch (err) {
+        console.debug('Continuous frame tick:', err);
+      } finally {
+        isFrameBusyRef.current = false;
+      }
+    }, 600);
+  };
+
+  // Manually Snapshot Frame & Run Deep Inspection
   const captureFrameAndScan = async () => {
     if (!scannerVideoRef.current) return;
     try {
@@ -221,10 +322,21 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
     reader.readAsDataURL(file);
   };
 
+  // Instant Offline Test from Realistic Pharma Presets
+  const scanPresetSample = (name: string, ocrText: string) => {
+    const merged = accumulatePackagingData(accumulatedDataRef.current, ocrText, medicinesList as any);
+    accumulatedDataRef.current = merged;
+    setScannedResult({ ...merged });
+
+    const tokens = ocrText.split('\n').filter((l) => l.trim().length > 2);
+    setLiveDetectedWords(tokens.slice(0, 8));
+
+    showToast(`✓ Parsed: ${merged.name} (${merged.strength}) • Zero Cloud Calls!`, 'success', 'Packaging Read');
+  };
+
   // Execute AI Visual Scan (calls /api/gemini/scan-medicine)
   const executeScan = async (base64Image?: string, hint?: string) => {
     setIsScanning(true);
-    setScannedResult(null);
     try {
       const res = await fetch('/api/gemini/scan-medicine', {
         method: 'POST',
@@ -232,24 +344,29 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
         body: JSON.stringify({
           image: base64Image || '',
           medicineHint: hint || selectedPresetHint,
+          ocrText: accumulatedDataRef.current?.rawText,
         }),
       });
       const data = await res.json();
       if (data.success && data.data) {
-        setScannedResult(data.data);
-        showToast(`✓ Recognized: ${data.data.name} (${data.data.dosageForm}) • No Barcode Needed!`, 'success', 'Packaging Identified');
+        const item = data.data;
+        const fakeText = `${item.name}\n${item.genericName}\n${item.strength} ${item.dosageForm}\n${item.batchNumber}\n${item.expDate}\n${item.manufacturer}`;
+        const merged = accumulatePackagingData(accumulatedDataRef.current, fakeText, medicinesList as any);
+        accumulatedDataRef.current = merged;
+        setScannedResult({ ...merged });
+        showToast(`✓ Recognized: ${data.data.name} (${data.data.dosageForm}) • Detailed Inspection`, 'success', 'Packaging Identified');
       } else {
         throw new Error(data.message || 'Recognition failed');
       }
     } catch (err: any) {
-      showToast('Packaging scan failed: ' + err.message, 'error');
+      showToast('Packaging scan: ' + err.message, 'error');
     } finally {
       setIsScanning(false);
     }
   };
 
   // Apply Scanned Medicine Details into Form Fields
-  const applyScannedMedicine = (item: any) => {
+  const applyScannedMedicine = (item: ParsedPackagingData | null) => {
     if (!item) return;
     setBrandName(item.brandName || item.name || '');
     setGenericName(item.genericName || item.brandName || item.name || '');
@@ -259,19 +376,11 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
     setBatchNumber(item.batchNumber || `KZ-BAT-${Date.now().toString().slice(-4)}`);
     if (item.expDate) setExpDate(item.expDate);
     if (item.mfgDate) setMfgDate(item.mfgDate);
-    if (item.suggestedSellingPrice) setSellPrice(String(item.suggestedSellingPrice));
-    if (item.suggestedPurchasePrice) setBuyPrice(String(item.suggestedPurchasePrice));
-    if (item.suggestedQuantity) setInitialQuantity(String(item.suggestedQuantity));
-    if (item.shelfLocation) setShelfLocation(item.shelfLocation);
-    if (item.prescriptionRequired !== undefined) setPrescriptionRequired(item.prescriptionRequired);
-    if (item.barcode || item.generatedCode) {
-      setBarcode(item.barcode || item.generatedCode);
-    } else {
-      setBarcode(`KZ-MED-${Math.floor(100000 + Math.random() * 900000)}`);
-    }
-    setDescription(`Visually recognized: ${item.name} (${item.genericName}). ${item.detectedText ? `Packaging text: "${item.detectedText}".` : ''}`);
+    setBarcode(`KZ-MED-${Math.floor(100000 + Math.random() * 900000)}`);
+    setDescription(`Visually recognized: ${item.name} (${item.genericName}). ${item.detectedKeywords ? `Detected: ${item.detectedKeywords.join(', ')}` : ''}`);
+    stopCamera();
     setRegistrationMode('manual');
-    showToast('✓ Scanned packaging details loaded into registration form! Review and click Save.', 'success', 'Form Ready');
+    showToast('✓ Scanned packaging details loaded into registration form! Review and save.', 'success', 'Form Ready');
   };
 
   // File Input Ref
@@ -723,47 +832,72 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
         </button>
       </div>
 
-      {/* METHOD 1: VISUAL MEDICINE PACKAGING SCANNER PANEL */}
+      {/* METHOD 1: CONTINUOUS VISUAL MEDICINE PACKAGING SCANNER PANEL ("STAY & SCAN IN DETAIL") */}
       {registrationMode === 'scan' && (
-        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 rounded-2xl border-2 border-emerald-500/40 p-6 text-white space-y-6 shadow-xl">
+        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-teal-950 rounded-2xl border-2 border-teal-500/50 p-5 sm:p-6 text-white space-y-6 shadow-2xl">
           {/* Header info */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <div className="p-2.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
                 <Sparkles className="h-6 w-6" />
               </div>
               <div>
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>Visual Medicine Packaging Recognition</span>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40 font-mono">
-                    NO BARCODE REQUIRED
+                  <span>Continuous Packaging Scanner</span>
+                  <span className="text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full border border-teal-500/40 font-mono font-bold">
+                    STAY & SCAN IN DETAIL
                   </span>
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Scan the whole medicine or visible packaging (blister foil, carton, bottle, vial, or strip) using camera or photo.
+                  Camera stays active and merges details across frames: show the front for <strong>Name & Strength</strong>, then tilt to the flap or crimp edge for <strong>Batch & Expiry</strong>.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {!isCameraActive ? (
                 <button
                   type="button"
                   onClick={startCamera}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer"
+                  className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer"
                 >
                   <Camera className="h-4 w-4" />
-                  <span>Open Camera</span>
+                  <span>Open Live Camera</span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={stopCamera}
-                  className="bg-rose-600 hover:bg-rose-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                  <span>Stop Camera</span>
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleTorch}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border shadow-sm cursor-pointer ${
+                      torchEnabled
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-black'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                    }`}
+                    title="Toggle Flashlight / Torch for shiny blister foils"
+                  >
+                    <Zap className="h-3.5 w-3.5" />
+                    <span>{torchEnabled ? 'Torch ON' : 'Torch'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsScanPaused((p) => !p)}
+                    className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {isScanPaused ? <Play className="h-3.5 w-3.5 text-teal-400" /> : <Pause className="h-3.5 w-3.5 text-amber-400" />}
+                    <span>{isScanPaused ? 'Resume' : 'Pause'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={stopCamera}
+                    className="bg-rose-600 hover:bg-rose-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    <span>Close</span>
+                  </button>
+                </>
               )}
 
               <input
@@ -776,19 +910,20 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
               <button
                 type="button"
                 onClick={() => packagingFileInputRef.current?.click()}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+                className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
               >
-                <UploadCloud className="h-4 w-4 text-emerald-400" />
-                <span>Upload Packaging Photo</span>
+                <UploadCloud className="h-3.5 w-3.5 text-teal-400" />
+                <span>Upload Photo</span>
               </button>
             </div>
           </div>
 
-          {/* Camera Viewfinder / Laser Overlay */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-7">
-              <div className="relative rounded-2xl border-2 border-emerald-500/50 bg-slate-900/90 overflow-hidden h-64 sm:h-72 flex items-center justify-center shadow-inner">
-                {/* Real Video Element */}
+          {/* Camera Viewfinder + Real-Time Checklist HUD */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left: Viewfinder & Live Frame Controls */}
+            <div className="lg:col-span-6 space-y-3">
+              <div className="relative rounded-2xl border-2 border-teal-500/50 bg-slate-900/95 overflow-hidden h-72 sm:h-80 flex items-center justify-center shadow-2xl">
+                {/* Live Video */}
                 <video
                   ref={scannerVideoRef}
                   playsInline
@@ -797,152 +932,384 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 />
 
                 {!isCameraActive && (
-                  <div className="flex flex-col items-center justify-center p-6 text-center space-y-2">
-                    <Package className="h-12 w-12 text-emerald-400/80 mb-1" />
-                    <p className="font-bold text-sm text-white">Camera is currently idle</p>
+                  <div className="flex flex-col items-center justify-center p-6 text-center space-y-2.5">
+                    <div className="p-4 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400">
+                      <Scan className="h-10 w-10 animate-pulse" />
+                    </div>
+                    <p className="font-bold text-sm text-white">Live Camera is Idle</p>
                     <p className="text-xs text-slate-400 max-w-sm">
-                      Click "Open Camera" to scan blister strips, bottles, and packaging, upload an image, or click one of the quick packaging presets below.
+                      Click <strong>"Open Live Camera"</strong> to activate continuous stay-and-scan mode, or test instantly with a preset packaging sample below.
                     </p>
+                    <button
+                      type="button"
+                      onClick={startCamera}
+                      className="mt-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-black px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg transition cursor-pointer"
+                    >
+                      <Camera className="h-4 w-4" />
+                      <span>Start Continuous Scanner</span>
+                    </button>
                   </div>
                 )}
 
-                {/* Laser scan line when camera or scanning is active */}
-                {(isCameraActive || isScanning) && (
-                  <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_#10b981] animate-bounce" />
+                {/* Live scanning radar beam */}
+                {isCameraActive && !isScanPaused && (
+                  <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_15px_#2dd4bf] animate-bounce" />
                 )}
 
                 {/* Corner reticle brackets */}
-                <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-emerald-400" />
-                <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-emerald-400" />
-                <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-emerald-400" />
-                <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-emerald-400" />
+                <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-teal-400" />
+                <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-teal-400" />
+                <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-teal-400" />
+                <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-teal-400" />
 
-                {/* Loading indicator */}
-                {isScanning && (
-                  <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-center text-center p-4 z-20">
-                    <RefreshCw className="h-8 w-8 text-emerald-400 animate-spin mb-2" />
-                    <span className="font-bold text-white text-sm">Analyzing Medicine Packaging...</span>
-                    <span className="text-xs text-emerald-300 font-mono mt-1">Reading API, formulation & strength without barcode</span>
-                  </div>
-                )}
-              </div>
-
-              {cameraError && (
-                <div className="mt-2 p-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
-                  <span>{cameraError}</span>
-                </div>
-              )}
-
-              {/* Action buttons under camera */}
-              <div className="flex flex-wrap items-center gap-3 mt-3">
+                {/* Floating Status Badges inside Camera */}
                 {isCameraActive && (
-                  <button
-                    type="button"
-                    onClick={captureFrameAndScan}
-                    disabled={isScanning}
-                    className="bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 transition shadow-md cursor-pointer disabled:opacity-50"
-                  >
-                    <Scan className="h-4 w-4" />
-                    <span>Capture & Recognize Medicine</span>
-                  </button>
+                  <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none z-10">
+                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-[10px] font-mono font-bold text-teal-300 border border-teal-500/40">
+                      <span className="h-2 w-2 rounded-full bg-teal-400 animate-ping" />
+                      LIVE CONTINUOUS SCAN
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-slate-950/80 text-[10px] font-mono text-slate-300 border border-slate-700">
+                      {framesScannedCount} frames merged
+                    </span>
+                  </div>
+                )}
+
+                {/* Paused Overlay */}
+                {isCameraActive && isScanPaused && (
+                  <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs flex flex-col items-center justify-center text-center p-4 z-20">
+                    <Pause className="h-10 w-10 text-amber-400 mb-2" />
+                    <span className="font-black text-white text-sm">Scanner Paused</span>
+                    <span className="text-xs text-slate-300 mt-1">Click Resume to continue reading frames</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsScanPaused(false)}
+                      className="mt-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-4 py-1.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-md"
+                    >
+                      <Play className="h-3.5 w-3.5" />
+                      <span>Resume Scanning</span>
+                    </button>
+                  </div>
                 )}
               </div>
-            </div>
 
-            {/* Right side: Recognition Results or Quick Presets */}
-            <div className="lg:col-span-5 space-y-4">
-              {scannedResult ? (
-                <div className="bg-slate-900 border border-emerald-500/60 rounded-2xl p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      Visual Detection Matched
-                    </span>
-                    <span className="text-[10px] font-mono bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">
-                      {Math.round((scannedResult.confidence || 0.95) * 100)}% Confidence
-                    </span>
-                  </div>
-
-                  <div className="space-y-1.5 text-xs">
-                    <p className="font-black text-sm text-white">{scannedResult.name}</p>
-                    <p className="text-slate-300">
-                      <strong className="text-slate-400">Generic (API):</strong> {scannedResult.genericName}
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
-                      <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                        <span className="text-slate-400 block text-[10px]">Strength / Form:</span>
-                        <span className="font-bold text-emerald-300">{scannedResult.strength} • {scannedResult.dosageForm}</span>
-                      </div>
-                      <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                        <span className="text-slate-400 block text-[10px]">Batch / Expiry:</span>
-                        <span className="font-bold text-emerald-300">{scannedResult.batchNumber} • {scannedResult.expDate}</span>
-                      </div>
-                      <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                        <span className="text-slate-400 block text-[10px]">Suggested Buy / Sell:</span>
-                        <span className="font-bold text-white">${scannedResult.suggestedPurchasePrice} / ${scannedResult.suggestedSellingPrice}</span>
-                      </div>
-                      <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
-                        <span className="text-slate-400 block text-[10px]">Manufacturer:</span>
-                        <span className="font-bold text-white truncate block">{scannedResult.manufacturer}</span>
-                      </div>
-                    </div>
-
-                    {scannedResult.detectedText && (
-                      <p className="text-[10px] text-slate-400 font-mono bg-slate-950 p-2 rounded-lg border border-slate-800">
-                        Packaging Text: "{scannedResult.detectedText}"
-                      </p>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => applyScannedMedicine(scannedResult)}
-                    className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black text-xs transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
-                  >
-                    <Check className="h-4 w-4" />
-                    <span>Apply Recognized Details to Form & Save</span>
-                  </button>
+              {/* Viewfinder Toolbar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2">
+                  {isCameraActive && (
+                    <button
+                      type="button"
+                      onClick={captureFrameAndScan}
+                      disabled={isScanning}
+                      className="bg-teal-500 hover:bg-teal-400 text-teal-950 font-black px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer disabled:opacity-50"
+                    >
+                      <Scan className="h-3.5 w-3.5" />
+                      <span>Snapshot Deep Scan</span>
+                    </button>
+                  )}
+                  {scannedResult && (
+                    <button
+                      type="button"
+                      onClick={resetAccumulator}
+                      className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+                      title="Clear accumulated data to scan another box"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>Reset Buffer</span>
+                    </button>
+                  )}
                 </div>
-              ) : (
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wide block">
-                    Quick Packaging Presets (One-Click Scan)
+
+                <span className="text-[11px] text-slate-400">
+                  Engine: <strong>On-Device Multi-Frame ML Kit</strong>
+                </span>
+              </div>
+
+              {/* Live Detected Text Stream */}
+              {liveDetectedWords.length > 0 && (
+                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Live Recognition Stream (Last Detected Tokens):
                   </span>
-                  <p className="text-xs text-slate-400">
-                    Test the AI visual recognition immediately with authentic pharmaceutical packaging samples:
-                  </p>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Amoxil 500mg Capsules', type: 'Blister Strip' },
-                      { name: 'Paracetamol 500mg Tablets', type: 'Carton Box (10 Strips)' },
-                      { name: 'Ciprofloxacin 500mg', type: 'Foil Packaging' },
-                      { name: 'Omeprazole 20mg Delayed-Release', type: 'Blister Pack' },
-                      { name: 'Metformin 850mg Tablets', type: 'Box of 60 Tablets' },
-                    ].map((sample) => (
-                      <button
-                        key={sample.name}
-                        type="button"
-                        onClick={() => {
-                          setSelectedPresetHint(sample.name);
-                          executeScan(undefined, sample.name);
-                        }}
-                        className="w-full p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 text-left transition flex items-center justify-between group cursor-pointer"
+                  <div className="flex flex-wrap gap-1.5">
+                    {liveDetectedWords.map((word, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 rounded-md bg-teal-950/80 text-teal-300 border border-teal-800 text-[10px] font-mono"
                       >
-                        <div>
-                          <span className="font-bold text-xs text-white group-hover:text-emerald-300 block">
-                            {sample.name}
-                          </span>
-                          <span className="text-[10px] text-slate-400">{sample.type}</span>
-                        </div>
-                        <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800 group-hover:bg-emerald-600 group-hover:text-white transition">
-                          Simulate Scan →
-                        </span>
-                      </button>
+                        {word}
+                      </span>
                     ))}
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Right: Real-Time Detection Checklist HUD */}
+            <div className="lg:col-span-6 space-y-4">
+              <div className="bg-slate-900 border border-teal-500/60 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div>
+                    <span className="text-xs font-black text-teal-400 uppercase tracking-wide flex items-center gap-1.5">
+                      <CheckCircle2 className="h-4 w-4 text-teal-400" />
+                      Real-Time Detection Checklist
+                    </span>
+                    <span className="text-[11px] text-slate-400 block mt-0.5">
+                      Attributes lock in as you move the packaging
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono font-bold bg-teal-950 text-teal-300 px-2.5 py-1 rounded-lg border border-teal-800">
+                    {Math.round((scannedResult?.confidence || 0.40) * 100)}% Matched
+                  </span>
+                </div>
+
+                {/* 6 Real-Time Attribute Checkboxes */}
+                <div className="space-y-2.5">
+                  {/* 1. Commercial Name */}
+                  <div className={`p-2.5 rounded-xl border transition flex items-center justify-between ${
+                    scannedResult?.fieldStatus?.nameLocked
+                      ? 'bg-teal-950/60 border-teal-500/60'
+                      : 'bg-slate-950/50 border-slate-800'
+                  }`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                        scannedResult?.fieldStatus?.nameLocked
+                          ? 'bg-teal-500 text-teal-950'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {scannedResult?.fieldStatus?.nameLocked ? '✓' : '1'}
+                      </div>
+                      <div className="truncate">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Commercial Product Name</span>
+                        <span className="font-bold text-xs text-white truncate block">
+                          {scannedResult?.name && scannedResult.name !== 'Unidentified Medicine'
+                            ? scannedResult.name
+                            : 'Scanning front of packaging...'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
+                      scannedResult?.fieldStatus?.nameLocked
+                        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40'
+                        : 'bg-amber-500/10 text-amber-300 border border-amber-500/20 animate-pulse'
+                    }`}>
+                      {scannedResult?.fieldStatus?.nameLocked ? '✓ Locked' : 'Searching'}
+                    </span>
+                  </div>
+
+                  {/* 2. Generic Name (Active Ingredient) */}
+                  <div className={`p-2.5 rounded-xl border transition flex items-center justify-between ${
+                    scannedResult?.fieldStatus?.nameLocked && scannedResult.genericName
+                      ? 'bg-teal-950/60 border-teal-500/60'
+                      : 'bg-slate-950/50 border-slate-800'
+                  }`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                        scannedResult?.fieldStatus?.nameLocked && scannedResult.genericName
+                          ? 'bg-teal-500 text-teal-950'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {scannedResult?.fieldStatus?.nameLocked ? '✓' : '2'}
+                      </div>
+                      <div className="truncate">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Active Ingredient (INN Generic)</span>
+                        <span className="font-bold text-xs text-slate-200 truncate block">
+                          {scannedResult?.genericName || 'Pending front text extraction...'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
+                      scannedResult?.fieldStatus?.nameLocked
+                        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40'
+                        : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      {scannedResult?.fieldStatus?.nameLocked ? '✓ Locked' : 'Pending'}
+                    </span>
+                  </div>
+
+                  {/* 3. Strength & Dosage Form */}
+                  <div className={`p-2.5 rounded-xl border transition flex items-center justify-between ${
+                    scannedResult?.fieldStatus?.strengthLocked
+                      ? 'bg-teal-950/60 border-teal-500/60'
+                      : 'bg-slate-950/50 border-slate-800'
+                  }`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                        scannedResult?.fieldStatus?.strengthLocked
+                          ? 'bg-teal-500 text-teal-950'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {scannedResult?.fieldStatus?.strengthLocked ? '✓' : '3'}
+                      </div>
+                      <div className="truncate">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Strength & Dosage Form</span>
+                        <span className="font-bold text-xs text-teal-300 truncate block">
+                          {scannedResult?.strength || '500mg'} • {scannedResult?.dosageForm || 'Tablet'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
+                      scannedResult?.fieldStatus?.strengthLocked
+                        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40'
+                        : 'bg-amber-500/10 text-amber-300 border border-amber-500/20 animate-pulse'
+                    }`}>
+                      {scannedResult?.fieldStatus?.strengthLocked ? '✓ Locked' : 'Searching'}
+                    </span>
+                  </div>
+
+                  {/* 4. Batch / Lot Number */}
+                  <div className={`p-2.5 rounded-xl border transition flex items-center justify-between ${
+                    scannedResult?.fieldStatus?.batchLocked
+                      ? 'bg-teal-950/60 border-teal-500/60'
+                      : 'bg-slate-950/50 border-slate-800'
+                  }`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                        scannedResult?.fieldStatus?.batchLocked
+                          ? 'bg-teal-500 text-teal-950'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {scannedResult?.fieldStatus?.batchLocked ? '✓' : '4'}
+                      </div>
+                      <div className="truncate">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Batch / Lot Number</span>
+                        <span className="font-bold text-xs text-white truncate block">
+                          {scannedResult?.batchNumber || 'Tilt box to flap or crimp edge...'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
+                      scannedResult?.fieldStatus?.batchLocked
+                        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40'
+                        : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
+                    }`}>
+                      {scannedResult?.fieldStatus?.batchLocked ? '✓ Locked' : 'Show Flap'}
+                    </span>
+                  </div>
+
+                  {/* 5. Expiration Date */}
+                  <div className={`p-2.5 rounded-xl border transition flex items-center justify-between ${
+                    scannedResult?.fieldStatus?.expDateLocked
+                      ? 'bg-teal-950/60 border-teal-500/60'
+                      : 'bg-slate-950/50 border-slate-800'
+                  }`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                        scannedResult?.fieldStatus?.expDateLocked
+                          ? 'bg-teal-500 text-teal-950'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {scannedResult?.fieldStatus?.expDateLocked ? '✓' : '5'}
+                      </div>
+                      <div className="truncate">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Expiry Date (EXP)</span>
+                        <span className="font-bold text-xs text-teal-300 truncate block">
+                          {scannedResult?.expDate || 'Look for EXP MM/YY or stamp...'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
+                      scannedResult?.fieldStatus?.expDateLocked
+                        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40'
+                        : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
+                    }`}>
+                      {scannedResult?.fieldStatus?.expDateLocked ? '✓ Locked' : 'Show EXP'}
+                    </span>
+                  </div>
+
+                  {/* 6. Manufacturer */}
+                  <div className={`p-2.5 rounded-xl border transition flex items-center justify-between ${
+                    scannedResult?.fieldStatus?.manufacturerLocked
+                      ? 'bg-teal-950/60 border-teal-500/60'
+                      : 'bg-slate-950/50 border-slate-800'
+                  }`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                        scannedResult?.fieldStatus?.manufacturerLocked
+                          ? 'bg-teal-500 text-teal-950'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {scannedResult?.fieldStatus?.manufacturerLocked ? '✓' : '6'}
+                      </div>
+                      <div className="truncate">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Manufacturer</span>
+                        <span className="font-bold text-xs text-white truncate block">
+                          {scannedResult?.manufacturer || 'Reading pharma lab name...'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
+                      scannedResult?.fieldStatus?.manufacturerLocked
+                        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40'
+                        : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      {scannedResult?.fieldStatus?.manufacturerLocked ? '✓ Locked' : 'Pending'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Primary Action Button: Lock & Auto-Fill Form */}
+                <button
+                  type="button"
+                  onClick={() => applyScannedMedicine(scannedResult)}
+                  className={`w-full py-3.5 rounded-xl font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg cursor-pointer ${
+                    scannedResult && (scannedResult.fieldStatus?.nameLocked || scannedResult.fieldStatus?.strengthLocked)
+                      ? 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 ring-2 ring-teal-400/50 animate-pulse'
+                      : 'bg-teal-600/60 hover:bg-teal-600 text-white'
+                  }`}
+                >
+                  <Check className="h-4 w-4" />
+                  <span>Lock & Auto-Fill Product Registration Form</span>
+                </button>
+              </div>
+
+              {/* Quick Realistic Pharma Presets (Offline Test) */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wide">
+                    Instant Offline Test Presets (Realistic Pharma Labels):
+                  </span>
+                  <span className="text-[10px] text-teal-400">100% Deterministic</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    {
+                      label: 'Amoxil 500mg Strip',
+                      text: 'AMOXIL\nAmoxicillin Trihydrate 500mg Capsules\nGlaxoSmithKline\nB.NO. KZ-AMX-901\nEXP: 02/2027\nMFG: 01/2024\n100 Capsules',
+                    },
+                    {
+                      label: 'Panadol 120mg Bottle',
+                      text: 'Panadol Children\nParacetamol Suspension 120mg/5ml\n100 ml Bottle\nEPHARM\nBN: PND-441\nEXPIRY: MAY 2028',
+                    },
+                    {
+                      label: 'Cipro 500mg Box',
+                      text: 'Ciprofloxacin Tablets USP 500mg\nCiprobay\nBayer Healthcare\nLot: CB-4410\n09/2027',
+                    },
+                    {
+                      label: 'Hydrocortisone Tube',
+                      text: 'Hydrocortisone 1%\nTopical Ointment\nCadila Pharmaceuticals\nLot: C-5521\nEXP: 11/2026',
+                    },
+                    {
+                      label: 'Metformin 850mg',
+                      text: 'Glucophage 850mg\nMetformin Hydrochloride\nJulphar Pharmaceuticals\nB.No: M850-22\nEXP. 06.2027',
+                    },
+                    {
+                      label: 'Omeprazole 20mg',
+                      text: 'Omez 20mg\nOmeprazole Delayed-Release Capsules\nCadila Pharma\nBN: OMZ-771\nEXP: 09/2027',
+                    },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => scanPresetSample(preset.label, preset.text)}
+                      className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-left transition text-xs font-semibold text-slate-200 hover:text-teal-300 cursor-pointer"
+                    >
+                      <span className="block truncate">{preset.label}</span>
+                      <span className="text-[9px] text-slate-400 block">Click to test HUD →</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
