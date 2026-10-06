@@ -1544,7 +1544,7 @@ export function createPurchaseOrder(data: {
   const supplier = suppliers.find((s) => s.id === data.supplierId);
   if (!supplier) throw new Error('Supplier not found');
 
-  const creator = users.find((u) => u.id === data.createdByUserId) || users[4];
+  const creator = users.find((u) => u.id === data.createdByUserId) || users[0];
   const now = new Date().toISOString();
 
   let totalAmount = 0;

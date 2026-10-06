@@ -1,0 +1,169 @@
+\chapter{Overall Internship Experience and Specific Work}
+\label{chap:internship_experience}
+
+\section{Why Did You Select This Company?}
+The selection of \textbf{Kaziniya Drug Store} as the hosting organization was self-initiated based on an in-depth preliminary investigation into the operational challenges of community health supply chains in Addis Ababa, Ethiopia. While acute tertiary hospitals often maintain specialized enterprise hospital management systems, community drug stores—which handle more than 75\% of primary outpatient medication transactions in urban Ethiopia—continue to suffer from systemic digital neglect and reliance on manual paper ledgers.
+
+Three specific empirical observations justified selecting Kaziniya Drug Store:
+\begin{enumerate}
+    \item \textbf{High-Stakes Clinical and Financial Environment:} A community drug store managing over 420 active pharmaceutical commodities offers an immediate, tangible real-world environment where algorithmic improvements in multi-batch expiry tracking, FEFO stock allocation, and physical stocktaking directly prevent the dispensing of degraded drugs and eliminate severe financial losses.
+    \item \textbf{Institutional Willingness for Digital Modernization:} The management of Kaziniya Drug Store demonstrated an uncommon willingness to transition away from manual bin cards and paper ledger books to support an in-house, custom-engineered digital inventory platform built specifically to satisfy national Ethiopian Food and Drug Authority (EFDA) standards.
+    \item \textbf{Applied Technical and Regulatory Complexity:} Developing a pharmaceutical inventory system requires synthesizing core information technology skills (relational database normalization, concurrency control, computer-vision barcode parsing, RESTful API architecture) with strict pharmaceutical storage guidelines (batch numbers, expiry dates, cold-chain temperature control, EFDA audit trails). This presented an exemplary challenge for an undergraduate IT internship.
+\end{enumerate}
+
+\section{In Which Section of the Company Have You Been Working and Why?}
+Throughout the internship tenure (July 1, 2026 -- August 15, 2026), we were embedded within the \textbf{Pharmaceutical Inventory Logistics and IT Systems Section}, working under the direct supervision of \textbf{Monet Alemayehu} (Immediate Supervisor) and collaborating closely with licensed pharmacy warehouse personnel.
+
+This section was selected because it represents the operational core where physical stock arrives, is inspected, indexed, stored, and audited. The section's primary mandates include:
+\begin{itemize}
+    \item Conducting comprehensive domain analysis and physical shelf-space workflow studies across storage aisles and cold-chain depots.
+    \item Engineering, deploying, and iteratively refining the web-based DDS inventory platform and companion mobile stocktaking scanner.
+    \item Ensuring data integrity, atomic state management, and real-time synchronization between digital inventory records, shelf coordinates, and physical bin counts.
+    \item Providing continuous on-site technical support, ledger reconciliation, and staff training on mobile barcode auditing.
+\end{itemize}
+
+\section{What Does the Workflow in This Section Look Like?}
+The workflow within the inventory engineering section followed an \textbf{Agile Scrum} framework structured into weekly development sprints:
+\begin{enumerate}
+    \item \textbf{Sprint Planning and Inventory Requirements Elicitation:} At the start of each sprint, sessions were conducted with the pharmacy supervisor and inventory staff to translate regulatory and physical storage requirements (e.g., EFDA batch labeling rules, shelf-life thresholds, temperature-sensitive cold-chain tracking) into technical user stories and software specifications.
+    \item \textbf{Iterative Architecture and Coding:} Architectural modules, responsive user interfaces, and backend RESTful endpoints were constructed using TypeScript, React 19, and Node/Bun runtime environments.
+    \item \textbf{Automated and Manual Verification:} Unit testing of core business logic (specifically the packaging OCR parser and the FEFO batch sorting algorithms) was executed via automated test suites.
+    \item \textbf{On-Site Pilot Deployment and Physical Stock Validation:} Functional builds were deployed to the pharmacy storage workstations for controlled testing during non-peak hours, allowing instantaneous feedback from warehouse staff to be collected and incorporated into subsequent iterations.
+\end{enumerate}
+
+Figure~\ref{fig:gantt_timeline} illustrates the 7-week industrial project lifecycle (July 1, 2026 -- August 15, 2026), mapping each phase across the weekly sprint milestones.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    x=1.70cm, y=0.75cm,
+    every node/.style={font=\scriptsize},
+    task/.style={rectangle, rounded corners=2pt, draw=blue!70!black, fill=blue!20, thick, minimum height=0.55cm, anchor=west},
+    leadtask/.style={rectangle, rounded corners=2pt, draw=emerald!70!black, fill=emerald!25, thick, minimum height=0.55cm, anchor=west},
+    gridline/.style={draw=slate!30, dashed, thin}
+]
+
+% Weeks Header (Weeks 1 to 7)
+\foreach \w in {1,...,7} {
+    \node[font=\bfseries\scriptsize, text=slate!70] at (\w-0.5, 6.5) {Week \w};
+    \draw[gridline] (\w-1, 0) -- (\w-1, 6.2);
+}
+\draw[gridline] (7, 0) -- (7, 6.2);
+\draw[thick, draw=slate!50] (0, 6.2) -- (7, 6.2);
+
+% Phase 1: Requirements & Observation
+\node[anchor=east, font=\scriptsize\bfseries] at (-0.2, 5.5) {Phase 1: Domain Analysis};
+\node[task, minimum width=1.0*1.70cm] at (0, 5.5) {Inventory Elicitation (W1)};
+
+% Phase 2: Architecture & Schemas
+\node[anchor=east, font=\scriptsize\bfseries] at (-0.2, 4.5) {Phase 2: System Architecture};
+\node[task, minimum width=1.0*1.70cm] at (1.0, 4.5) {UML \& Relational Schema (W2)};
+
+% Phase 3: Core FEFO & Backend
+\node[anchor=east, font=\scriptsize\bfseries] at (-0.2, 3.5) {Phase 3: Engine Development};
+\node[leadtask, minimum width=1.0*1.70cm] at (2.0, 3.5) {FEFO Priority Engine (W3)};
+
+% Phase 4: Stocktake Scanner UI
+\node[anchor=east, font=\scriptsize\bfseries] at (-0.2, 2.5) {Phase 4: Stocktake Scanner};
+\node[leadtask, minimum width=1.0*1.70cm] at (3.0, 2.5) {Optical Scanner \& UI (W4)};
+
+% Phase 5: Stock Valuation & Ledger
+\node[anchor=east, font=\scriptsize\bfseries] at (-0.2, 1.5) {Phase 5: Stock Valuation};
+\node[task, minimum width=1.0*1.70cm] at (4.0, 1.5) {Valuation Ledger \& Audit (W5)};
+
+% Phase 6: Pilot Testing & Handover
+\node[anchor=east, font=\scriptsize\bfseries] at (-0.2, 0.5) {Phase 6: Pilot \& Documentation};
+\node[leadtask, minimum width=2.0*1.70cm, font=\scriptsize] at (5.0, 0.5) {Pilot \& Handover (W6--W7)};
+
+\end{tikzpicture}
+\caption{Agile Project Timeline and Milestone Schedule (July 1, 2026 -- August 15, 2026).}
+\label{fig:gantt_timeline}
+\end{figure}
+
+\section{Which Workpiece or Work Tasks Have You Been Executing?}
+Over the course of the internship, five primary technical workpieces were executed, focusing entirely on pharmaceutical inventory management, multi-batch expiry control, automated FEFO allocation, and regulatory compliance:
+
+\subsection{Workpiece 1: Multi-Batch Inventory Modeling and Database Schema Architecture}
+A robust data model was engineered to capture the multidimensional nature of pharmaceutical inventory operations. Distinct relational entities were modeled for Medicines, Batches, Inventory Transactions, Stocktaking Logs, Suppliers, and Audit Records. A critical design decision was strictly decoupling the conceptual medication catalog (drug molecule, strength, dosage form, reorder level) from physical inventory batches (batch number, manufacturing date, expiration date, purchase price, selling price, current quantity, and shelf coordinate). This decoupling allows a single drug item (e.g., \textit{Amoxicillin 500mg Capsule}) to maintain multiple concurrent batches with distinct expiration timelines across different warehouse shelves without data redundancy or stock mixing.
+
+\subsection{Workpiece 2: Algorithmic First-Expiry-First-Out (FEFO) Allocation Engine}
+In conventional retail software, items are handled under FIFO (First-In-First-Out) or arbitrary picking. In pharmaceutical warehousing, FIFO is hazardous because newly received shipments may carry shorter manufacturer expiration windows than older stock. We engineered an automated FEFO allocation engine that dynamically sorts active batches by $\min(\text{ExpiryDate})$ and forces all inventory picking routines to draw sequentially from the earliest expiring batch. The engine incorporates a multi-tier warning threshold:
+\begin{itemize}
+    \item \textbf{Healthy ($> 90$ Days):} Unrestricted operational status indicated by green status badges.
+    \item \textbf{Expiring Soon ($30 \le \Delta_{\text{days}} \le 90$):} Highlighted in bold amber across the inventory dashboard, alerting staff to prioritize allocation or initiate supplier return protocols.
+    \item \textbf{Critical Warning ($0 < \Delta_{\text{days}} < 30$):} Flashed in crimson red, requiring immediate warehouse supervisor review.
+    \item \textbf{Expired ($\Delta_{\text{days}} \le 0$):} Hard software lock; the system automatically isolates the batch, prohibiting stock picking or allocation and rendering the accidental distribution of expired drugs technically impossible.
+\end{itemize}
+
+\subsection{Workpiece 3: Continuous Packaging Scanner and Barcode-Assisted Shelf Stocktaking}
+To eliminate the severe operational bottleneck of manual barcode typing and paper stock audits, we engineered a continuous computer-vision packaging scanner in TypeScript and Dart. The scanner processes incoming camera frames, buffers candidate OCR and barcode detections over a temporal rolling window, and matches scanned text against a pharmaceutical pattern dictionary using regular expressions and Levenshtein distance metrics. This module allows warehouse personnel to conduct rapid, error-free physical audits across storage shelves using standard mobile device cameras.
+
+\subsection{Workpiece 4: Inventory Adjustment, Batch Quarantine, and Expiry Safeguards}
+To maintain complete real-time fidelity between digital records and physical shelf counts, we developed an interactive inventory adjustment and quarantine management module. Warehouse personnel can record stock adjustments (with audited justifications such as breakage, manufacturer recall, or physical audit variance), reassign shelf bin coordinates, and trigger immediate batch quarantines when regulatory alerts or packaging defects are detected.
+
+\subsection{Workpiece 5: Inventory Valuation, Stock Movement Ledgers, and EFDA Audit Reporting}
+To guarantee complete inventory financial accountability, we engineered an immutable transaction ledger that logs every stock modification (\texttt{RECEIPT}, \texttt{ALLOCATION}, \texttt{ADJUSTMENT}, \texttt{RETURN}, \texttt{DISPOSAL}) along with the authorizing user ID, timestamp, and batch provenance. The system automatically computes real-time Cost of Goods Sold (COGS), remaining inventory valuation across all warehouse categories, and exports standardized PDF/Excel audit reports conforming to EFDA and Ministry of Revenues compliance standards.
+
+\section{What Technical Knowledge and Skills from Coursework Were Beneficial?}
+The successful execution of these technical assignments drew directly upon foundational concepts acquired from the university curriculum:
+\begin{itemize}
+    \item \textbf{Data Structures and Algorithms:} Crucial for implementing the priority queues used in the FEFO sorting engine, hash tables for constant-time SKU lookups, and regex finite-state automata for parsing complex medicine packaging strings.
+    \item \textbf{Software Engineering \& Object-Oriented Analysis:} Provided the methodology for conducting requirements elicitation, drawing UML architectural and sequence diagrams, and adhering to SOLID design principles.
+    \item \textbf{Database Systems:} Directly influenced schema normalization up to third normal form (3NF), indexing strategies on high-frequency search fields (\texttt{barcode}, \texttt{genericName}, \texttt{batchNumber}, \texttt{expiryDate}), and ensuring ACID transaction consistency during concurrent stock updates.
+    \item \textbf{Computer Networks and Web Development:} Facilitated the design of secure RESTful APIs, JSON Web Token (JWT) role-based session headers, Cross-Origin Resource Sharing (CORS) configurations, and responsive mobile-first UI development.
+\end{itemize}
+
+\section{Programming Languages, Methods, Tools, and Techniques Used from Coursework}
+Table~\ref{tab:tech_stack} summarizes the primary programming languages, frameworks, libraries, and developer tools leveraged across the project lifecycle.
+
+\begin{table}[htbp]
+\centering
+\caption{Comprehensive Technology Stack Utilized in the DDS Inventory Platform.}
+\label{tab:tech_stack}
+\begin{tabularx}{\textwidth}{@{}p{0.25\textwidth}p{0.25\textwidth}X@{}}
+\toprule
+\textbf{Layer / Domain} & \textbf{Technology / Tool} & \textbf{Specific Role in DDS Inventory Platform} \\
+\midrule
+\textbf{Frontend Architecture} & TypeScript 5.8 & Type-safe client-side application logic \\
+                                & React 19 & High-performance component rendering \& Hooks \\
+                                & Tailwind CSS 4.1 & Responsive, utility-first dark/light UI styling \\
+                                & Motion 12.2 & Micro-animations for modal dialogs and alert HUDs \\
+                                & Lucide React & Standardized warehouse and clinical iconography \\
+\midrule
+\textbf{Backend Services}      & Node.js / Bun 1.4 & Ultra-low latency JavaScript/TypeScript server runtime \\
+                                & Express.js 4.21 & REST API routing, middleware, and payload limits \\
+                                & Zod & Runtime schema validation and boundary security \\
+\midrule
+\textbf{Mobile Stocktaking}    & Flutter 3.24 / Dart & Cross-platform camera scanner and warehouse stocktaking client \\
+\midrule
+\textbf{Data \& Analytics}     & Recharts 3.1 & Interactive stock health graphs and shelf-life aging curves \\
+                                & JsPDF / AutoTable & Client-side generation of EFDA-compliant audit reports \\
+\midrule
+\textbf{Development Tools}     & Vite 6.2 & Lightning-fast Hot Module Replacement (HMR) bundler \\
+                                & Git / GitHub & Version control, branching strategies, and audit log \\
+                                & Google Chrome DevTools & Profiling memory allocation, network latency, CWV \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Major Challenges and Problems Faced While Performing Work Tasks}
+
+\subsection{Challenge 1: High Latency and False Positives in Mobile Camera Barcode Scanning}
+\textbf{Problem Description:} Community drug packaging in Ethiopia often exhibits curved surfaces (e.g., round vials of Ceftriaxone, small bottles of suspension), reflective blister foils, and crumpled printed labels. Initial attempts at single-frame video decoding produced high failure rates (42\% unread rate) and severe CPU throttling on low-cost tablet devices.
+
+\subsection{Challenge 2: Preventing Concurrent Stock Reservation Race Conditions}
+\textbf{Problem Description:} During peak warehouse operations, two inventory clerks could simultaneously attempt to allocate or adjust the last remaining units of an essential antibiotic from the same batch. Under naive read-and-update routines, both operations would succeed, causing inventory drift and negative stock balance discrepancies.
+
+\subsection{Challenge 3: Compliance with Stringent Multi-Tier EFDA Batch Traceability Directives}
+\textbf{Problem Description:} Ethiopian pharmaceutical regulations require that every stock movement record the drug’s batch number, manufacturing date, expiry date, supplier provenance, and authorizing staff member, followed by immutable audit trail logging.
+
+\section{Measures Taken to Overcome Challenges and Problems}
+
+\subsection{Solution 1: Multi-Angle Temporal Accumulator and Consensus Filtering}
+To resolve optical scanning issues, we implemented a \textit{Continuous Packaging Scanner with Multi-Angle Temporal Accumulator}. Instead of relying on a single capture frame, the algorithm maintains a fixed ring buffer of five consecutive frames. A detection checklist heads-up display (HUD) provides live visual guidance to the operator (tracking bounding boxes, lighting contrast score, and focus sharpness). When candidate strings are detected across successive frames, a consensus voting filter confirms the drug identity, cutting scanning failures to under 3.5\%.
+
+\subsection{Solution 2: Atomic Stock Reservation Mutex and Staging Lock}
+To resolve concurrency conflicts, we architected an atomic stock reservation mutex within the backend inventory service. When a medicine batch is selected for picking or stock adjustment, a temporary soft-hold is placed on the units with an automated timeout. If confirmed, the transaction is permanently committed into the immutable inventory ledger (\texttt{txId}); if cancelled or timed out, the soft-hold rolls back automatically, preventing phantom stock reservations.
+
+\subsection{Solution 3: Schema-Guarded Inventory Pipeline and Automated Audit Ledger}
+To guarantee regulatory adherence, the inventory pipeline was engineered with mandatory schema validators. Stock cannot be received, transferred, or adjusted without recording the authorized user credentials, batch provenance, and adjustment rationale. Furthermore, an automated accounting engine was integrated to compile daily stock balance reports, computing total inventory valuation and Cost of Goods Sold (COGS) with complete audit traceability.

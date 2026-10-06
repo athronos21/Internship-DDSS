@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import { db } from './src/server/db.js';
@@ -10,9 +9,6 @@ import { User, UserRole } from './src/types.js';
 import { requireRole, requirePermission, getAuthenticatedUser, AuthenticatedRequest } from './src/server/roleGuard.js';
 import { ROLE_CONFIGS, PERMISSION_DOMAINS, getEffectiveRole, hasPermission } from './src/utils/roleManager.js';
 import { parsePackagingText } from './src/utils/pharmaPackagingParser.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 let aiClient: GoogleGenAI | null = null;
 function getGenAI(): GoogleGenAI | null {
@@ -29,9 +25,9 @@ function getGenAI(): GoogleGenAI | null {
   return aiClient;
 }
 
-async function startServer() {
+export async function startServer(portOverride?: number) {
   const app = express();
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
+  const PORT = portOverride || (process.env.PORT ? parseInt(process.env.PORT, 10) : 5000);
 
   // Enforce HTTPS and trust reverse proxy (Cloud Run / Nginx)
   app.set('trust proxy', 1);
@@ -461,11 +457,17 @@ async function startServer() {
   // MEDICINES API
   app.get('/api/medicines', (req, res) => {
     const medicinesWithCalc = db.getCalculatedMedicines();
-    const { categoryId, search } = req.query;
+    const { categoryId, search, archived, all } = req.query;
 
     let filtered = medicinesWithCalc;
 
-    if (categoryId) {
+    if (archived === 'true') {
+      filtered = filtered.filter((m) => m.isActive === false);
+    } else if (all !== 'true') {
+      filtered = filtered.filter((m) => m.isActive !== false);
+    }
+
+    if (categoryId && categoryId !== 'ALL') {
       filtered = filtered.filter((m) => m.categoryId === categoryId);
     }
 
@@ -658,6 +660,63 @@ async function startServer() {
     res.json({ success: true, message: 'Medicine updated successfully', data: med });
   });
 
+  app.delete('/api/medicines/:id', (req, res) => {
+    const medIndex = db.medicines.findIndex((m) => m.id === req.params.id);
+    if (medIndex === -1) return res.status(404).json({ success: false, message: 'Medicine not found' });
+
+    const med = db.medicines[medIndex];
+    const isPermanent = req.query.permanent === 'true';
+
+    if (isPermanent) {
+      db.medicines.splice(medIndex, 1);
+      // Remove batches for this medicine
+      for (let i = db.medicineBatches.length - 1; i >= 0; i--) {
+        if (db.medicineBatches[i].medicineId === med.id) {
+          db.medicineBatches.splice(i, 1);
+        }
+      }
+    } else {
+      med.isActive = false;
+      med.updatedAt = new Date().toISOString();
+    }
+
+    db.auditLogs.unshift({
+      id: `audit-${Date.now()}`,
+      userId: (req.headers['x-user-id'] as string) || 'u-1',
+      action: isPermanent ? 'MEDICINE_DELETED' : 'MEDICINE_ARCHIVED',
+      entityType: 'MEDICINE',
+      entityId: med.id,
+      oldData: { name: med.name, barcode: med.barcode },
+      createdAt: new Date().toISOString(),
+    });
+
+    res.json({
+      success: true,
+      message: isPermanent ? `Medicine '${med.name}' deleted permanently` : `Medicine '${med.name}' archived successfully`,
+      data: med,
+    });
+  });
+
+  app.post('/api/medicines/:id/restore', (req, res) => {
+    const med = db.medicines.find((m) => m.id === req.params.id);
+    if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });
+
+    med.isActive = true;
+    med.updatedAt = new Date().toISOString();
+
+    db.auditLogs.unshift({
+      id: `audit-${Date.now()}`,
+      userId: (req.headers['x-user-id'] as string) || 'u-1',
+      action: 'MEDICINE_RESTORED',
+      entityType: 'MEDICINE',
+      entityId: med.id,
+      newData: { name: med.name, barcode: med.barcode },
+      createdAt: new Date().toISOString(),
+    });
+
+    res.json({ success: true, message: `Medicine '${med.name}' restored successfully`, data: med });
+  });
+
   // BULK MEDICINES IMPORT API
   app.post('/api/medicines/bulk-import', (req, res) => {
     try {
@@ -831,6 +890,85 @@ async function startServer() {
     res.json({ success: true, data: meds });
   });
 
+  app.post('/api/batches', (req, res) => {
+    try {
+      const {
+        medicineId,
+        batchNumber,
+        mfgDate,
+        expDate,
+        purchasePrice,
+        sellingPrice,
+        quantity,
+        supplierId,
+      } = req.body;
+
+      if (!medicineId) return res.status(400).json({ success: false, message: 'Medicine ID is required' });
+      if (!batchNumber) return res.status(400).json({ success: false, message: 'Batch number is required' });
+      if (!expDate) return res.status(400).json({ success: false, message: 'Expiry date is required' });
+
+      const med = db.medicines.find((m) => m.id === medicineId);
+      if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });
+
+      const existingBatch = db.medicineBatches.find(
+        (b) => b.medicineId === medicineId && b.batchNumber.toLowerCase() === batchNumber.trim().toLowerCase()
+      );
+      if (existingBatch) {
+        return res.status(400).json({ success: false, message: `Batch ${batchNumber} already exists for this medicine` });
+      }
+
+      const numQty = Number(quantity) || 0;
+      const numBuy = Number(purchasePrice) || 0;
+      const numSell = Number(sellingPrice) || 0;
+      const now = new Date().toISOString();
+      const sup = db.suppliers.find((s) => s.id === supplierId);
+
+      const newBatch: any = {
+        id: `bat-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        medicineId,
+        medicineName: med.name,
+        batchNumber: batchNumber.trim(),
+        manufacturingDate: mfgDate || now.split('T')[0],
+        expiryDate: expDate,
+        purchasePrice: numBuy,
+        sellingPrice: numSell,
+        initialQuantity: numQty,
+        currentQuantity: numQty,
+        supplierId: supplierId || (db.suppliers[0]?.id || 'sup-1'),
+        supplierName: sup?.name || 'Standard Supplier',
+        status: 'ACTIVE',
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      db.medicineBatches.push(newBatch);
+
+      if (numQty > 0) {
+        db.inventoryTransactions.unshift({
+          id: `tx-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          medicineId,
+          medicineName: med.name,
+          batchId: newBatch.id,
+          batchNumber: newBatch.batchNumber,
+          transactionType: 'PURCHASE',
+          quantity: numQty,
+          previousQuantity: 0,
+          newQuantity: numQty,
+          referenceId: `BATCH-${newBatch.batchNumber}`,
+          referenceType: 'DIRECT_BATCH_INTAKE',
+          performedBy: (req.headers['x-user-id'] as string) || 'u-1',
+          performedByName: 'Store Pharmacist',
+          notes: `Batch ${newBatch.batchNumber} intake (+${numQty} units) recorded`,
+          createdAt: now,
+        });
+      }
+
+      res.status(201).json({ success: true, message: `Batch ${newBatch.batchNumber} registered successfully`, data: newBatch });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
   // INVENTORY ADJUSTMENT
   app.post('/api/inventory/adjust', (req, res) => {
     try {
@@ -850,6 +988,80 @@ async function startServer() {
     } catch (err: any) {
       res.status(400).json({ success: false, message: err.message });
     }
+  });
+
+  // INVENTORY TRANSACTIONS
+  app.get('/api/inventory/transactions', (req, res) => {
+    res.json({ success: true, data: db.inventoryTransactions });
+  });
+
+  // INTER-BRANCH STOCK REQUISITIONS API
+  const inMemoryStockRequests = [
+    {
+      id: 'REQ-901',
+      requestDate: '2026-08-12',
+      fromBranch: 'Bole Sub-Branch',
+      toBranch: 'Kaziniya Drug store (Main)',
+      itemsRequested: 'Omeprazole 20mg (10 Boxes), Insulin Glargine (5 Vials)',
+      urgency: 'HIGH',
+      status: 'PENDING_APPROVAL',
+      requestedBy: 'Dr. Yonas',
+      notes: 'Urgent prescription fulfillment need',
+    },
+    {
+      id: 'REQ-902',
+      requestDate: '2026-08-11',
+      fromBranch: 'Kazanchis Branch',
+      toBranch: 'Kaziniya Drug store (Main)',
+      itemsRequested: 'Ciprofloxacin 500mg (20 Boxes)',
+      urgency: 'NORMAL',
+      status: 'DISPATCHED',
+      requestedBy: 'Pharmacist Bethlehem',
+      notes: 'Scheduled replenishment',
+    },
+    {
+      id: 'REQ-903',
+      requestDate: '2026-08-08',
+      fromBranch: 'Piassa Branch',
+      toBranch: 'Kaziniya Drug store (Main)',
+      itemsRequested: 'Paracetamol Syrup 100ml (50 Bottles)',
+      urgency: 'LOW',
+      status: 'RECEIVED',
+      requestedBy: 'Store Assistant Alazar',
+      notes: 'Pediatric care stock',
+    },
+  ];
+
+  app.get('/api/inventory/requests', (req, res) => {
+    res.json({ success: true, data: inMemoryStockRequests });
+  });
+
+  app.post('/api/inventory/requests', (req, res) => {
+    const { fromBranch, toBranch, itemsRequested, urgency, notes } = req.body;
+    if (!itemsRequested) return res.status(400).json({ success: false, message: 'Requested items are required' });
+
+    const newReq = {
+      id: `REQ-${Date.now().toString().slice(-4)}`,
+      requestDate: new Date().toISOString().split('T')[0],
+      fromBranch: fromBranch || 'Bole Sub-Branch',
+      toBranch: toBranch || 'Kaziniya Drug store (Main)',
+      itemsRequested,
+      urgency: urgency || 'NORMAL',
+      status: 'PENDING_APPROVAL',
+      requestedBy: (req.headers['x-user-name'] as string) || 'Store Staff',
+      notes: notes || '',
+    };
+
+    inMemoryStockRequests.unshift(newReq);
+    res.status(201).json({ success: true, message: 'Stock requisition submitted successfully', data: newReq });
+  });
+
+  app.put('/api/inventory/requests/:id', (req, res) => {
+    const item = inMemoryStockRequests.find((r) => r.id === req.params.id);
+    if (!item) return res.status(404).json({ success: false, message: 'Requisition not found' });
+
+    if (req.body.status) item.status = req.body.status;
+    res.json({ success: true, message: 'Requisition updated successfully', data: item });
   });
 
   // SUPPLIERS API
@@ -1847,13 +2059,13 @@ CREATE INDEX idx_inv_tx_created ON inventory_transactions(created_at);
   });
 
   // Vite Middleware in Development Mode
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  } else {
+  } else if (process.env.NODE_ENV === 'production') {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
@@ -1861,11 +2073,25 @@ CREATE INDEX idx_inv_tx_created ON inventory_transactions(created_at);
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`\n  🚀 Kaziniya Drug Store is running!`);
-    console.log(`  ➜ Local:   http://localhost:${PORT}/`);
-    console.log(`  ➜ Network: http://127.0.0.1:${PORT}/\n`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  // Listen without hardcoding 0.0.0.0 if not specified to allow dual-stack IPv6 (::1) and IPv4 (127.0.0.1) on Windows
+  const server = process.env.HOST ? app.listen(PORT, HOST, () => {
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`\n  🚀 Kaziniya Drug Store is running!`);
+      console.log(`  ➜ Local:   http://localhost:${PORT}/`);
+      console.log(`  ➜ Network: http://127.0.0.1:${PORT}/\n`);
+    }
+  }) : app.listen(PORT, () => {
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`\n  🚀 Kaziniya Drug Store is running!`);
+      console.log(`  ➜ Local:   http://localhost:${PORT}/`);
+      console.log(`  ➜ Network: http://127.0.0.1:${PORT}/\n`);
+    }
   });
+
+  return { app, server, port: PORT };
 }
 
-startServer();
+if (!process.env.DISABLE_AUTO_START && process.env.NODE_ENV !== 'test') {
+  startServer();
+}

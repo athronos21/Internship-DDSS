@@ -1,0 +1,146 @@
+% =========================================================================
+% DECLARATION AND APPROVAL SHEET (Strictly One Page)
+% =========================================================================
+\begingroup
+\begin{singlespace}
+\addcontentsline{toc}{chapter}{Declaration and Approval Sheet}
+
+\begin{center}
+    {\bfseries\LARGE\color{blue!80!black} Declaration and Approval Sheet}\par
+    \vspace{0.15cm}
+    \rule{0.6\textwidth}{1.2pt}
+\end{center}
+
+\vspace{0.25cm}
+\noindent\textbf{\large Students' Declaration}\par
+\vspace{0.15cm}
+\noindent We, \textbf{Atronos Sisay} (ID: \textbf{0761/16}) and \textbf{Beka Girma} (ID: \textbf{0821/16}), hereby declare that this internship report titled \textit{“Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform”} is our original work carried out during our practical industrial attachment at \textbf{Kaziniya Drug Store} from \textbf{July 1, 2026 to August 15, 2026}. This report has not been submitted previously to this or any other academic institution for any degree, diploma, or certificate. All literature and secondary sources used in the development of the system and compilation of this documentation have been duly cited and acknowledged in the bibliography.
+
+\vspace{0.25cm}
+\noindent\begin{tabular}{@{}p{0.36\textwidth}p{0.26\textwidth}p{0.34\textwidth}@{}}
+\textbf{Student 1:} Atronos Sisay & \textbf{ID:} 0761/16 & \textbf{Signature:} \rule{2.8cm}{0.4pt} \\[0.15cm]
+\textbf{Student 2:} Beka Girma    & \textbf{ID:} 0821/16 & \textbf{Signature:} \rule{2.8cm}{0.4pt} \\[0.15cm]
+\multicolumn{3}{@{}l}{\textbf{Date:} \rule{3.5cm}{0.4pt}, 2026}
+\end{tabular}
+
+\vspace{0.25cm}
+\hrule
+\vspace{0.25cm}
+
+\noindent\textbf{\large Immediate Industrial Supervisor Approval}\par
+\vspace{0.15cm}
+\noindent This is to certify that \textbf{Atronos Sisay} (ID: 0761/16) and \textbf{Beka Girma} (ID: 0821/16) have successfully performed and completed their industrial internship at \textbf{Kaziniya Drug Store} under my direct supervision from July 1, 2026 to August 15, 2026. Their contributions toward architecting and implementing the Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform—specifically multi-batch tracking, automated First-Expiry-First-Out (FEFO) allocation safeguards, mobile optical barcode stocktaking, and regulatory inventory audit logging—meet the operational and technical excellence standards expected by our organization.
+
+\vspace{0.2cm}
+\noindent\begin{tabular}{@{}p{0.55\textwidth}p{0.4\textwidth}@{}}
+\textbf{Immediate Supervisor:} Monet Alemayehu & \textbf{Signature:} \rule{3.2cm}{0.4pt} \\
+\textbf{Designation:} Immediate Supervisor & \textbf{Stamp:} \\[0.3cm]
+\textbf{Organization:} Kaziniya Drug Store & \textbf{Date:} \rule{3.2cm}{0.4pt} \\
+\end{tabular}
+
+\vspace{0.25cm}
+\hrule
+\vspace{0.25cm}
+
+\noindent\textbf{\large Academic Department Advisor Approval}\par
+\vspace{0.15cm}
+\noindent I hereby confirm that I have evaluated this internship report and reviewed the software artifacts produced by the students. The report satisfies the academic criteria, structural completeness, and rigorous technical guidelines set forth by the Department of Information Technology.
+
+\vspace{0.2cm}
+\noindent\begin{tabular}{@{}p{0.55\textwidth}p{0.4\textwidth}@{}}
+\textbf{Advisor:} Mr. Nabyom Sh. (M.Sc.) & \textbf{Signature:} \rule{3.2cm}{0.4pt} \\
+\textbf{Designation:} Lecturer, Dept. of IT & \textbf{Date:} \rule{3.2cm}{0.4pt} \\
+\textbf{Department:} Information Technology & \\
+\end{tabular}
+
+\end{singlespace}
+\endgroup
+\clearpage
+
+% =========================================================================
+% EXECUTIVE SUMMARY
+% =========================================================================
+\chapter*{Executive Summary}
+\addcontentsline{toc}{chapter}{Executive Summary}
+
+The pharmaceutical supply chain in community drug stores faces acute operational risks stemming from paper-based stock card recordkeeping, unindexed shelf storage, and manual inventory audits. In Ethiopia, community drug stores routinely incur severe economic losses from stock expiring on shelves prior to issue, while facing serious public health risks from the accidental distribution of degraded medicines.
+
+This internship report documents the conceptualization, full-stack architectural engineering, and on-site deployment of the \textbf{Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform} at \textbf{Kaziniya Drug Store}. Executed during an intensive 7-week industrial internship from July 1, 2026 to August 15, 2026, the project focuses exclusively on modernizing the host organization's inventory management workflows. The platform replaces disorganized physical bins and manual ledger cards with an automated, multi-batch digital warehouse system.
+
+The core technical contributions delivered during the internship include:
+\begin{enumerate}
+    \item \textbf{Automated First-Expiry-First-Out (FEFO) Allocation Engine:} Replacing error-prone manual picking and arbitrary First-In-First-Out (FIFO) practices with an algorithmic priority queue sorted by $\min(\text{ExpiryDate})$, strictly directing stock issues to exhaust earliest-expiring batches first.
+    \item \textbf{Decoupled Multi-Batch Relational Architecture:} Formulating a normalized 3NF data schema that cleanly separates the master medicine catalog (420+ SKUs) from physical inventory batches, tracking unique batch identifiers, manufacturing/expiry dates, supplier provenance, unit purchase costs, and granular shelf/bin coordinates.
+    \item \textbf{Mobile Optical Packaging Scanner for Physical Stocktaking:} Engineering a continuous computer-vision barcode and packaging text accumulator with multi-angle consensus voting, enabling high-speed aisle stocktaking and physical stock reconciliations using mobile device cameras.
+    \item \textbf{Expiry Safeguard Monitoring and Regulatory Quarantine:} Implementing proactive visual status indicators (healthy, expiring within 90 days, expiring within 30 days) and automated code-level quarantine barriers that strictly prohibit the allocation of expired medicines.
+    \item \textbf{Stock Movement Ledger, Inventory Adjustments, and Regulatory Audit Logs:} Automating transaction ledgers for all stock events (Receipts, Allocations, Transfers, Adjustments, and Disposals), calculating Cost of Goods Sold (COGS), tracking inventory valuation, and generating EFDA-compliant audit trails.
+\end{enumerate}
+
+Built upon modern software engineering technologies, the platform leverages TypeScript, React 19, Tailwind CSS, Vite, Node/Bun with an Express REST backend, SQLite/PostgreSQL relational storage, and a Flutter/Dart mobile stocktaking client. Live operational evaluation at Kaziniya Drug Store demonstrated a 100\% elimination of expired medicine issues, an 87.7\% reduction in monthly shelf expiration wastage, an 84.4\% reduction in physical stock audit duration, and a 73.1\% drop in stockout events.
+
+\clearpage
+
+% =========================================================================
+% ACKNOWLEDGEMENTS
+% =========================================================================
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+First and foremost, we express our deepest gratitude to the Almighty God for providing us the perseverance, health, and wisdom required to complete this demanding engineering work and compile this technical report.
+
+We extend our profound appreciation to our immediate industrial supervisor, \textbf{Monet Alemayehu}, Immediate Supervisor at Kaziniya Drug Store. Their invaluable guidance in pharmaceutical warehouse logistics, storage standards set by the Ethiopian Food and Drug Authority (EFDA), and practical inventory management challenges served as the foundation of this system. We are equally thankful to the pharmacy warehouse staff who participated in requirements gathering, shelf observation sessions, and usability testing.
+
+We would like to express our sincere appreciation to our department advisor, \textbf{Mr. Nabyom Sh. (M.Sc.)}, Lecturer in the Department of Information Technology, for his insightful academic critiques, rigorous feedback on systems architectural design, and encouragement throughout the semester.
+
+Our heartfelt thanks also go to the faculty members and leadership of the \textbf{Department of Information Technology (IT)} and the \textbf{College of Computing and Informatics (CCI)} at \textbf{Haramaya University, Ethiopia} for equipping us with the solid theoretical and practical foundation in database systems, systems analysis, software engineering, and web technologies.
+
+Finally, we are eternally indebted to our beloved families, friends, and colleagues for their unconditional love, moral support, and patience throughout our academic journey.
+
+\clearpage
+
+% =========================================================================
+% LIST OF ACRONYMS
+% =========================================================================
+\chapter*{List of Acronyms}
+\addcontentsline{toc}{chapter}{List of Acronyms}
+
+\begin{longtable}{@{}p{0.25\textwidth}p{0.7\textwidth}@{}}
+\toprule
+\textbf{Acronym} & \textbf{Full Definition} \\
+\midrule
+\endhead
+\textbf{ACID} & Atomicity, Consistency, Isolation, Durability \\
+\textbf{API} & Application Programming Interface \\
+\textbf{ATC} & Anatomical Therapeutic Chemical (Classification System) \\
+\textbf{CCI} & College of Computing and Informatics \\
+\textbf{COGS} & Cost of Goods Sold \\
+\textbf{CRUD} & Create, Read, Update, Delete \\
+\textbf{DDS} & Digital Drug Store \\
+\textbf{EFDA} & Ethiopian Food and Drug Authority \\
+\textbf{EPSS} & Ethiopian Pharmaceuticals Supply Service \\
+\textbf{ERD} & Entity-Relationship Diagram \\
+\textbf{FEFO} & First-Expiry-First-Out (Inventory Allocation Principle) \\
+\textbf{FIFO} & First-In-First-Out \\
+\textbf{GRN} & Goods Receipt Note \\
+\textbf{HU} & Haramaya University \\
+\textbf{HUD} & Heads-Up Display \\
+\textbf{IT} & Information Technology \\
+\textbf{IV} & Intravenous (Dosage Form) \\
+\textbf{JSON} & JavaScript Object Notation \\
+\textbf{JWT} & JSON Web Token \\
+\textbf{KPI} & Key Performance Indicator \\
+\textbf{OCR} & Optical Character Recognition \\
+\textbf{ORM} & Object-Relational Mapping \\
+\textbf{PO} & Purchase Order \\
+\textbf{PWA} & Progressive Web Application \\
+\textbf{QR} & Quick Response (Barcode) \\
+\textbf{RBAC} & Role-Based Access Control \\
+\textbf{REST} & Representational State Transfer \\
+\textbf{SKU} & Stock Keeping Unit \\
+\textbf{SPA} & Single Page Application \\
+\textbf{UI/UX} & User Interface / User Experience \\
+\textbf{WHO} & World Health Organization \\
+\bottomrule
+\end{longtable}
+
+\clearpage

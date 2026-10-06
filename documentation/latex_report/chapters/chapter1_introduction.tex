@@ -1,0 +1,125 @@
+\chapter{Introduction}
+\label{chap:introduction}
+
+\section{Background of the Organization/Company}
+\textbf{Kaziniya Drug Store \& Healthcare Supplies} is a prominent community pharmaceutical dispensary and healthcare supply establishment situated in the Bole Medhanealem commercial and medical corridor of Addis Ababa, Ethiopia. Established under the regulatory licensing of the \textbf{Ethiopian Food and Drug Authority (EFDA)} (License No: \texttt{EFDA/DISP/AA/2024/8492}) and registered with the Ministry of Revenues (TIN: \texttt{0098234123}), the pharmacy maintains a vital community health facility serving over 15,000 residents and outpatient visitors monthly.
+
+Initially founded as a traditional neighborhood drug store, Kaziniya Drug Store has expanded its operational scope to house specialized clinical storage bays, a dedicated cold-chain vaccine and biologicals storage depot, an extemporaneous pharmaceutical preparation area, and essential healthcare supply reserves. The facility maintains an active inventory portfolio exceeding 420 distinct pharmaceutical Stock Keeping Units (SKUs) spanning essential antibiotics, analgesics, antimalarials, cardiovascular medicines, chronic care therapeutics, and medical disposables.
+
+Historically, Kaziniya Drug Store relied upon legacy paper-based stock cards (bin cards), manual ledger books, and periodic visual shelf inspections. As inventory volume grew and national EFDA batch-traceability standards became mandatory, the pharmacy faced mounting operational challenges: unmonitored batch expiration dates leading to shelf wastage, frequent stockouts of vital therapeutics, and prolonged multi-day stocktaking closures. Recognizing the urgency of modernizing its supply chain, the management commissioned this engineering internship project to architect, develop, and deploy the \textbf{Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform}.
+
+\section{Vision and Mission of the Organization or Company}
+
+\subsection{Organizational Vision}
+\textit{“To become Ethiopia’s most dependable, digitally modern community drug store and healthcare supply facility, recognized for zero medication wastage, exemplary inventory stewardship, and uncompromising adherence to pharmaceutical storage standards.”}
+
+\subsection{Organizational Mission}
+The institutional mission of Kaziniya Drug Store encompasses three core pillars:
+\begin{enumerate}
+    \item \textbf{Quality Pharmaceutical Custodianship:} Ensuring the availability of authentic, EFDA-certified medications and medical consumables stored strictly within statutory temperature and humidity tolerances.
+    \item \textbf{Technological Modernization:} Implementing automated digital inventory workflows, algorithmic First-Expiry-First-Out (FEFO) stock allocation, and computer-vision stocktaking tools to eliminate shelf expiration losses and operational blind spots.
+    \item \textbf{Community Healthcare Support:} Providing consistent therapeutic availability for acute and chronic conditions through proactive inventory replenishment and batch traceability.
+\end{enumerate}
+
+\section{Main Products or Services of the Organization or Company}
+Kaziniya Drug Store manages an extensive range of pharmaceutical commodities and supply chain services:
+\begin{itemize}
+    \item \textbf{Pharmaceutical Warehousing \& Stock Custody:} Systematic receiving, physical inspection, quarantine segregation, shelf indexing, and algorithmic First-Expiry-First-Out (FEFO) stock issue management for over 420 active pharmaceutical SKUs.
+    \item \textbf{Cold-Chain Biologicals Storage:} Regulated refrigeration storage (maintained continuously between $2^\circ\text{C}$ and $8^\circ\text{C}$) of insulin preparations, vaccines, sera, and biological injectables with continuous digital temperature monitoring.
+    \item \textbf{Essential Therapeutics \& Generic Medicines:} Stocking first-line antibiotics (e.g., Amoxicillin, Ceftriaxone, Ciprofloxacin), antimalarials, analgesics, and rehydration salts under strict batch-level tracking.
+    \item \textbf{Chronic Care Pharmaceuticals:} Regulated storage and stock monitoring for cardiovascular medications, antidiabetic agents (e.g., Metformin, Glibenclamide), antihypertensives, and respiratory inhalers.
+    \item \textbf{Medical Consumables \& Surgical Disposables:} Gauze bandages, surgical gloves, sterile syringes, IV infusion sets, and rapid diagnostic screening kits.
+\end{itemize}
+
+\section{Main Customers or the End Users of Its Products or Services}
+The client and beneficiary base of Kaziniya Drug Store comprises:
+\begin{enumerate}
+    \item \textbf{Community Outpatients:} Individuals presenting with acute prescriptions requiring rapid, reliable medication availability without stockout disruptions.
+    \item \textbf{Chronic Care Patients:} Individuals enrolled in regular maintenance therapy requiring continuous availability of unexpired, high-potency batches.
+    \item \textbf{Outpatient Hospital Referrals:} Patients discharged from nearby health centers and specialized clinics requiring specialized antibiotic regimens or injectables.
+    \item \textbf{Institutional Healthcare Consumers:} Local private clinics, emergency response teams, and organizational first-aid units procuring bulk pharmaceutical consumables and antiseptic supplies.
+\end{enumerate}
+
+\section{Organizational Structure}
+Kaziniya Drug Store operates under a structured organizational hierarchy linking executive management, licensed pharmaceutical supervision, warehouse and inventory operations, and technical systems administration. Figure~\ref{fig:org_chart} illustrates the organizational hierarchy of the establishment.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.88, every node/.style={transform shape, font=\footnotesize, align=center},
+    box/.style={rectangle, rounded corners=3pt, minimum width=3.4cm, minimum height=0.85cm, draw=black!70, thick, fill=blue!8},
+    leadbox/.style={rectangle, rounded corners=4pt, minimum width=4.6cm, minimum height=0.95cm, draw=blue!80, very thick, fill=blue!18, font=\bfseries\footnotesize},
+    techbox/.style={rectangle, rounded corners=3pt, minimum width=3.4cm, minimum height=0.85cm, draw=emerald!70!black, thick, fill=emerald!10},
+    line/.style={draw=black!70, thick, ->, >=stealth}
+]
+
+% Nodes
+\node[leadbox] (director) at (0, 4.5) {Managing Director \& Immediate Supervisor\\Monet Alemayehu};
+\node[box] (deputy) at (0, 3.1) {Head Pharmacist \& Store Manager\\Pharm. Solomon Bekele};
+
+% Tier 3 Nodes
+\node[box] (dispense) at (-4.4, 1.4) {Dispensing Counter\\Outpatient Service Staff};
+\node[box] (inventory) at (0, 1.4) {Warehouse \& Inventory\\Stock Logistics \& Batch Custody};
+\node[techbox] (itops) at (4.4, 1.4) {IT Systems \& Data Management\\IT Interns (Atronos S. \& Beka G.)};
+
+% Tier 4 Nodes
+\node[box] (cashier) at (-4.4, -0.3) {Stock Distribution\\Physical Handover \& Verification};
+\node[box] (procure) at (0, -0.3) {Inward Receiving\\Supplier Goods Inspection};
+\node[techbox] (dev) at (4.4, -0.3) {DDS Platform Engineering\\FEFO Engine \& Barcode Auditing};
+
+% Connecting Lines
+\draw[line] (director.south) -- (deputy.north);
+\draw[draw=black!70, thick] (deputy.south) -- (0, 2.25);
+\draw[draw=black!70, thick] (-4.4, 2.25) -- (4.4, 2.25);
+\draw[line] (-4.4, 2.25) -- (dispense.north);
+\draw[line] (0, 2.25) -- (inventory.north);
+\draw[line] (4.4, 2.25) -- (itops.north);
+
+\draw[line] (dispense.south) -- (cashier.north);
+\draw[line] (inventory.south) -- (procure.north);
+\draw[line] (itops.south) -- (dev.north);
+
+\end{tikzpicture}
+\caption{Organizational Hierarchy of Kaziniya Drug Store.}
+\label{fig:org_chart}
+\end{figure}
+
+\section{Core Operational Workflows}
+The inventory logistics workflow within the facility spans six synchronized lifecycle stages, originating with supplier procurement and culminating in real-time stock ledger auditing. Figure~\ref{fig:workflow_chart} charts this end-to-end operational pipeline with verified inter-stage clearances.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=0.88, every node/.style={transform shape, font=\footnotesize, align=center},
+    startstop/.style={rectangle, rounded corners=12pt, minimum width=4.0cm, minimum height=0.75cm, text centered, draw=blue!80, fill=blue!12, thick, font=\bfseries\footnotesize},
+    process/.style={rectangle, minimum width=4.4cm, minimum height=0.8cm, text centered, draw=blue!70!black, fill=blue!5, rounded corners=3pt, thick},
+    decision/.style={diamond, aspect=2.2, text centered, draw=orange!80, fill=orange!12, thick, inner sep=2pt, text width=2.6cm},
+    rejectbox/.style={rectangle, minimum width=3.6cm, minimum height=0.8cm, text centered, draw=red!70, fill=red!10, rounded corners=3pt, thick},
+    arrow/.style={thick, ->, >=stealth}
+]
+
+% Nodes with generous, calibrated vertical clearances
+\node[startstop] (step1) {1. Supplier Procurement \& PO Receiving};
+\node[process, below=0.75cm of step1] (step2) {2. Physical Inspection \& Batch Verification};
+\node[decision, below=0.85cm of step2] (dec1) {EFDA Batch \&\\Quality Seal Valid?};
+\node[rejectbox, right=1.6cm of dec1] (reject) {Reject Batch \&\\Return to Supplier};
+\node[process, below=0.85cm of dec1] (step3) {3. Register Batch \& Assign FEFO Priority};
+\node[process, below=0.75cm of step3] (step4) {4. Cold-Chain \& Warehouse Shelf Placement};
+\node[process, below=0.75cm of step4] (step5) {5. Automated FEFO Allocation \& Expiry Checks};
+\node[startstop, below=0.75cm of step5] (step6) {6. Real-Time Stock Ledger \& Audit Logging};
+
+% Connectors with explicit anchors and generous label clearances
+\draw[arrow] (step1.south) -- (step2.north);
+\draw[arrow] (step2.south) -- (dec1.north);
+\draw[arrow] (dec1.east) -- node[above, font=\footnotesize] {No} (reject.west);
+\draw[arrow] (dec1.south) -- node[right, font=\footnotesize, xshift=2pt] {Yes} (step3.north);
+\draw[arrow] (step3.south) -- (step4.north);
+\draw[arrow] (step4.south) -- (step5.north);
+\draw[arrow] (step5.south) -- (step6.north);
+
+\end{tikzpicture}
+\caption{Operational Pharmaceutical Inventory Logistics and Automated FEFO Workflow.}
+\label{fig:workflow_chart}
+\end{figure}
+
+The workflow ensures that every medical commodity entering the establishment is verified against regulatory criteria, indexed by unique barcode and batch identification, stored under strictly audited conditions, and systematically allocated under the algorithmic FEFO protection of the DDS platform.

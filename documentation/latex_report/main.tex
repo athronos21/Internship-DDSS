@@ -1,0 +1,162 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% =========================================================================
+% ESSENTIAL PACKAGES & CONFIGURATION
+% =========================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[top=2.5cm,bottom=2.5cm,left=3.0cm,right=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[dvipsnames]{xcolor}
+\providecolor{emerald}{rgb}{0.31, 0.78, 0.47}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{microtype}
+\usepackage{cite}
+\usepackage{url}
+
+% TikZ for Flowcharts, Org Charts, and Architecture Diagrams
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, arrows.meta, positioning, fit, calc, backgrounds, matrix, shadows}
+
+% Code Listings Configuration
+\usepackage{listings}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.97,0.98,0.99}
+
+\lstdefinelanguage{TypeScript}{
+  keywords={abstract, any, as, boolean, break, case, catch, class, console, 
+    const, continue, debugger, declare, default, delete, do, else, enum, 
+    export, extends, false, finally, for, from, function, get, if, implements, 
+    import, in, instanceof, interface, let, module, new, null, number, of, 
+    package, private, protected, public, readonly, require, return, set, 
+    static, string, super, switch, symbol, this, throw, true, try, type, 
+    typeof, undefined, var, void, while, with, yield},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=7pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=lines
+}
+\lstset{style=mystyle}
+
+% Hyperref for Clickable Cross-References
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!80!black,
+    filecolor=magenta,      
+    urlcolor=blue!70!black,
+    citecolor=ForestGreen,
+    pdftitle={Internship Report - Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform},
+    pdfauthor={Atronos Sisay and Beka Girma},
+    pdfsubject={Undergraduate Internship Report - Department of Information Technology, Haramaya University},
+    pdfkeywords={Pharmaceutical Inventory Management, FEFO, Expiry Tracking, EFDA, Barcode Stocktaking, Healthcare Informatics, Kaziniya Drug Store, Haramaya University}
+}
+
+% Line Spacing
+\onehalfspacing
+
+% Header and Footer Styling
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\slshape\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Chapter Title Formatting
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\Large\color{blue!80!black}}
+  {\filright\MakeUppercase{\chaptertitlename}\ \Huge\thechapter}
+  {1ex}
+  {\titlerule\vspace{1ex}\filright\huge}
+  [\vspace{1ex}\titlerule]
+
+% =========================================================================
+% DOCUMENT BODY
+% =========================================================================
+\begin{document}
+
+% 1. COVER PAGE
+\input{chapters/cover_page}
+
+% 2. PRELIMINARY PAGES (Roman Numerals)
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\input{chapters/preliminary}
+
+% Table of Contents
+\tableofcontents
+\clearpage
+
+% List of Tables
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+\clearpage
+
+% List of Figures
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\clearpage
+
+% 3. MAIN BODY (Arabic Numerals)
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% Chapter 1: Introduction to Hosting Organization
+\input{chapters/chapter1_introduction}
+
+% Chapter 2: Overall Internship Experience and Specific Technical Assignments
+\input{chapters/chapter2_internship_experience}
+
+% Chapter 3: Project Selection, Architecture, and Evaluation (DDS Inventory Platform)
+\input{chapters/chapter3_project_ddss}
+
+% Chapter 4: Benefits Gained from the Internship and Professional Reflection
+\input{chapters/chapter4_benefits_reflection}
+
+% Chapter 5: Conclusion and Strategic Recommendations
+\input{chapters/chapter5_conclusion_recommendations}
+
+% 4. REFERENCES
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\addcontentsline{toc}{chapter}{References}
+\clearpage
+
+% 5. APPENDICES
+\input{chapters/appendices}
+
+\end{document}

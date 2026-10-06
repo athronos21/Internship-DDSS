@@ -1,0 +1,92 @@
+1. 
+Cover Page
+The cover page should include all general information about the student, the hosting company,
+the supervisor, etc. This includes: 
+-
+The name of the University, the College 
+and the Department
+Name of the hosting organization
+Name and designation of immediate supervisor in the hosting organization
+Duration/period of the inte
+rnship
+Submission date
+2. 
+The preliminary pages take the following sequence which involves some or all of the
+following parts:
+Declaration of the student and the approval of the mentor and the supervisor 
+-
+one page
+Executive Summary
+Acknowledgement \(If any\
+List of acronyms
+List of tables and figures \(if any\
+Table of contents \(includes chapter and subchapter titles as well as the respective page
+numbers\
+3. 
+Introduction
+The introduction part of the internship report must incl
+ude the following detail information of
+Background of the organization/company
+Vision and Mission of the organization or company
+Main products or services of the organization or
+company
+Main customers or the end users of its products or services
+Organizational structure
+Work flows
+4. Overall internship experience and your specific work, including:
+Why do you select this company? \(If you selected by yourself\
+In which se
+ction of the company, you have been working and why?
+What does the work flow in this section look like?
+Which work piece or work tasks you have been executing?
+What technical knowledge and skills from your course work were beneficial for your
+assignm
+ent?
+What types of programming language, methods, tools and techniques you have used from
+course work while performing your work tasks?
+What major challenges and problems you have faced with while performing your work
+tasks?
+What measures you have ta
+ken \(propose as a solution for the selected problems\r
+to overcome thes
+e challenges and problems, etc.
+5. How and why your project is selected and worked out \(based on identified problem\:
+Project title &amp; short summery of the project
+Problem statement &amp; Justification
+Objective of the project
+Methodology
+Literature review \(related to your specific work/problem\
+Result &amp; Discussion
+What type of recommendations have you made regarding to the identified problems?
+6. Ben
+efits you gained from the internship and reflection, including:
+What you gained in terms of improving your practical skills?
+What you gained in terms of upgrading your theoretical knowledge?
+What you gained in terms of improving industrial problem
+-
+so
+lving capability?
+What you gained in terms of improving your team playing skills?
+What you gained in terms of improving your leadership skills?
+What you gained in terms of understanding about work ethics issues, industrial
+psychology and related issu
+es?
+What you gained in terms of entrepreneurship skills?
+What you gained in terms of improving your interpersonal communication skills?
+How did this internship fit your career goals?
+Did your career goals change as a result of this internship exper
+ience?
+Discuss your feelings about the value of this internship.
+What challenges have you faced during the internship?
+Discuss your strengths and areas for improvement as self
+-
+evaluation.
+7. Conclusion and Recommendations
+This section of your report 
+includes the following points:
+Overall conclusion.
+Your recommendation regarding the hosting company. Should we consider the company
+for future student placement?
+Your recommendation for improving the internship.
+8. References \(including company documents and reports\
+9. Appendices \(if any\

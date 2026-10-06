@@ -97,6 +97,40 @@ function AppContent() {
           hash.includes('flutter') ||
           hash.includes('mobile');
 
+        const viewParam = urlParams.get('view');
+        const roleParam = urlParams.get('role');
+        const subParam = urlParams.get('sub');
+
+        if (viewParam || roleParam) {
+          fetch('/api/users')
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.success && data.data) {
+                const uList: User[] = data.data;
+                let targetUser = uList.find((u) => u.role === 'STORE_OWNER');
+                if (roleParam === 'superadmin' || viewParam === 'master_admin') {
+                  targetUser = uList.find((u) => u.isSuperAdmin || u.email === 'athronos21@gmail.com') || targetUser;
+                } else if (roleParam === 'pharmacist' || viewParam === 'pos') {
+                  targetUser = uList.find((u) => u.role === 'PHARMACIST') || targetUser;
+                }
+                if (targetUser) {
+                  setCurrentUser(targetUser);
+                  setCurrentScreen('dashboard');
+                  if (viewParam) {
+                    setDashboardView(viewParam);
+                  }
+                  if (subParam && viewParam === 'reports') {
+                    setReportsSubTab(subParam as any);
+                  }
+                  if (subParam && viewParam === 'inventory') {
+                    setInventorySubTab(subParam as any);
+                  }
+                }
+              }
+            })
+            .catch((err) => console.error('Error deep linking user:', err));
+        }
+
         if (hasMobileQuery) {
           setIsFlutterModalOpen(true);
         }

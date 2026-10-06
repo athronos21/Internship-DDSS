@@ -21,6 +21,7 @@ export interface ParsedPackagingData {
   suggestedUnit: string;
   confidence: number;
   rawText: string;
+  detectedKeywords: string[];
   nameLocked: boolean;
   strengthLocked: boolean;
   dosageFormLocked: boolean;
