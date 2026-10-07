@@ -14,7 +14,7 @@
 \vspace{0.25cm}
 \noindent\textbf{\large Students' Declaration}\par
 \vspace{0.15cm}
-\noindent We, \textbf{Atronos Sisay} (ID: \textbf{0761/16}) and \textbf{Beka Girma} (ID: \textbf{0821/16}), hereby declare that this internship report titled \textit{“Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform”} is our original work carried out during our practical industrial attachment at \textbf{Kaziniya Drug Store} from \textbf{July 1, 2026 to August 15, 2026}. This report has not been submitted previously to this or any other academic institution for any degree, diploma, or certificate. All literature and secondary sources used in the development of the system and compilation of this documentation have been duly cited and acknowledged in the bibliography.
+\noindent We, \textbf{Atronos Sisay} (ID: \textbf{0761/16}) and \textbf{Beka Girma} (ID: \textbf{0821/16}), hereby declare that this internship report titled \textit{“Digital Drug Store (DDS) Full Pharmaceutical Inventory Management Platform (PIMS)”} is our original work carried out during our practical industrial attachment at \textbf{Kaziniya Drug Store} from \textbf{July 1, 2026 to August 15, 2026}. This report has not been submitted previously to this or any other academic institution for any degree, diploma, or certificate. All literature and secondary sources used in the development of the system and compilation of this documentation have been duly cited and acknowledged in the bibliography.
 
 \vspace{0.25cm}
 \noindent\begin{tabular}{@{}p{0.36\textwidth}p{0.26\textwidth}p{0.34\textwidth}@{}}
@@ -29,7 +29,7 @@
 
 \noindent\textbf{\large Immediate Industrial Supervisor Approval}\par
 \vspace{0.15cm}
-\noindent This is to certify that \textbf{Atronos Sisay} (ID: 0761/16) and \textbf{Beka Girma} (ID: 0821/16) have successfully performed and completed their industrial internship at \textbf{Kaziniya Drug Store} under my direct supervision from July 1, 2026 to August 15, 2026. Their contributions toward architecting and implementing the Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform—specifically multi-batch tracking, automated First-Expiry-First-Out (FEFO) allocation safeguards, mobile optical barcode stocktaking, and regulatory inventory audit logging—meet the operational and technical excellence standards expected by our organization.
+\noindent This is to certify that \textbf{Atronos Sisay} (ID: 0761/16) and \textbf{Beka Girma} (ID: 0821/16) have successfully performed and completed their industrial internship at \textbf{Kaziniya Drug Store} under my direct supervision from July 1, 2026 to August 15, 2026. Their contributions toward architecting and implementing the Digital Drug Store (DDS) Full Pharmaceutical Inventory Management Platform (PIMS)—specifically supplier procurement and goods receiving (GRN), multi-batch warehouse shelf management, automated First-Expiry-First-Out (FEFO) allocation safeguards, mobile optical barcode stocktaking, inter-branch stock requisitions, and regulatory inventory audit logging—meet the operational and technical excellence standards expected by our organization.
 
 \vspace{0.2cm}
 \noindent\begin{tabular}{@{}p{0.55\textwidth}p{0.4\textwidth}@{}}
@@ -65,15 +65,16 @@
 
 The pharmaceutical supply chain in community drug stores faces acute operational risks stemming from paper-based stock card recordkeeping, unindexed shelf storage, and manual inventory audits. In Ethiopia, community drug stores routinely incur severe economic losses from stock expiring on shelves prior to issue, while facing serious public health risks from the accidental distribution of degraded medicines.
 
-This internship report documents the conceptualization, full-stack architectural engineering, and on-site deployment of the \textbf{Digital Drug Store (DDS) Inventory Control and Expiry Tracking Platform} at \textbf{Kaziniya Drug Store}. Executed during an intensive 7-week industrial internship from July 1, 2026 to August 15, 2026, the project focuses exclusively on modernizing the host organization's inventory management workflows. The platform replaces disorganized physical bins and manual ledger cards with an automated, multi-batch digital warehouse system.
+This internship report documents the conceptualization, full-stack architectural engineering, and on-site deployment of the \textbf{Digital Drug Store (DDS) Full Pharmaceutical Inventory Management Platform (PIMS)} at \textbf{Kaziniya Drug Store}. Executed during an intensive 7-week industrial internship from July 1, 2026 to August 15, 2026, the project focuses exclusively on modernizing the host organization's inventory management workflows. The platform replaces disorganized physical bins and manual ledger cards with an automated, multi-batch digital warehouse system.
 
-The core technical contributions delivered during the internship include:
+The core technical contributions delivered during the internship span six integrated pillars:
 \begin{enumerate}
-    \item \textbf{Automated First-Expiry-First-Out (FEFO) Allocation Engine:} Replacing error-prone manual picking and arbitrary First-In-First-Out (FIFO) practices with an algorithmic priority queue sorted by $\min(\text{ExpiryDate})$, strictly directing stock issues to exhaust earliest-expiring batches first.
-    \item \textbf{Decoupled Multi-Batch Relational Architecture:} Formulating a normalized 3NF data schema that cleanly separates the master medicine catalog (420+ SKUs) from physical inventory batches, tracking unique batch identifiers, manufacturing/expiry dates, supplier provenance, unit purchase costs, and granular shelf/bin coordinates.
-    \item \textbf{Mobile Optical Packaging Scanner for Physical Stocktaking:} Engineering a continuous computer-vision barcode and packaging text accumulator with multi-angle consensus voting, enabling high-speed aisle stocktaking and physical stock reconciliations using mobile device cameras.
-    \item \textbf{Expiry Safeguard Monitoring and Regulatory Quarantine:} Implementing proactive visual status indicators (healthy, expiring within 90 days, expiring within 30 days) and automated code-level quarantine barriers that strictly prohibit the allocation of expired medicines.
-    \item \textbf{Stock Movement Ledger, Inventory Adjustments, and Regulatory Audit Logs:} Automating transaction ledgers for all stock events (Receipts, Allocations, Transfers, Adjustments, and Disposals), calculating Cost of Goods Sold (COGS), tracking inventory valuation, and generating EFDA-compliant audit trails.
+    \item \textbf{Master Formulary Catalog \& 3NF Multi-Batch Relational Data Model:} Formulating a normalized third-normal-form relational schema that cleanly decouples the conceptual drug catalog (420+ SKUs) from physical manufacturing lots, tracking batch numbers, manufacturing/expiry dates, supplier provenance, unit purchase costs, and shelf coordinates.
+    \item \textbf{End-to-End Supplier Procurement \& Goods Receiving (GRN) Pipeline:} Automating purchase order (PO) generation, delivery tracking, container verification, and discrepancy auditing with direct linkage to accounts payable and stock ledgers.
+    \item \textbf{Automated First-Expiry-First-Out (FEFO) Allocation Engine:} Enforcing algorithmic priority queues sorted by $\min(\text{ExpiryDate})$ to exhaust nearest-expiry batches first, coupled with code-level quarantine locks that strictly block expired or recalled stock from distribution.
+    \item \textbf{Mobile Optical Packaging Scanner for Physical Stocktaking:} Developing a continuous computer-vision barcode and label text accumulator with multi-angle consensus voting, cutting physical warehouse stocktaking time from 16 hours down to 2.5 hours using commodity smartphone cameras.
+    \item \textbf{Inter-Branch Stock Requisitions, Movement Transfers \& Dynamic Alerts:} Tracking internal stock transfers between main storage and dispensary shelves, logging adjustments with authorized justifications, and providing dynamic reorder warnings based on safety buffers.
+    \item \textbf{Financial Valuation, Cost of Goods Sold (COGS) \& EFDA Audit Trail:} Maintaining an immutable chronological ledger of all stock transactions, computing real-time inventory valuations and COGS, and generating one-click inspection-ready audit reports conforming to EFDA directives.
 \end{enumerate}
 
 Built upon modern software engineering technologies, the platform leverages TypeScript, React 19, Tailwind CSS, Vite, Node/Bun with an Express REST backend, SQLite/PostgreSQL relational storage, and a Flutter/Dart mobile stocktaking client. Live operational evaluation at Kaziniya Drug Store demonstrated a 100\% elimination of expired medicine issues, an 87.7\% reduction in monthly shelf expiration wastage, an 84.4\% reduction in physical stock audit duration, and a 73.1\% drop in stockout events.
@@ -110,6 +111,7 @@ Finally, we are eternally indebted to our beloved families, friends, and colleag
 \midrule
 \endhead
 \textbf{ACID} & Atomicity, Consistency, Isolation, Durability \\
+\textbf{AP} & Accounts Payable \\
 \textbf{API} & Application Programming Interface \\
 \textbf{ATC} & Anatomical Therapeutic Chemical (Classification System) \\
 \textbf{CCI} & College of Computing and Informatics \\
@@ -131,6 +133,7 @@ Finally, we are eternally indebted to our beloved families, friends, and colleag
 \textbf{KPI} & Key Performance Indicator \\
 \textbf{OCR} & Optical Character Recognition \\
 \textbf{ORM} & Object-Relational Mapping \\
+\textbf{PIMS} & Pharmaceutical Inventory Management System \\
 \textbf{PO} & Purchase Order \\
 \textbf{PWA} & Progressive Web Application \\
 \textbf{QR} & Quick Response (Barcode) \\

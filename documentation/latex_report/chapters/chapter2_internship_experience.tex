@@ -12,7 +12,7 @@ Three specific empirical observations justified selecting Kaziniya Drug Store:
 \end{enumerate}
 
 \section{In Which Section of the Company Have You Been Working and Why?}
-Throughout the internship tenure (July 1, 2026 -- August 15, 2026), we were embedded within the \textbf{Pharmaceutical Inventory Logistics and IT Systems Section}, working under the direct supervision of \textbf{Monet Alemayehu} (Immediate Supervisor) and collaborating closely with licensed pharmacy warehouse personnel.
+Throughout the internship tenure (July 1, 2026 -- August 15, 2026), we were embedded within the \textbf{Pharmaceutical Inventory Management, Procurement, and IT Logistics Department}, working under the direct supervision of \textbf{Monet Alemayehu} (Immediate Supervisor) and collaborating closely with licensed pharmacy warehouse personnel.
 
 This section was selected because it represents the operational core where physical stock arrives, is inspected, indexed, stored, and audited. The section's primary mandates include:
 \begin{itemize}
@@ -81,12 +81,15 @@ Figure~\ref{fig:gantt_timeline} illustrates the 7-week industrial project lifecy
 \end{figure}
 
 \section{Which Workpiece or Work Tasks Have You Been Executing?}
-Over the course of the internship, five primary technical workpieces were executed, focusing entirely on pharmaceutical inventory management, multi-batch expiry control, automated FEFO allocation, and regulatory compliance:
+Over the course of the internship, six primary technical workpieces were executed, constructing the full pharmaceutical inventory platform:
 
-\subsection{Workpiece 1: Multi-Batch Inventory Modeling and Database Schema Architecture}
-A robust data model was engineered to capture the multidimensional nature of pharmaceutical inventory operations. Distinct relational entities were modeled for Medicines, Batches, Inventory Transactions, Stocktaking Logs, Suppliers, and Audit Records. A critical design decision was strictly decoupling the conceptual medication catalog (drug molecule, strength, dosage form, reorder level) from physical inventory batches (batch number, manufacturing date, expiration date, purchase price, selling price, current quantity, and shelf coordinate). This decoupling allows a single drug item (e.g., \textit{Amoxicillin 500mg Capsule}) to maintain multiple concurrent batches with distinct expiration timelines across different warehouse shelves without data redundancy or stock mixing.
+\subsection{Workpiece 1: Master Formulary Catalog and 3NF Multi-Batch Relational Data Model}
+A robust data model was engineered to capture the multidimensional nature of pharmaceutical inventory operations. Distinct relational entities were modeled for Medicines, Batches, Suppliers, Purchase Orders, Goods Receipts, Requisitions, Inventory Transactions, Stocktaking Logs, and Audit Records. A critical design decision was strictly decoupling the conceptual medication catalog (drug molecule, strength, dosage form, reorder level) from physical inventory batches (batch number, manufacturing date, expiration date, purchase price, selling price, current quantity, and shelf coordinate). This decoupling allows a single drug item (e.g., \textit{Amoxicillin 500mg Capsule}) to maintain multiple concurrent batches with distinct expiration timelines across different warehouse shelves without data redundancy or stock mixing.
 
-\subsection{Workpiece 2: Algorithmic First-Expiry-First-Out (FEFO) Allocation Engine}
+\subsection{Workpiece 2: End-to-End Supplier Procurement and Goods Receiving (GRN) Pipeline}
+To bridge procurement logistics with physical inventory custody, an automated purchasing and receiving module was constructed. Warehouse officers generate formal Purchase Orders (POs) matching supplier catalogs and EFDA license numbers. Upon commercial delivery, the platform facilitates a rigorous Goods Receipt Note (GRN) receiving workflow: verifying packaging seals, cross-checking received quantities against PO line items, recording physical transit damage, registering newly created manufacturer batch lots, and crediting accounts payable ledgers.
+
+\subsection{Workpiece 3: Algorithmic First-Expiry-First-Out (FEFO) Allocation Engine \& Regulatory Quarantine Locks}
 In conventional retail software, items are handled under FIFO (First-In-First-Out) or arbitrary picking. In pharmaceutical warehousing, FIFO is hazardous because newly received shipments may carry shorter manufacturer expiration windows than older stock. We engineered an automated FEFO allocation engine that dynamically sorts active batches by $\min(\text{ExpiryDate})$ and forces all inventory picking routines to draw sequentially from the earliest expiring batch. The engine incorporates a multi-tier warning threshold:
 \begin{itemize}
     \item \textbf{Healthy ($> 90$ Days):} Unrestricted operational status indicated by green status badges.
@@ -95,14 +98,14 @@ In conventional retail software, items are handled under FIFO (First-In-First-Ou
     \item \textbf{Expired ($\Delta_{\text{days}} \le 0$):} Hard software lock; the system automatically isolates the batch, prohibiting stock picking or allocation and rendering the accidental distribution of expired drugs technically impossible.
 \end{itemize}
 
-\subsection{Workpiece 3: Continuous Packaging Scanner and Barcode-Assisted Shelf Stocktaking}
+\subsection{Workpiece 4: Continuous Packaging Scanner and Barcode-Assisted Shelf Stocktaking}
 To eliminate the severe operational bottleneck of manual barcode typing and paper stock audits, we engineered a continuous computer-vision packaging scanner in TypeScript and Dart. The scanner processes incoming camera frames, buffers candidate OCR and barcode detections over a temporal rolling window, and matches scanned text against a pharmaceutical pattern dictionary using regular expressions and Levenshtein distance metrics. This module allows warehouse personnel to conduct rapid, error-free physical audits across storage shelves using standard mobile device cameras.
 
-\subsection{Workpiece 4: Inventory Adjustment, Batch Quarantine, and Expiry Safeguards}
-To maintain complete real-time fidelity between digital records and physical shelf counts, we developed an interactive inventory adjustment and quarantine management module. Warehouse personnel can record stock adjustments (with audited justifications such as breakage, manufacturer recall, or physical audit variance), reassign shelf bin coordinates, and trigger immediate batch quarantines when regulatory alerts or packaging defects are detected.
+\subsection{Workpiece 5: Inter-Branch Stock Requisitions, Movement Transfers \& Dynamic Threshold Alerts}
+To support multi-location pharmaceutical logistics across storage bays and outpatient dispensary counters, an inter-branch requisition subsystem was implemented. When dispensary stock approaches calibrated minimum buffers, the system auto-generates internal transfer requests. Warehouse supervisors inspect, authorize, and fulfill requisitions with electronic custody handovers. Furthermore, manual stock adjustments (recording damage, breakage, or physical variance) require audited reason codes and supervisor authentication before adjusting ledger balances.
 
-\subsection{Workpiece 5: Inventory Valuation, Stock Movement Ledgers, and EFDA Audit Reporting}
-To guarantee complete inventory financial accountability, we engineered an immutable transaction ledger that logs every stock modification (\texttt{RECEIPT}, \texttt{ALLOCATION}, \texttt{ADJUSTMENT}, \texttt{RETURN}, \texttt{DISPOSAL}) along with the authorizing user ID, timestamp, and batch provenance. The system automatically computes real-time Cost of Goods Sold (COGS), remaining inventory valuation across all warehouse categories, and exports standardized PDF/Excel audit reports conforming to EFDA and Ministry of Revenues compliance standards.
+\subsection{Workpiece 6: Financial Valuation, Cost of Goods Sold (COGS) \& EFDA Regulatory Audit Trail}
+To guarantee complete inventory financial accountability, we engineered an immutable transaction ledger that logs every stock modification (\texttt{RECEIPT}, \texttt{TRANSFER}, \texttt{ALLOCATION}, \texttt{ADJUSTMENT}, \texttt{RETURN}, \texttt{DISPOSAL}) along with the authorizing user ID, timestamp, and batch provenance. The system automatically computes real-time Cost of Goods Sold (COGS) based on batch purchase prices, calculates gross warehouse asset valuation across all therapeutic categories, and exports standardized PDF/Excel audit reports conforming to EFDA and Ministry of Revenues compliance standards.
 
 \section{What Technical Knowledge and Skills from Coursework Were Beneficial?}
 The successful execution of these technical assignments drew directly upon foundational concepts acquired from the university curriculum:

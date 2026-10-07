@@ -88,10 +88,10 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
               {/* Badges */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
                 <div
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold ${
                     isPharmacyOpen()
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
-                      : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800'
+                      ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800/80'
+                      : 'bg-amber-50 text-amber-900 border border-amber-200/80 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-800/80'
                   }`}
                 >
                   <span
@@ -99,17 +99,17 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                       isPharmacyOpen() ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
                     }`}
                   ></span>
-                  <span>{isPharmacyOpen() ? 'Store Open Now (8 AM - 9 PM)' : 'Store Closed (Opens 8 AM)'}</span>
+                  <span className="font-medium tabular-nums">{isPharmacyOpen() ? 'Store Open Now (8 AM - 9 PM)' : 'Store Closed (Opens 8 AM)'}</span>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700">
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200/80 dark:bg-slate-800/80 dark:text-slate-200 dark:border-slate-700/80">
                   <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>100% EFDA Batch Traceable</span>
                 </div>
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-emerald-950 dark:text-white leading-[1.12]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-emerald-950 dark:text-white leading-[1.12]">
                 {content.heroTitlePrefix}{' '}
                 <span className="relative inline-block text-emerald-600 dark:text-emerald-400">
                   {content.heroTitleHighlight}
@@ -118,7 +118,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                 .
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
+              <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
                 {content.heroSubheading}
               </p>
 
@@ -127,7 +127,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                 <button
                   type="button"
                   onClick={onExploreProducts}
-                  className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm transition shadow-lg shadow-emerald-600/25 inline-flex items-center gap-2.5 hover:scale-105 active:scale-95 cursor-pointer"
+                  className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shadow-md shadow-emerald-600/20 inline-flex items-center gap-2.5 cursor-pointer active:scale-[0.99]"
                 >
                   <Search className="h-4 w-4" />
                   <span>Browse Medicine Catalog</span>
@@ -137,7 +137,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsPrescriptionModalOpen(true)}
-                  className="px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 font-extrabold text-sm transition border border-slate-700/80 shadow-md inline-flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+                  className="px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 font-bold text-sm transition border border-slate-700/80 shadow-sm inline-flex items-center gap-2 cursor-pointer active:scale-[0.99]"
                 >
                   <FileText className="h-4 w-4 text-emerald-400" />
                   <span>Upload Prescription</span>
@@ -146,7 +146,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsEmergencyModalOpen(true)}
-                  className="px-4 py-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 dark:text-rose-300 font-bold text-xs transition border border-rose-200 dark:border-rose-800/80 inline-flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100/80 text-rose-900 dark:bg-rose-950/60 dark:hover:bg-rose-900/60 dark:text-rose-200 font-bold text-xs transition border border-rose-200 dark:border-rose-800/80 inline-flex items-center gap-2 cursor-pointer active:scale-[0.99]"
                 >
                   <AlertTriangle className="h-4 w-4 text-rose-500" />
                   <span>24/7 Helpline Guide</span>
@@ -181,7 +181,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                     <Building className="h-3.5 w-3.5 text-emerald-200" />
                     <span>Bole Flagship Hub</span>
                   </motion.span>
-                  <span className="bg-amber-400 text-slate-950 font-extrabold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
+                  <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1 tabular-nums font-mono">
                     <Clock className="h-3 w-3" />
                     Open 24/7
                   </span>
@@ -194,7 +194,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                       <MapPin className="h-3.5 w-3.5 shrink-0" />
                       <span>{content.flagshipAddress}</span>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-white leading-tight drop-shadow-md">
+                    <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
                       {content.heroBannerTitle}
                     </h3>
                   </div>
@@ -203,13 +203,13 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <div className="bg-slate-900/80 border border-slate-700/80 p-2 rounded-2xl backdrop-blur-md space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-bold block">24/7 Helpline</span>
-                      <span className="text-xs font-black text-emerald-400 font-mono flex items-center gap-1">
+                      <span className="text-xs font-black text-emerald-400 font-mono tabular-nums flex items-center gap-1">
                         <PhoneCall className="h-3.5 w-3.5 text-emerald-400" /> {content.shortcodeHelpline}
                       </span>
                     </div>
                     <div className="bg-slate-900/80 border border-slate-700/80 p-2 rounded-2xl backdrop-blur-md space-y-0.5">
                       <span className="text-[10px] text-slate-400 uppercase font-bold block">EFDA License</span>
-                      <span className="text-xs font-extrabold text-amber-300 font-mono">{content.efdaLicense}</span>
+                      <span className="text-xs font-bold text-amber-300 font-mono tabular-nums">{content.efdaLicense}</span>
                     </div>
                   </div>
                 </div>
@@ -218,11 +218,11 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
               {/* Live Cold-Chain Biological Sensor Telemetry Card */}
               <motion.div
                 whileHover={{ scale: 1.01 }}
-                className="bg-slate-900/90 backdrop-blur-md rounded-3xl p-4 border border-cyan-500/30 shadow-xl relative overflow-hidden text-white"
+                className="bg-slate-950/90 backdrop-blur-md rounded-3xl p-4.5 border border-cyan-500/30 shadow-xl relative overflow-hidden text-white"
               >
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <div className="flex items-center justify-between pb-2.5 border-b border-slate-800">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-cyan-600/30 border border-cyan-400/40 text-cyan-300 flex items-center justify-center shadow-xs">
+                    <div className="w-8 h-8 rounded-xl bg-cyan-600/25 border border-cyan-400/40 text-cyan-300 flex items-center justify-center shadow-xs">
                       <ThermometerSnowflake className="h-4 w-4 animate-pulse" />
                     </div>
                     <div>
@@ -234,7 +234,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-800">
+                    <span className="text-[10px] font-mono tabular-nums font-bold bg-cyan-950 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-800">
                       Sensor ID: KZN-VAULT-01
                     </span>
                   </div>
@@ -242,28 +242,28 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
 
                 <div className="grid grid-cols-3 gap-2 pt-3">
                   {/* Temp reading */}
-                  <div className="bg-slate-950/80 p-2.5 rounded-2xl border border-cyan-900/40 space-y-1">
+                  <div className="bg-slate-900/80 p-2.5 rounded-2xl border border-cyan-900/40 space-y-1">
                     <span className="text-[9px] uppercase font-bold text-slate-400 block">Live Temp</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black text-cyan-300 font-mono">{liveTemp}°C</span>
+                      <span className="text-xl font-black text-cyan-300 font-mono tabular-nums">{liveTemp}°C</span>
                     </div>
-                    <span className="text-[9px] text-emerald-400 font-medium">Optimal Range</span>
+                    <span className="text-[9px] text-emerald-400 font-semibold">Optimal Range</span>
                   </div>
 
                   {/* Humidity */}
-                  <div className="bg-slate-950/80 p-2.5 rounded-2xl border border-slate-800 space-y-1">
+                  <div className="bg-slate-900/80 p-2.5 rounded-2xl border border-slate-800 space-y-1">
                     <span className="text-[9px] uppercase font-bold text-slate-400 block">Chamber RH</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-black text-emerald-300 font-mono">42.5%</span>
+                      <span className="text-xl font-black text-emerald-300 font-mono tabular-nums">42.5%</span>
                     </div>
                     <span className="text-[9px] text-slate-400 font-medium">Auto-regulated</span>
                   </div>
 
                   {/* Power status & Generator */}
-                  <div className="bg-slate-950/80 p-2.5 rounded-2xl border border-slate-800 space-y-1">
+                  <div className="bg-slate-900/80 p-2.5 rounded-2xl border border-slate-800 space-y-1">
                     <span className="text-[9px] uppercase font-bold text-slate-400 block">Backup UPS</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xs font-extrabold text-amber-300 font-mono">
+                      <span className="text-xs font-extrabold text-amber-300 font-mono tabular-nums">
                         {isGeneratorBackup ? 'GEN-ACTIVE' : 'GRID-ONLINE'}
                       </span>
                     </div>
@@ -278,7 +278,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
                           'Power Telemetry'
                         );
                       }}
-                      className="text-[9px] text-slate-300 hover:text-white underline block cursor-pointer"
+                      className="text-[9px] text-cyan-200/80 hover:text-white underline block cursor-pointer transition-colors"
                     >
                       Toggle test
                     </button>
@@ -312,7 +312,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
               {onNavigateToRegistration && (
                 <button
                   onClick={onNavigateToRegistration}
-                  className="px-5 py-3.5 rounded-2xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs sm:text-sm transition shadow-lg shadow-teal-500/25 inline-flex items-center gap-2 hover:scale-105 active:scale-95"
+                  className="px-5 py-3.5 rounded-2xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs sm:text-sm transition shadow-md shadow-teal-500/20 inline-flex items-center gap-2 cursor-pointer active:scale-[0.99]"
                 >
                   <Store className="h-4 w-4" />
                   <span>Open Registration Dashboard</span>
@@ -322,7 +322,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
               {onOpenOwnerRegister && (
                 <button
                   onClick={onOpenOwnerRegister}
-                  className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-extrabold text-xs sm:text-sm transition inline-flex items-center gap-2"
+                  className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-extrabold text-xs sm:text-sm transition inline-flex items-center gap-2 cursor-pointer active:scale-[0.99]"
                 >
                   <span>Register Store Now →</span>
                 </button>

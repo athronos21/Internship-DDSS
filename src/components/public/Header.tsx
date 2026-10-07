@@ -120,14 +120,14 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
               </span>
               <button
                 onClick={() => handleNav('public_registration')}
-                className="px-3 py-1.5 rounded-xl text-xs font-black transition bg-teal-500/20 text-teal-300 border border-teal-500/40"
+                className="px-3 py-1.5 rounded-xl text-xs font-black transition bg-teal-500/20 text-teal-300 border border-teal-500/40 cursor-pointer"
               >
                 Network Directory & ROI
               </button>
               {onOpenOwnerRegister && (
                 <button
                   onClick={onOpenOwnerRegister}
-                  className="px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-300 hover:text-white hover:bg-slate-800 transition inline-flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-300 hover:text-white hover:bg-slate-800/80 transition inline-flex items-center gap-1.5 cursor-pointer"
                 >
                   <PlusCircle className="h-3.5 w-3.5 text-teal-400" />
                   <span>Register Store</span>
@@ -139,10 +139,10 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
             <nav className="hidden md:flex items-center gap-1">
               <button
                 onClick={() => handleNav('public_home')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                   currentScreen === 'public_home'
-                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800'
+                    ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800/80 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80'
                 }`}
               >
                 Home
@@ -150,10 +150,10 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
 
               <button
                 onClick={() => handleNav('public_products')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                   currentScreen === 'public_products'
-                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800'
+                    ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800/80 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80'
                 }`}
               >
                 Medicine Catalog
@@ -161,7 +161,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
 
               <button
                 onClick={() => setIsPrescriptionModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition inline-flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80 transition inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <FileText className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Upload Prescription</span>
@@ -169,10 +169,10 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
 
               <button
                 onClick={() => handleNav('public_orders')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                   currentScreen === 'public_orders'
-                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800'
+                    ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800/80 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80'
                 }`}
               >
                 Track Orders
@@ -180,10 +180,10 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
 
               <button
                 onClick={() => handleNav('public_contact')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                   currentScreen === 'public_contact'
-                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800'
+                    ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800/80 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80'
                 }`}
               >
                 Contact & Branches
@@ -232,7 +232,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
                 {/* PROMINENT INDEPENDENT B2B PORTAL SWITCHER */}
                 <button
                   onClick={() => handleNav('public_registration')}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-900 border border-teal-300/80 dark:bg-teal-950/70 dark:hover:bg-teal-900/80 dark:text-teal-200 dark:border-teal-700/80 px-2.5 sm:px-3 py-1.5 text-xs font-extrabold transition shadow-2xs group"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-950 border border-teal-200 dark:bg-teal-950/80 dark:hover:bg-teal-900/80 dark:text-teal-200 dark:border-teal-800 px-2.5 sm:px-3 py-1.5 text-xs font-bold transition shadow-2xs group cursor-pointer"
                   title="Switch to National Pharmacy Registration & Network Hub"
                 >
                   <Store className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform" />
@@ -246,7 +246,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
                   <div ref={userMenuRef} className="relative">
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition border shadow-2xs ${
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition border shadow-2xs cursor-pointer ${
                         isSuperAdmin
                           ? 'bg-indigo-950 text-white border-indigo-700 hover:bg-indigo-900'
                           : 'bg-slate-900 text-white border-slate-800 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500'
@@ -278,7 +278,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
                           <p className="font-bold text-slate-900 text-xs dark:text-white truncate">{currentUser.name}</p>
                           <p className="text-[11px] text-slate-500 truncate">{currentUser.email}</p>
                           {isSuperAdmin && (
-                            <span className="inline-block mt-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 font-mono font-bold text-[9px] px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+                            <span className="inline-block mt-1 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 font-mono font-bold text-[9px] px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
                               👑 Whole System Super Admin
                             </span>
                           )}
@@ -371,10 +371,11 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
                 ) : (
                   <button
                     onClick={onLoginClick}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-sm dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-sm dark:bg-emerald-600 dark:hover:bg-emerald-500 cursor-pointer"
+                    title="Open Staff Workstation Gateway (POS, Inventory & Operations)"
                   >
                     <UserCheck className="h-3.5 w-3.5" />
-                    <span>Staff Sign In</span>
+                    <span>Staff Workstation</span>
                   </button>
                 )}
               </div>

@@ -48,13 +48,50 @@ export interface InventoryTransaction {
   medicineName: string;
   batchId: string;
   batchNumber: string;
-  transactionType: 'INITIAL_STOCK' | 'ALLOCATION' | 'PURCHASE' | 'RETURN' | 'ADJUSTMENT' | 'DISPOSAL';
+  transactionType: 'INITIAL_STOCK' | 'RECEIPT' | 'ALLOCATION' | 'TRANSFER' | 'ADJUSTMENT' | 'DISPOSAL';
   quantity: number;
   previousQuantity: number;
   newQuantity: number;
   performedBy: string;
   notes?: string;
   createdAt: string;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  orderNumber: string;
+  supplierId: string;
+  status: 'DRAFT' | 'ISSUED' | 'PARTIALLY_RECEIVED' | 'FULFILLED' | 'CANCELLED';
+  expectedDeliveryDate: string;
+  totalCost: number;
+  items: Array<{ medicineId: string; requestedQuantity: number; unitCost: number }>;
+}
+
+export interface GoodsReceiptNote {
+  id: string;
+  grnNumber: string;
+  purchaseOrderId: string;
+  supplierId: string;
+  receivedDate: string;
+  inspectedBy: string;
+  receivedItems: Array<{
+    medicineId: string;
+    batchNumber: string;
+    manufactureDate: string;
+    expiryDate: string;
+    receivedQuantity: number;
+    discrepancyNote?: string;
+  }>;
+}
+
+export interface StockRequisition {
+  id: string;
+  requisitionNumber: string;
+  fromLocation: string; // e.g., 'Main Warehouse'
+  toLocation: string;   // e.g., 'Dispensary Shelves'
+  status: 'PENDING' | 'APPROVED' | 'IN_TRANSIT' | 'COMPLETED';
+  requestedBy: string;
+  transferredItems: Array<{ medicineId: string; batchId: string; quantity: number }>;
 }
 \end{lstlisting}
 

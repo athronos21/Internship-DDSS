@@ -355,7 +355,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {pendingUser ? (
             <div className="my-auto space-y-5 animate-in fade-in">
               <div className="text-center space-y-1">
-                <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-md mb-2">
+                <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-500 text-amber-950 flex items-center justify-center shadow-md mb-2">
                   <Key className="h-6 w-6" />
                 </div>
                 <h2 className="text-xl font-black text-slate-900 dark:text-white">

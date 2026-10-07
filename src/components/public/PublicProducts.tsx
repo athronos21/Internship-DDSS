@@ -181,7 +181,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-xl px-2.5 py-1 text-slate-700 dark:text-slate-200 font-bold focus:outline-none"
+                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-xl px-2.5 py-1 text-slate-700 dark:text-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer"
                 >
                   <option value="FEATURED">Featured</option>
                   <option value="PRICE_ASC">Price: Low to High</option>
@@ -190,7 +190,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                 </select>
               </div>
 
-              <span className="text-xs text-slate-400 font-mono">
+              <span className="text-xs text-slate-400 font-mono tabular-nums">
                 Showing {filteredMeds.length} of {medicines.length} items
               </span>
             </div>
@@ -211,7 +211,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
             {(selectedCategory !== 'ALL' || rxFilter !== 'ALL' || stockFilter !== 'ALL' || searchQuery || sortBy !== 'FEATURED') && (
               <button
                 onClick={handleResetFilters}
-                className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Reset Filters
               </button>
@@ -226,15 +226,15 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                 <button
                   key={chip.id}
                   onClick={() => setSelectedCategory(chip.id)}
-                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition border shrink-0 ${
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition border shrink-0 cursor-pointer ${
                     isSelected
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300'
+                      : 'bg-slate-50 text-slate-700 border-slate-200/80 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span>{chip.name}</span>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono tabular-nums font-bold ${
                       isSelected
                         ? 'bg-white/20 text-white'
                         : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
@@ -273,7 +273,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                     placeholder="Search name, ingredient..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:border-emerald-600 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white transition"
                   />
                 </div>
               </div>
@@ -291,17 +291,17 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition ${
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
                           active
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800'
-                            : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                            ? 'bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-200 dark:border-emerald-800 shadow-2xs'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                         }`}
                       >
                         <span className="flex items-center gap-2">
                           <Pill className={`h-3.5 w-3.5 ${active ? 'text-emerald-600' : 'text-slate-400'}`} />
                           <span>{cat.name}</span>
                         </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                        <span className="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 font-bold">
                           {count}
                         </span>
                       </button>
@@ -324,9 +324,9 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                     <button
                       key={p.id}
                       onClick={() => setRxFilter(p.id as any)}
-                      className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between ${
+                      className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer ${
                         rxFilter === p.id
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-emerald-600 text-white shadow-xs'
                           : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
                       }`}
                     >
@@ -350,9 +350,9 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                     <button
                       key={s.id}
                       onClick={() => setStockFilter(s.id as any)}
-                      className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between ${
+                      className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer ${
                         stockFilter === s.id
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-emerald-600 text-white shadow-xs'
                           : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
                       }`}
                     >
@@ -425,11 +425,11 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                       layout
                       variants={staggerItem}
                       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                      className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:border-emerald-500/50 hover:shadow-md transition flex flex-col justify-between dark:bg-slate-900 dark:border-slate-800 space-y-4"
+                      className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all duration-200 flex flex-col justify-between dark:bg-slate-900 dark:border-slate-800 space-y-4"
                     >
                       <div className="space-y-2">
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-2.5 py-0.5 rounded-full dark:bg-emerald-950/60 dark:text-emerald-300 shrink-0">
+                          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider bg-emerald-50 px-2.5 py-0.5 rounded-full dark:bg-emerald-950/80 dark:text-emerald-200 shrink-0 border border-emerald-200/60 dark:border-emerald-800/60">
                             {categoryNameStr}
                           </span>
 
@@ -437,7 +437,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                             {/* Details Button */}
                             <button
                               onClick={() => setDetailsMedicine(med)}
-                              className="p-1.5 rounded-full text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition dark:hover:bg-slate-800"
+                              className="p-1.5 rounded-full text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition cursor-pointer dark:hover:bg-slate-800"
                               title="View Clinical Details"
                             >
                               <Info className="h-4 w-4" />
@@ -447,7 +447,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                             {onToggleWishlist && (
                               <button
                                 onClick={() => onToggleWishlist(med.id)}
-                                className={`p-1.5 rounded-full transition ${
+                                className={`p-1.5 rounded-full transition cursor-pointer active:scale-90 ${
                                   isWishlisted
                                     ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400'
                                     : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -460,7 +460,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
 
                             {/* Real-time Stock Status Badge */}
                             <span
-                              className={`inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border shadow-2xs ${stockBadgeStyle}`}
+                              className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-2xs ${stockBadgeStyle}`}
                               title={stockDetail}
                             >
                               <span className={`w-1.5 h-1.5 rounded-full ${stockDotStyle}`}></span>
@@ -483,12 +483,12 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                           </div>
                           <div className="flex items-center justify-between">
                             <span>Mfr: {med.manufacturer}</span>
-                            <span className="font-mono text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                            <span className="font-mono tabular-nums text-[10px] font-bold text-slate-500 dark:text-slate-400">
                               {stockDetail}
                             </span>
                           </div>
                           {med.prescriptionRequired && (
-                            <div className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 pt-1 text-[10px]">
+                            <div className="text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1 pt-1 text-[10px]">
                               <AlertCircle className="h-3 w-3" /> Prescription Required
                             </div>
                           )}
@@ -498,7 +498,7 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                       <div className="pt-3 border-t border-slate-100 flex items-center justify-between dark:border-slate-800">
                         <div>
                           <span className="text-[10px] text-slate-400 block font-bold uppercase">Retail Price</span>
-                          <span className="font-bold text-emerald-700 text-base dark:text-emerald-400">
+                          <span className="font-bold text-emerald-800 text-base dark:text-emerald-400 font-mono tabular-nums">
                             {formatCurrency(med.sellingPrice || 0)}
                           </span>
                         </div>
@@ -507,14 +507,14 @@ export const PublicProducts: React.FC<PublicProductsProps> = ({
                           {isAvailable && (
                             <button
                               onClick={() => setReserveMedicine(med)}
-                              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-bold transition flex items-center gap-1"
+                              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer active:scale-[0.99]"
                             >
                               <Clock className="h-3.5 w-3.5" /> Reserve
                             </button>
                           )}
                           <button
                             onClick={() => setDetailsMedicine(med)}
-                            className="rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 px-2.5 py-1.5 text-xs font-bold transition"
+                            className="rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 px-2.5 py-1.5 text-xs font-bold transition-all cursor-pointer active:scale-[0.99]"
                           >
                             Details
                           </button>

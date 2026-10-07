@@ -39,7 +39,7 @@ export const PublicFooter: React.FC<{
               {content.branches.slice(0, 3).map((branch) => (
                 <div key={branch.id} className="flex justify-between py-1 border-b border-slate-900 gap-2">
                   <span className="truncate">{branch.name}:</span>
-                  <span className={`font-bold shrink-0 ${branch.isMain ? 'text-emerald-400' : 'text-slate-200'}`}>
+                  <span className={`font-mono tabular-nums font-bold shrink-0 ${branch.isMain ? 'text-emerald-400' : 'text-slate-200'}`}>
                     {branch.hours}
                   </span>
                 </div>
@@ -57,7 +57,7 @@ export const PublicFooter: React.FC<{
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                <span className="font-mono">{content.primaryPhone}</span>
+                <span className="font-mono tabular-nums">{content.primaryPhone}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
@@ -72,7 +72,7 @@ export const PublicFooter: React.FC<{
             {onNavigateToRegistration && (
               <button
                 onClick={onNavigateToRegistration}
-                className="w-full rounded-xl bg-teal-600/20 hover:bg-teal-600/30 text-teal-300 border border-teal-500/40 font-bold text-xs py-2.5 px-4 transition shadow-sm flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-teal-600/20 hover:bg-teal-600/30 text-teal-300 border border-teal-500/40 font-bold text-xs py-2.5 px-4 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
               >
                 <span>Registration & Network Hub →</span>
               </button>
@@ -80,7 +80,7 @@ export const PublicFooter: React.FC<{
             {onNavigateToContact && (
               <button
                 onClick={onNavigateToContact}
-                className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 transition shadow-sm flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-4 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
               >
                 <MapPin className="h-3.5 w-3.5" />
                 <span>Building Gallery & Contact Us</span>

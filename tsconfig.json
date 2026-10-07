@@ -20,8 +20,9 @@
         "./*"
       ]
     },
+    "types": ["bun"],
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": ["node_modules", "**/*.test.ts", "scripts/**"]
+  "exclude": ["node_modules", "**/*.test.ts", "scripts/**", "scratch/**"]
 }

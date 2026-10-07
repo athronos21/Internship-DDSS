@@ -9,6 +9,8 @@ import { User, UserRole } from './src/types.js';
 import { requireRole, requirePermission, getAuthenticatedUser, AuthenticatedRequest } from './src/server/roleGuard.js';
 import { ROLE_CONFIGS, PERMISSION_DOMAINS, getEffectiveRole, hasPermission } from './src/utils/roleManager.js';
 import { parsePackagingText } from './src/utils/pharmaPackagingParser.js';
+import { toNodeHandler } from 'better-auth/node';
+import { auth, seedInitialBetterAuthUsers } from './src/server/auth.js';
 
 let aiClient: GoogleGenAI | null = null;
 function getGenAI(): GoogleGenAI | null {
@@ -25,11 +27,10 @@ function getGenAI(): GoogleGenAI | null {
   return aiClient;
 }
 
-export async function startServer(portOverride?: number) {
+export async function createExpressApp() {
   const app = express();
-  const PORT = portOverride || (process.env.PORT ? parseInt(process.env.PORT, 10) : 5000);
 
-  // Enforce HTTPS and trust reverse proxy (Cloud Run / Nginx)
+  // Enforce HTTPS and trust reverse proxy (Cloud Run / Nginx / Vercel)
   app.set('trust proxy', 1);
   app.use((req, res, next) => {
     const proto = req.headers['x-forwarded-proto'];
@@ -80,6 +81,14 @@ export async function startServer(portOverride?: number) {
       timestamp: new Date().toISOString(),
       architecture: '3-Character RBAC (Super Admin, Drug Store Owner, Pharmacist)',
     });
+  });
+
+  // BETTER AUTH ENDPOINTS (Sign-in, Sign-up, Sign-out, Sessions, Tokens)
+  app.all('/api/auth/*', toNodeHandler(auth));
+
+  // Initialize Better Auth default accounts
+  seedInitialBetterAuthUsers().catch((err) => {
+    console.warn('[Better Auth] Error pre-seeding accounts:', err?.message || err);
   });
 
   // PHARMACY PROFILE ENDPOINTS (Guarded to Store Owner & Super Admin)
@@ -2057,6 +2066,13 @@ CREATE INDEX idx_inv_tx_created ON inventory_transactions(created_at);
       message: `API endpoint not found: ${req.method} ${req.originalUrl}`,
     });
   });
+
+  return app;
+}
+
+export async function startServer(portOverride?: number) {
+  const PORT = portOverride || (process.env.PORT ? parseInt(process.env.PORT, 10) : 5000);
+  const app = await createExpressApp();
 
   // Vite Middleware in Development Mode
   if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {

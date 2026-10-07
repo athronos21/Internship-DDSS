@@ -31,6 +31,7 @@ interface DDSGatewayPageProps {
   availableUsers: User[];
   onOpenOwnerRegistration: () => void;
   onOpenMobileApp?: () => void;
+  onOpenPublicPortal?: () => void;
 }
 
 export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
@@ -38,6 +39,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
   availableUsers,
   onOpenOwnerRegistration,
   onOpenMobileApp,
+  onOpenPublicPortal,
 }) => {
   const { showToast } = useToast();
   const [authView, setAuthView] = useState<'SIGN_IN' | 'QUICK_ROSTER'>('SIGN_IN');
@@ -246,15 +248,15 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
 
   const getRoleBadge = (user: User) => {
     if (user.role === 'SUPER_ADMIN' || user.isSuperAdmin || user.email === 'athronos21@gmail.com') {
-      return { label: 'Super Admin (System Governance)', color: 'bg-indigo-900/90 text-indigo-200 border-indigo-600' };
+      return { label: 'Super Admin (System Governance)', color: 'bg-indigo-50 text-indigo-900 border-indigo-200 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-800' };
     }
     if (user.role === 'STORE_OWNER' || user.isOwner) {
-      return { label: 'Drug Store Owner', color: 'bg-blue-900/80 text-blue-200 border-blue-700' };
+      return { label: 'Drug Store Owner', color: 'bg-sky-50 text-sky-900 border-sky-200 dark:bg-sky-950/80 dark:text-sky-300 dark:border-sky-800' };
     }
     if (user.role === 'PHARMACIST') {
-      return { label: 'Licensed Pharmacist (POS & Rx)', color: 'bg-emerald-900/80 text-emerald-200 border-emerald-700' };
+      return { label: 'Licensed Pharmacist (POS & Rx)', color: 'bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800' };
     }
-    return { label: user.role, color: 'bg-slate-800 text-slate-200 border-slate-700' };
+    return { label: user.role, color: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700' };
   };
 
   return (
@@ -277,9 +279,9 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-80px)]">
         
         {/* ======================================================== */}
-        {/* LEFT CANVAS: MEDICAL BLUE PROMOTIONAL & BRAND AREA */}
+        {/* LEFT CANVAS: MEDICAL SAPPHIRE BRAND AREA */}
         {/* ======================================================== */}
-        <div className="lg:col-span-6 bg-[#0060df] p-8 sm:p-14 lg:p-20 text-white flex flex-col justify-between relative overflow-hidden">
+        <div className="lg:col-span-6 bg-gradient-to-br from-[#004eb8] via-[#00398a] to-[#002254] p-8 sm:p-14 lg:p-20 text-white flex flex-col justify-between relative overflow-hidden shadow-inner">
           
           {/* Stylized Pin & Cross Silhouette Background Pattern */}
           <div className="absolute inset-0 pointer-events-none opacity-20 flex items-center justify-center">
@@ -294,29 +296,43 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
           {/* Top Logo / App Title & Mobile App Launcher */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-inner">
+              <div className="w-11 h-11 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center text-white shadow-xs">
                 <Store className="h-6 w-6" />
               </div>
               <div>
-                <span className="font-black text-lg tracking-wider block leading-none">
+                <span className="font-black text-lg tracking-wider block leading-none text-white">
                   DIGITAL DRUG STORE (DDS)
                 </span>
-                <span className="text-[11px] text-sky-200 font-mono tracking-widest uppercase">
+                <span className="text-[11px] text-sky-200/90 font-mono tracking-widest uppercase">
                   Pharmacy Operating System
                 </span>
               </div>
             </div>
 
-            {onOpenMobileApp && (
-              <button
-                type="button"
-                onClick={onOpenMobileApp}
-                className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg transition cursor-pointer"
-              >
-                <Smartphone className="h-4 w-4" />
-                <span>Mobile POS / Phone App</span>
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {onOpenPublicPortal && (
+                <button
+                  type="button"
+                  onClick={onOpenPublicPortal}
+                  className="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs flex items-center gap-2 backdrop-blur-md border border-white/25 shadow-sm transition cursor-pointer"
+                  title="Browse Customer Storefront, Medication Catalog & Live Cold-Chain Vault"
+                >
+                  <Globe className="h-4 w-4 text-sky-200" />
+                  <span>Public Customer Portal</span>
+                </button>
+              )}
+
+              {onOpenMobileApp && (
+                <button
+                  type="button"
+                  onClick={onOpenMobileApp}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
+                >
+                  <Smartphone className="h-4 w-4" />
+                  <span>Mobile POS</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Center Main Headline */}
@@ -331,15 +347,15 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
 
             {/* Feature Highlights */}
             <div className="pt-4 flex flex-wrap gap-2.5">
-              <div className="px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-bold flex items-center gap-2">
+              <div className="px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-semibold text-white/95 shadow-xs flex items-center gap-2">
                 <Check className="h-4 w-4 text-sky-300 stroke-[3]" />
                 <span>Smart POS & Camera Barcode Scanner</span>
               </div>
-              <div className="px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-bold flex items-center gap-2">
+              <div className="px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-semibold text-white/95 shadow-xs flex items-center gap-2">
                 <Check className="h-4 w-4 text-sky-300 stroke-[3]" />
                 <span>EFDA Batch & Expiry Date Safeguard</span>
               </div>
-              <div className="px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-bold flex items-center gap-2">
+              <div className="px-3.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-semibold text-white/95 shadow-xs flex items-center gap-2">
                 <Check className="h-4 w-4 text-sky-300 stroke-[3]" />
                 <span>Automated Daily Accounting & Z-Report</span>
               </div>
@@ -347,7 +363,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
           </div>
 
           {/* Left Bottom Status */}
-          <div className="relative z-10 pt-6 border-t border-white/20 flex items-center justify-between text-xs text-sky-200">
+          <div className="relative z-10 pt-6 border-t border-white/20 flex items-center justify-between text-xs text-sky-200/90">
             <span>© 2026 Digital Drug Store (DDS) System</span>
             <span className="font-mono">Ethiopia Health Cloud</span>
           </div>
@@ -356,17 +372,17 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
         {/* ======================================================== */}
         {/* RIGHT CANVAS: AUTHENTICATION CARD */}
         {/* ======================================================== */}
-        <div className="lg:col-span-6 bg-slate-100 dark:bg-slate-900/95 p-6 sm:p-12 lg:p-16 flex flex-col justify-between items-center relative">
+        <div className="lg:col-span-6 bg-slate-100/90 dark:bg-slate-900/95 p-6 sm:p-12 lg:p-16 flex flex-col justify-between items-center relative">
           
           <div className="w-full max-w-md my-auto space-y-6">
             
             {/* White floating card */}
-            <div className="bg-white dark:bg-slate-950 rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-200 dark:border-slate-800 space-y-6">
+            <div className="bg-white dark:bg-slate-950 rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-200/80 dark:border-slate-800 space-y-6">
               
               {/* Top Medical Pin Icon & Title */}
               <div className="text-center space-y-1">
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-sky-50 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 flex items-center justify-center text-[#0060df] shadow-xs mb-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#0060df] flex items-center justify-center text-white shadow-xs">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-sky-50 dark:bg-sky-950/80 border border-sky-200/80 dark:border-sky-800 flex items-center justify-center text-[#004eb8] shadow-xs mb-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#004eb8] flex items-center justify-center text-white shadow-xs">
                     <PlusCircle className="h-5 w-5" />
                   </div>
                 </div>
@@ -385,7 +401,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                   onClick={() => setAuthView('SIGN_IN')}
                   className={`pb-1 transition cursor-pointer ${
                     authView === 'SIGN_IN'
-                      ? 'text-[#0060df] border-b-2 border-[#0060df] font-black'
+                      ? 'text-[#004eb8] border-b-2 border-[#004eb8] font-black'
                       : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
@@ -397,7 +413,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                   onClick={() => setAuthView('QUICK_ROSTER')}
                   className={`pb-1 transition cursor-pointer ${
                     authView === 'QUICK_ROSTER'
-                      ? 'text-[#0060df] border-b-2 border-[#0060df] font-black'
+                      ? 'text-[#004eb8] border-b-2 border-[#004eb8] font-black'
                       : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
@@ -469,14 +485,14 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                       <button
                         type="button"
                         onClick={() => setPendingUser(null)}
-                        className="w-1/3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-700 dark:text-slate-300 text-xs cursor-pointer"
+                        className="w-1/3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-700 dark:text-slate-300 text-xs transition cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-2/3 py-2.5 rounded-xl bg-[#0060df] hover:bg-[#0050bc] text-white font-bold text-xs shadow-md cursor-pointer"
+                        className="w-2/3 py-2.5 rounded-xl bg-[#004eb8] hover:bg-[#003d94] text-white font-bold text-xs shadow-md shadow-[#004eb8]/20 transition cursor-pointer active:scale-[0.99]"
                       >
                         {isSubmitting ? 'Saving...' : 'Set Password & Enter →'}
                       </button>
@@ -496,17 +512,17 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                         key={u.id}
                         type="button"
                         onClick={() => handleStaffBadgeSelect(u)}
-                        className="w-full p-3 rounded-2xl border border-slate-200 bg-white hover:border-[#0060df] hover:bg-sky-50/50 dark:bg-slate-900 dark:border-slate-800 transition text-left flex items-center justify-between group shadow-xs cursor-pointer"
+                        className="w-full p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-[#004eb8] hover:bg-sky-50/50 dark:bg-slate-900 dark:border-slate-800 transition text-left flex items-center justify-between group shadow-xs cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-[#0060df] text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+                          <div className="w-8 h-8 rounded-xl bg-[#004eb8] text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
                             {u.name.charAt(0)}
                           </div>
                           <div>
-                            <span className="font-bold text-slate-900 text-xs block dark:text-white group-hover:text-[#0060df]">
+                            <span className="font-bold text-slate-900 text-xs block dark:text-white group-hover:text-[#004eb8] transition-colors">
                               {u.name}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <span className="text-[10px] text-slate-400 font-mono tabular-nums">
                               {u.email}
                             </span>
                           </div>
@@ -528,7 +544,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                       EMAIL
                     </label>
                     <div className="relative">
-                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm select-none">
                         @
                       </div>
                       <input
@@ -537,7 +553,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                         value={emailOrId}
                         onChange={(e) => setEmailOrId(e.target.value)}
                         placeholder="munaa7536@gmail.com"
-                        className="w-full rounded-xl border border-sky-300 dark:border-slate-700 bg-sky-50/40 dark:bg-slate-900 pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:border-[#0060df] focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-900/50 focus:outline-none transition"
+                        className="w-full rounded-xl border border-sky-300 dark:border-slate-700 bg-sky-50/40 dark:bg-slate-900 pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:border-[#004eb8] focus:ring-2 focus:ring-[#004eb8]/20 focus:outline-none transition tabular-nums"
                       />
                     </div>
                   </div>
@@ -553,7 +569,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                         onClick={() => {
                           showToast('Temporary password reset token sent to your registered email.', 'info', 'Password Reset');
                         }}
-                        className="text-[11px] font-bold text-[#0060df] hover:underline cursor-pointer"
+                        className="text-[11px] font-bold text-[#004eb8] hover:underline cursor-pointer"
                       >
                         Forgot?
                       </button>
@@ -568,12 +584,12 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                         value={rawPassword}
                         onChange={(e) => setRawPassword(e.target.value)}
                         placeholder="••••••••••"
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:border-[#0060df] focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-900/50 focus:outline-none transition"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-10 py-2.5 text-xs text-slate-900 dark:text-white focus:border-[#004eb8] focus:ring-2 focus:ring-[#004eb8]/20 focus:outline-none transition font-mono tabular-nums"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer transition-colors"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -587,7 +603,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                         type="checkbox"
                         checked={keepSignedIn}
                         onChange={(e) => setKeepSignedIn(e.target.checked)}
-                        className="rounded text-[#0060df] focus:ring-[#0060df] h-4 w-4 border-slate-300 dark:border-slate-700 cursor-pointer"
+                        className="rounded text-[#004eb8] focus:ring-[#004eb8] h-4 w-4 border-slate-300 dark:border-slate-700 cursor-pointer"
                       />
                       <span>Keep me signed in</span>
                     </label>
@@ -599,7 +615,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                         setRawPassword('12242144');
                         showToast('Filled Master Admin credentials', 'info');
                       }}
-                      className="text-[11px] font-bold text-slate-400 hover:text-[#0060df] transition cursor-pointer"
+                      className="text-[11px] font-bold text-slate-400 hover:text-[#004eb8] transition cursor-pointer"
                     >
                       👑 Super Admin
                     </button>
@@ -609,7 +625,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 rounded-xl bg-[#0060df] hover:bg-[#0050bc] text-white font-black text-sm transition shadow-lg shadow-[#0060df]/25 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
+                    className="w-full py-3.5 rounded-xl bg-[#004eb8] hover:bg-[#003d94] text-white font-black text-sm transition shadow-lg shadow-[#004eb8]/25 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
                   >
                     <span>{isSubmitting ? 'Authenticating...' : 'Sign In'}</span>
                     <ArrowRight className="h-4 w-4" />
@@ -624,7 +640,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                   <button
                     type="button"
                     onClick={onOpenOwnerRegistration}
-                    className="font-black text-[#0060df] hover:underline cursor-pointer inline-flex items-center gap-1"
+                    className="font-black text-[#004eb8] hover:underline cursor-pointer inline-flex items-center gap-1"
                   >
                     <span>Register Pharmacy Node</span>
                     <ArrowRight className="h-3 w-3" />
@@ -645,6 +661,19 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                   <span>Need help? Contact support</span>
                 </button>
               </div>
+
+              {/* BROWSE PUBLIC STORE LINK */}
+              {onOpenPublicPortal && (
+                <div className="pt-2 text-center border-t border-slate-100 dark:border-slate-800/60">
+                  <button
+                    type="button"
+                    onClick={onOpenPublicPortal}
+                    className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Looking for medications or prescription upload? Browse Public Store →</span>
+                  </button>
+                </div>
+              )}
 
             </div>
 

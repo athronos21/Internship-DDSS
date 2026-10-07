@@ -36,7 +36,7 @@ import { PortalContentProvider } from './context/PortalContentContext';
 import { Smartphone, FileText } from 'lucide-react';
 
 function AppContent() {
-  const [currentScreen, setCurrentScreen] = useState<'public_home' | 'public_products' | 'public_orders' | 'public_favorites' | 'public_contact' | 'public_registration' | 'dashboard'>('public_home');
+  const [currentScreen, setCurrentScreen] = useState<'gateway' | 'public_home' | 'public_products' | 'public_orders' | 'public_favorites' | 'public_contact' | 'public_registration' | 'dashboard'>('gateway');
   const [dashboardView, setDashboardView] = useState<string>('dashboard');
   const [loginInitialMode, setLoginInitialMode] = useState<'STORE_STAFF' | 'MASTER_ADMIN'>('STORE_STAFF');
   const [inventorySubTab, setInventorySubTab] = useState<'medicines' | 'batches' | 'low' | 'expiring' | 'archived' | 'movements' | 'requests'>('medicines');
@@ -96,6 +96,19 @@ function AppContent() {
           hash.includes('mobile_pos') ||
           hash.includes('flutter') ||
           hash.includes('mobile');
+
+        const screenParam = urlParams.get('screen');
+        const modeParam = urlParams.get('mode');
+
+        if (screenParam) {
+          if (['gateway', 'public_home', 'public_products', 'public_orders', 'public_favorites', 'public_contact', 'public_registration', 'dashboard'].includes(screenParam)) {
+            setCurrentScreen(screenParam as any);
+          }
+        } else if (modeParam === 'public' || hash.includes('public')) {
+          setCurrentScreen('public_home');
+        } else if (modeParam === 'gateway' || hash.includes('gateway')) {
+          setCurrentScreen('gateway');
+        }
 
         const viewParam = urlParams.get('view');
         const roleParam = urlParams.get('role');
@@ -435,7 +448,7 @@ function AppContent() {
           onOpenShiftHandover={() => setIsShiftHandoverOpen(true)}
           onLogout={() => {
             setCurrentUser(null);
-            setCurrentScreen('public_home');
+            setCurrentScreen('gateway');
           }}
           onBackToPublicPortal={() => setCurrentScreen('public_home')}
         >
@@ -510,8 +523,8 @@ function AppContent() {
           )}
           {dashboardView === 'settings' && <SettingsView initialSubTab={settingsSubTab} />}
         </DashboardLayout>
-      ) : (
-        /* RENDER DIRECT DDS PHARMACY GATEWAY (Customer Access Disabled) */
+      ) : currentScreen === 'gateway' ? (
+        /* STAFF WORKSTATION GATEWAY */
         <DDSGatewayPage
           availableUsers={availableUsers}
           onLoginSuccess={(user) => {
@@ -529,7 +542,156 @@ function AppContent() {
           }}
           onOpenOwnerRegistration={() => setIsOwnerRegisterModalOpen(true)}
           onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}
+          onOpenPublicPortal={() => setCurrentScreen('public_home')}
         />
+      ) : (
+        /* PUBLIC PATIENT & CUSTOMER STOREFRONT PORTAL */
+        <div className="flex-1 flex flex-col min-h-screen">
+          <Header
+            currentScreen={currentScreen}
+            onNavigate={(screen) => {
+              if (screen === 'gateway') {
+                setCurrentScreen('gateway');
+              } else {
+                setCurrentScreen(screen as any);
+              }
+            }}
+            onLoginClick={() => setCurrentScreen('gateway')}
+            onOpenMasterAdminLogin={handleMasterAdminLoginClick}
+            onOpenOwnerRegister={() => setIsOwnerRegisterModalOpen(true)}
+            onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}
+            currentUser={currentUser}
+            onSignOut={() => {
+              setCurrentUser(null);
+              setCurrentScreen('gateway');
+              showToast('You have been signed out.', 'info', 'Signed Out');
+            }}
+            onOpenDashboard={() => {
+              if (currentUser) {
+                if (currentUser.role === 'SUPER_ADMIN' || currentUser.isSuperAdmin || currentUser.email === 'athronos21@gmail.com') {
+                  setDashboardView('master_admin');
+                } else if (currentUser.role === 'PHARMACIST') {
+                  setDashboardView('pos');
+                } else {
+                  setDashboardView('dashboard');
+                }
+                setCurrentScreen('dashboard');
+              } else {
+                setCurrentScreen('gateway');
+              }
+            }}
+            wishlistCount={wishlistIds.length}
+            onOpenProfile={() => setIsProfileModalOpen(true)}
+          />
+
+          <main className="flex-1">
+            <AnimatePresence mode="wait">
+              {currentScreen === 'public_home' && (
+                <motion.div
+                  key="public_home"
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <PublicHome
+                    onExploreProducts={() => setCurrentScreen('public_products')}
+                    onOpenDashboard={() => setCurrentScreen('gateway')}
+                    onOpenOwnerRegister={() => setIsOwnerRegisterModalOpen(true)}
+                    onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}
+                    onNavigateToContact={() => setCurrentScreen('public_contact')}
+                    onNavigateToRegistration={() => setCurrentScreen('public_registration')}
+                  />
+                </motion.div>
+              )}
+
+              {currentScreen === 'public_products' && (
+                <motion.div
+                  key="public_products"
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <PublicProducts
+                    onOpenDashboard={() => setCurrentScreen('gateway')}
+                    wishlistIds={wishlistIds}
+                    onToggleWishlist={handleToggleWishlist}
+                  />
+                </motion.div>
+              )}
+
+              {currentScreen === 'public_orders' && (
+                <motion.div
+                  key="public_orders"
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <PublicOrders
+                    currentUser={currentUser}
+                    onExploreProducts={() => setCurrentScreen('public_products')}
+                  />
+                </motion.div>
+              )}
+
+              {currentScreen === 'public_favorites' && (
+                <motion.div
+                  key="public_favorites"
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <PublicFavorites
+                    wishlistIds={wishlistIds}
+                    onToggleWishlist={handleToggleWishlist}
+                    onExploreProducts={() => setCurrentScreen('public_products')}
+                  />
+                </motion.div>
+              )}
+
+              {currentScreen === 'public_contact' && (
+                <motion.div
+                  key="public_contact"
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <PublicContact
+                    onExploreProducts={() => setCurrentScreen('public_products')}
+                  />
+                </motion.div>
+              )}
+
+              {currentScreen === 'public_registration' && (
+                <motion.div
+                  key="public_registration"
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <RegistrationNetworkDashboard
+                    onOpenOwnerRegister={() => setIsOwnerRegisterModalOpen(true)}
+                    onOpenMasterAdminLogin={handleMasterAdminLoginClick}
+                    onOpenStaffLogin={() => setCurrentScreen('gateway')}
+                    currentUser={currentUser}
+                    onExploreMedicines={() => setCurrentScreen('public_products')}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </main>
+
+          <Footer
+            onOpenDashboard={() => setCurrentScreen('gateway')}
+            onNavigateToContact={() => setCurrentScreen('public_contact')}
+            onNavigateToRegistration={() => setCurrentScreen('public_registration')}
+          />
+        </div>
       )}
 
       {/* SCROLL TO TOP FLOATING BUTTON */}
