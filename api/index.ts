@@ -2,11 +2,18 @@ import type { IncomingMessage, ServerResponse } from 'http';
 
 let cachedApp: any = null;
 
-export default async function handler(req: IncomingMessage, res: ServerResponse) {
-  try {
+async function getApp() {
+  if (!cachedApp) {
     process.env.DISABLE_AUTO_START = 'true';
     process.env.VERCEL = '1';
+    const serverModule = await import('../server.js').catch(() => import('../server.ts'));
+    cachedApp = await serverModule.createExpressApp();
+  }
+  return cachedApp;
+}
 
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  try {
     const matchedPath =
       (req.headers['x-matched-path'] as string) ||
       (req.headers['x-vercel-matched-path'] as string);
@@ -14,11 +21,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       req.url = matchedPath;
     }
 
-    if (!cachedApp) {
-      const { createExpressApp } = await import('../server.ts');
-      cachedApp = await createExpressApp();
-    }
-    return cachedApp(req, res);
+    const app = await getApp();
+    return app(req, res);
   } catch (err: any) {
     console.error('[Vercel Serverless /api Error]', err);
     res.statusCode = 500;
