@@ -195,16 +195,20 @@ export interface Medicine {
   dosageForm: string;
   strength: string;
   unit: string;
+  unitOfMeasure?: string;
   manufacturer: string;
   description: string;
   prescriptionRequired: boolean;
+  isPrescriptionRequired?: boolean;
   reorderLevel: number;
   isActive: boolean;
+  status?: string;
   createdAt: string;
   updatedAt: string;
   totalStock?: number;
   earliestExpiry?: string;
   sellingPrice?: number;
+  averageCost?: number;
   imageUrl?: string;
   branchName?: string;
 }
@@ -328,7 +332,7 @@ export interface SaleItem {
   unitCost?: number;
 }
 
-export type PaymentMethod = 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER' | 'OTHER';
+export type PaymentMethod = 'CASH' | 'CARD' | 'MOBILE_MONEY' | 'TELEBIRR' | 'CBE_BIRR' | 'BANK_TRANSFER' | 'OTHER';
 
 export interface Sale {
   id: string;
