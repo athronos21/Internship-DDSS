@@ -22,9 +22,10 @@
         "./*"
       ]
     },
-    "types": ["bun", "bun-types"],
+    "types": ["bun-types"],
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
+  "include": ["**/*"],
   "exclude": ["node_modules", "dist"]
 }
