@@ -8,7 +8,7 @@ export let authDb: any = null;
 
 if (isBun) {
   try {
-    const getRequire = typeof (globalThis as any).require === 'function' ? (globalThis as any).require : null;
+    const getRequire = (import.meta as any).require || (globalThis as any).require;
     const sqliteModule = getRequire ? getRequire('bun:sqlite') : null;
     if (sqliteModule && sqliteModule.Database) {
       const dbPath = process.env.NODE_ENV === 'test' ? ':memory:' : path.resolve(process.cwd(), 'auth.sqlite');
