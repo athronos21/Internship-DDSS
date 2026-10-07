@@ -6,11 +6,11 @@
   "rewrites": [
     {
       "source": "/health",
-      "destination": "/api/index.ts"
+      "destination": "/api/health"
     },
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/api/[...path]"
     },
     {
       "source": "/((?!api|health|favicon\\.ico|favicon\\.svg|manifest\\.json|sw\\.js|assets).*)",

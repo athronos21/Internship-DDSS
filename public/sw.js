@@ -1,8 +1,8 @@
 // Kaziniya Pharmacy POS & Inventory - Service Worker
 // Provides resilient offline operation for POS barcode scanning, medicine lookup, and asset caching
 
-const CACHE_STATIC_VERSION = 'kaziniya-static-v1.2';
-const CACHE_DATA_VERSION = 'kaziniya-data-v1.2';
+const CACHE_STATIC_VERSION = 'kaziniya-static-v1.3';
+const CACHE_DATA_VERSION = 'kaziniya-data-v1.3';
 
 const STATIC_ASSETS_TO_PRECACHE = [
   '/',
