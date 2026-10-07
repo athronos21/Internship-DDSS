@@ -57,11 +57,56 @@ function AppContent() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isOwnerRegisterModalOpen, setIsOwnerRegisterModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const DEFAULT_AVAILABLE_USERS: User[] = [
+    {
+      id: 'u-1',
+      name: 'Dr. Alemu Tadesse',
+      email: 'admin@kaziniya.com',
+      role: 'STORE_OWNER',
+      employeeId: 'EMP-001',
+      isOwner: true,
+      department: 'Pharmacy Administration',
+      status: 'ACTIVE',
+      isActive: true,
+      createdAt: '2026-01-01T08:00:00Z',
+    },
+    {
+      id: 'u-munaa',
+      name: 'Muna Ahmed',
+      email: 'munaa7536@gmail.com',
+      role: 'PHARMACIST',
+      employeeId: 'EMP-PHARM-01',
+      isSuperAdmin: false,
+      isOwner: false,
+      department: 'Dispensary & Counter',
+      password: '••••••••••',
+      pin: '2144',
+      status: 'ACTIVE',
+      isActive: true,
+      createdAt: '2026-01-01T08:00:00Z',
+    },
+    {
+      id: 'u-superadmin',
+      name: 'Atronos Sisay',
+      email: 'athronos21@gmail.com',
+      role: 'SUPER_ADMIN',
+      employeeId: 'SYS-ADMIN-001',
+      isSuperAdmin: true,
+      isOwner: false,
+      department: 'Whole System Administration & Governance',
+      password: '••••••••••',
+      pin: '2144',
+      status: 'ACTIVE',
+      isActive: true,
+      createdAt: '2026-01-01T08:00:00Z',
+    },
+  ];
+
   const [isFlutterModalOpen, setIsFlutterModalOpen] = useState(false);
   const [isPhoneQrModalOpen, setIsPhoneQrModalOpen] = useState(false);
   const [isInternshipModalOpen, setIsInternshipModalOpen] = useState(false);
   const [isShiftHandoverOpen, setIsShiftHandoverOpen] = useState(false);
-  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [availableUsers, setAvailableUsers] = useState<User[]>(DEFAULT_AVAILABLE_USERS);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [wishlistIds, setWishlistIds] = useState<string[]>(['med-1', 'med-2']);
   const { showToast } = useToast();
@@ -165,12 +210,13 @@ function AppContent() {
   const fetchUsers = async () => {
     try {
       const res = await fetch('/api/users');
-      const data = await res.json();
-      if (data.success && data.data.length > 0) {
+      const text = await res.text();
+      const data = JSON.parse(text);
+      if (data?.success && Array.isArray(data?.data) && data.data.length > 0) {
         setAvailableUsers(data.data);
       }
-    } catch (e) {
-      console.error('Error fetching users:', e);
+    } catch {
+      // Retain pre-seeded DEFAULT_AVAILABLE_USERS on network/static failure
     }
   };
 
