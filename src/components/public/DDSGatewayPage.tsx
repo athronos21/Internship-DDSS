@@ -560,11 +560,11 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                         @
                       </div>
                       <input
-                        type="email"
+                        type="text"
                         required
                         value={emailOrId}
                         onChange={(e) => setEmailOrId(e.target.value)}
-                        placeholder="munaa7536@gmail.com"
+                        placeholder="munaa7536@gmail.com or EMP ID"
                         className="w-full rounded-xl border border-sky-300 dark:border-slate-700 bg-sky-50/40 dark:bg-slate-900 pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:border-[#004eb8] focus:ring-2 focus:ring-[#004eb8]/20 focus:outline-none transition tabular-nums"
                       />
                     </div>

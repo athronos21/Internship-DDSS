@@ -110,6 +110,12 @@ export async function seedInitialBetterAuthUsers() {
       role: 'STORE_OWNER',
     },
     {
+      email: 'admin@kaziniya.com',
+      password: 'Password123!',
+      name: 'Dr. Alemu Tadesse (Store Owner)',
+      role: 'STORE_OWNER',
+    },
+    {
       email: 'munaa7536@gmail.com',
       password: 'Password123!',
       name: 'Muna Ahmed (Chief Pharmacist)',

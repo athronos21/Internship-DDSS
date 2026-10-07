@@ -552,11 +552,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         @
                       </div>
                       <input
-                        type="email"
+                        type="text"
                         required
                         value={emailOrId}
                         onChange={(e) => setEmailOrId(e.target.value)}
-                        placeholder="munaa7536@gmail.com"
+                        placeholder="munaa7536@gmail.com or EMP ID"
                         className="w-full rounded-xl border border-sky-300 dark:border-slate-700 bg-sky-50/30 dark:bg-slate-950/60 pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:border-[#0060df] focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-900/50 focus:outline-none transition"
                       />
                     </div>
