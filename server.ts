@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import { db } from './src/server/db.js';
 import { computeMLDemandForecast } from './src/utils/mlForecasting.js';
@@ -82,9 +81,6 @@ export async function createExpressApp() {
       architecture: '3-Character RBAC (Super Admin, Drug Store Owner, Pharmacist)',
     });
   });
-
-  // BETTER AUTH ENDPOINTS (Sign-in, Sign-up, Sign-out, Sessions, Tokens)
-  app.all('/api/auth/*', toNodeHandler(auth));
 
   // Initialize Better Auth default accounts
   seedInitialBetterAuthUsers().catch((err) => {
@@ -1812,6 +1808,9 @@ Inspect the whole or essential visible parts of the medicine to identify and ext
     }
   });
 
+  // BETTER AUTH ENDPOINTS (Sign-in, Sign-up, Sign-out, Sessions, Tokens fallback)
+  app.all('/api/auth/*', toNodeHandler(auth));
+
   // Admin Resets a Staff Member's Password
   app.post('/api/users/:id/reset-password', (req, res) => {
     try {
@@ -2076,6 +2075,7 @@ export async function startServer(portOverride?: number) {
 
   // Vite Middleware in Development Mode
   if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',

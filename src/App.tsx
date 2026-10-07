@@ -210,8 +210,11 @@ function AppContent() {
   const fetchUsers = async () => {
     try {
       const res = await fetch('/api/users');
-      const text = await res.text();
-      const data = JSON.parse(text);
+      const contentType = res.headers.get('content-type') || '';
+      if (!res.ok || !contentType.includes('application/json')) {
+        return;
+      }
+      const data = await res.json();
       if (data?.success && Array.isArray(data?.data) && data.data.length > 0) {
         setAvailableUsers(data.data);
       }

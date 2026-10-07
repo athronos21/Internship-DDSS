@@ -131,12 +131,16 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
         fetch('/api/audit-logs'),
       ]);
 
-      const [uData, aData] = await Promise.all([uRes.json(), aRes.json()]);
-
-      if (uData.success) setUsers(uData.data);
-      if (aData.success) setAuditLogs(aData.data);
+      if (uRes.ok && uRes.headers.get('content-type')?.includes('application/json')) {
+        const uData = await uRes.json();
+        if (uData.success && Array.isArray(uData.data)) setUsers(uData.data);
+      }
+      if (aRes.ok && aRes.headers.get('content-type')?.includes('application/json')) {
+        const aData = await aRes.json();
+        if (aData.success && Array.isArray(aData.data)) setAuditLogs(aData.data);
+      }
     } catch (e) {
-      console.error(e);
+      console.warn('[Users & Audit] Could not fetch remote user records:', e);
     }
   };
 

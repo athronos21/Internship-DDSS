@@ -5,15 +5,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/health",
-      "destination": "/api"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!api|health|favicon\\.ico|favicon\\.svg|manifest\\.json|sw\\.js|assets).*)",
       "destination": "/index.html"
     }
   ]
