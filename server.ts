@@ -2108,6 +2108,6 @@ export async function startServer(portOverride?: number) {
   return { app, server, port: PORT };
 }
 
-if (!process.env.DISABLE_AUTO_START && process.env.NODE_ENV !== 'test') {
+if (!process.env.DISABLE_AUTO_START && process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   startServer();
 }
