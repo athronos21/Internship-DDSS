@@ -2108,6 +2108,15 @@ export async function startServer(portOverride?: number) {
   return { app, server, port: PORT };
 }
 
-if (!process.env.DISABLE_AUTO_START && process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+const isDirectExecution =
+  typeof process !== 'undefined' &&
+  Boolean(
+    process.argv[1] &&
+      (process.argv[1].endsWith('server.ts') ||
+        process.argv[1].endsWith('server.js') ||
+        process.argv[1].endsWith('server.cjs'))
+  );
+
+if (isDirectExecution && !process.env.DISABLE_AUTO_START && process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   startServer();
 }
