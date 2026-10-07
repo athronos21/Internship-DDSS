@@ -20,7 +20,7 @@
         "./*"
       ]
     },
-    "types": ["bun"],
+    "types": ["bun", "bun-types"],
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
