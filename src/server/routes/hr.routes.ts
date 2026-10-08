@@ -20,6 +20,7 @@ hrRouter.post('/users', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) =>
       department,
       employeeId,
       temporaryPassword,
+      pin,
       mustChangePassword = true,
     } = req.body;
 
@@ -48,12 +49,21 @@ hrRouter.post('/users', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) =>
       name,
       email: email.toLowerCase().trim(),
       role: role || 'PHARMACIST',
-      department: department || 'Clinical Dispensary',
-      phone: phone || '',
+      department:
+        department ||
+        (role === 'STORE_OWNER'
+          ? 'Drug Store Ownership & Management'
+          : role === 'SUPER_ADMIN'
+          ? 'System Administration'
+          : 'Prescription Dispensary & POS'),
+      phone: phone || '+251 911 000 000',
       employeeId: genEmployeeId,
+      isActive: true,
       temporaryPassword: tempPass,
+      password: tempPass,
+      pin: pin || String(Math.floor(1000 + Math.random() * 9000)),
       mustChangePassword,
-      status: 'Active',
+      status: mustChangePassword ? 'PENDING_FIRST_LOGIN' : 'ACTIVE',
       permissions: [],
       createdAt: now,
     };
@@ -72,8 +82,9 @@ hrRouter.post('/users', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) =>
 
     res.status(201).json({
       success: true,
-      message: `Staff member ${name} created successfully. Temporary credentials issued.`,
+      message: 'Staff account successfully created! Temporary credentials generated.',
       data: newUser,
+      temporaryPassword: tempPass,
       credentials: {
         email: newUser.email,
         temporaryPassword: tempPass,

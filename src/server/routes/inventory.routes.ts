@@ -166,6 +166,40 @@ inventoryRouter.post('/medicines', (req, res) => {
   }
 });
 
+inventoryRouter.get('/medicines/barcode/:barcode', (req, res) => {
+  const rawBarcode = req.params.barcode;
+  const barcode = (rawBarcode || '').trim().toLowerCase();
+  const medicinesWithCalc = db.getCalculatedMedicines();
+  const med = medicinesWithCalc.find(
+    (m) =>
+      (m.barcode && m.barcode.toLowerCase() === barcode) ||
+      (m.id && m.id.toLowerCase() === barcode) ||
+      (m.sku && m.sku.toLowerCase() === barcode)
+  );
+
+  if (!med) {
+    return res.status(404).json({
+      success: false,
+      message: `No medicine found registered with barcode "${rawBarcode}" in database`,
+    });
+  }
+
+  const batches = db.getBatchesWithStatus().filter((b) => b.medicineId === med.id);
+  res.json({ success: true, data: { medicine: med, batches } });
+});
+
+inventoryRouter.get('/medicines/:id', (req, res) => {
+  const medicinesWithCalc = db.getCalculatedMedicines();
+  const med = medicinesWithCalc.find((m) => m.id === req.params.id);
+
+  if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });
+
+  const batches = db.getBatchesWithStatus().filter((b) => b.medicineId === med.id);
+  const transactions = db.inventoryTransactions.filter((t) => t.medicineId === med.id);
+
+  res.json({ success: true, data: { medicine: med, batches, transactions } });
+});
+
 inventoryRouter.put('/medicines/:id', (req, res) => {
   const med = db.medicines.find((m) => m.id === req.params.id);
   if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });

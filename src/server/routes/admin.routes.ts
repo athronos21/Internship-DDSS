@@ -7,7 +7,17 @@ export const adminRouter = Router();
 
 // PHARMACY FLEET DIRECTORY
 adminRouter.get('/fleet/pharmacies', (req, res) => {
-  res.json({ success: true, data: db.getRegisteredPharmacies() });
+  const fleet = db.getRegisteredPharmacies();
+  const cities = Array.from(new Set(fleet.map((p) => p.city)));
+  const stats = {
+    totalRegistered: fleet.length,
+    activeNodes: fleet.filter((p) => p.status === 'ACTIVE' || p.status === 'VERIFIED').length,
+    twentyFourHours: fleet.filter((p) => p.is24Hours).length,
+    coldChainEquipped: fleet.filter((p) => p.coldChainAvailable).length,
+    citiesCovered: cities.length,
+    cities,
+  };
+  res.json({ success: true, data: fleet, stats });
 });
 
 adminRouter.post('/fleet/pharmacies', requireRole('SUPER_ADMIN'), (req, res) => {

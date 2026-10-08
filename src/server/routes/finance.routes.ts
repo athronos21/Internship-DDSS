@@ -28,6 +28,30 @@ financeRouter.get('/reports/sales', (req, res) => {
   res.json({ success: true, data: db.sales });
 });
 
+financeRouter.get('/reports/stock-movement', (req, res) => {
+  res.json({ success: true, data: db.inventoryTransactions });
+});
+
+// ACADEMIC INTERNSHIP REPORT (.DOCX) DOWNLOAD ENDPOINT
+financeRouter.get('/reports/internship-docx', async (req, res) => {
+  try {
+    const { generateInternshipDocx } = await import('../../../scripts/generate_docx_report.js');
+    const buffer = await generateInternshipDocx();
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="Internship_Report_Digital_Drug_Store.docx"'
+    );
+    res.send(buffer);
+  } catch (err: any) {
+    console.error('Error generating docx report:', err);
+    res.status(500).json({ success: false, message: 'Could not generate report' });
+  }
+});
+
 // EXPENSES & GENERAL LEDGER
 const inMemoryExpenses: any[] = [
   {
