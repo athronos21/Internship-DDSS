@@ -32,6 +32,7 @@ import {
   Edit3,
   CreditCard,
   QrCode,
+  Barcode as BarcodeIcon,
   Smartphone,
   Wallet,
   Percent,
@@ -44,13 +45,16 @@ import {
   Activity,
   Server,
 } from 'lucide-react';
+import { User } from '../../types';
 
 interface SettingsViewProps {
   initialSubTab?: 'branch_config' | 'payment_methods' | 'store_config' | 'all_notifications' | 'notif_settings' | 'db_schema';
+  currentUser?: User;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   initialSubTab = 'payment_methods',
+  currentUser,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<
     'branch_config' | 'payment_methods' | 'store_config' | 'all_notifications' | 'notif_settings' | 'db_schema'
@@ -80,6 +84,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     auditLogRetentionDays: 365,
     systemLanguage: 'English & Amharic (አማርኛ)',
     realtimeDbSync: true,
+    enableBarcodeSystem: false,
   });
 
   // Multi-Branch Settings State
@@ -315,7 +320,91 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   useEffect(() => {
     fetchSqlSchema();
+    fetchPharmacyProfile();
   }, []);
+
+  const fetchPharmacyProfile = async () => {
+    try {
+      const res = await fetch('/api/pharmacy/profile');
+      const data = await res.json();
+      if (data.success && data.data) {
+        setStoreConfig((prev) => ({
+          ...prev,
+          storeName: data.data.storeName || prev.storeName,
+          efdaLicense: data.data.efdaLicense || prev.efdaLicense,
+          address: data.data.streetAddress || prev.address,
+          phone: data.data.phone || prev.phone,
+          tinNumber: data.data.tinNumber || prev.tinNumber,
+          receiptFooterMessage: data.data.receiptFooterMessage || prev.receiptFooterMessage,
+          enableBarcodeSystem: Boolean(data.data.enableBarcodeSystem),
+        }));
+      }
+    } catch (e) {
+      console.warn('Failed to load pharmacy profile:', e);
+    }
+  };
+
+  const isOwnerOrAdmin =
+    !currentUser ||
+    currentUser.role === 'STORE_OWNER' ||
+    currentUser.role === 'SUPER_ADMIN' ||
+    Boolean(currentUser.isOwner) ||
+    Boolean(currentUser.isSuperAdmin);
+
+  const handleToggleBarcodeSystem = async (newValue: boolean) => {
+    if (!isOwnerOrAdmin) {
+      alert('The Barcode Scanning & Label Printing Subsystem is managed exclusively by the Drug Store Owner or Super Admin.');
+      return;
+    }
+
+    setStoreConfig((prev) => ({ ...prev, enableBarcodeSystem: newValue }));
+
+    try {
+      const res = await fetch('/api/pharmacy/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': currentUser?.id || 'u-1',
+        },
+        body: JSON.stringify({ enableBarcodeSystem: newValue }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        console.warn('Server failed to persist barcode toggle:', data.message);
+      }
+    } catch (e) {
+      console.error('Failed to update barcode toggle:', e);
+    }
+  };
+
+  const handleSaveStoreConfig = async () => {
+    try {
+      const res = await fetch('/api/pharmacy/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': currentUser?.id || 'u-1',
+        },
+        body: JSON.stringify({
+          storeName: storeConfig.storeName,
+          efdaLicense: storeConfig.efdaLicense,
+          streetAddress: storeConfig.address,
+          phone: storeConfig.phone,
+          tinNumber: storeConfig.tinNumber,
+          receiptFooterMessage: storeConfig.receiptFooterMessage,
+          enableBarcodeSystem: storeConfig.enableBarcodeSystem,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('All EIMS system parameters, barcode subsystem configuration, and EFDA credentials saved successfully!');
+      } else {
+        alert(data.message || 'Failed to save store configuration.');
+      }
+    } catch (e) {
+      alert('Network error while saving store configuration.');
+    }
+  };
 
   const fetchSqlSchema = async () => {
     setLoading(true);
@@ -1673,10 +1762,69 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
             </div>
 
+            {/* SECTION 5: BARCODE SCANNING & THERMAL LABEL SUBSYSTEM (FUTURE FEATURE TOGGLE) */}
+            <div className="p-5 rounded-2xl border border-indigo-200/80 bg-gradient-to-br from-indigo-50/70 via-white to-slate-50 dark:from-indigo-950/30 dark:via-slate-900 dark:to-slate-950 dark:border-indigo-900/60 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <BarcodeIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    <h4 className="font-extrabold text-slate-900 text-sm dark:text-white">
+                      Barcode Scanning & Thermal Label Printing Subsystem
+                    </h4>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                      Future Feature Toggle
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
+                    Managed exclusively by the Drug Store Owner. Toggle hardware laser barcode scanners, camera-based barcode recognition, and 50mm thermal barcode shelf/box sticker printing across the POS Counter and Inventory Workstation.
+                  </p>
+                </div>
+
+                {/* Dedicated On/Off Toggle Button */}
+                <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-2xl border border-indigo-200/60 dark:border-indigo-800/80 shadow-xs shrink-0">
+                  <span className={`text-xs font-bold ${storeConfig.enableBarcodeSystem ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}>
+                    {storeConfig.enableBarcodeSystem ? 'SYSTEM ON' : 'SYSTEM OFF'}
+                  </span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={storeConfig.enableBarcodeSystem}
+                    disabled={!isOwnerOrAdmin}
+                    onClick={() => handleToggleBarcodeSystem(!storeConfig.enableBarcodeSystem)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                      storeConfig.enableBarcodeSystem ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
+                    } ${!isOwnerOrAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title={isOwnerOrAdmin ? 'Toggle Barcode Subsystem' : 'Managed exclusively by Drug Store Owner'}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                        storeConfig.enableBarcodeSystem ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+                <div className={`p-3 rounded-xl border ${storeConfig.enableBarcodeSystem ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-500'}`}>
+                  <span className="font-bold block">1. POS Barcode Scanner</span>
+                  <span className="text-[11px]">{storeConfig.enableBarcodeSystem ? 'Camera & laser scanner enabled' : 'Disabled (Manual name & SKU search active)'}</span>
+                </div>
+                <div className={`p-3 rounded-xl border ${storeConfig.enableBarcodeSystem ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-500'}`}>
+                  <span className="font-bold block">2. Label Studio</span>
+                  <span className="text-[11px]">{storeConfig.enableBarcodeSystem ? '50mm thermal shelf label generation active' : 'Disabled / Standby'}</span>
+                </div>
+                <div className={`p-3 rounded-xl border ${storeConfig.enableBarcodeSystem ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-500'}`}>
+                  <span className="font-bold block">3. Access Governance</span>
+                  <span className="text-[11px]">Configurable only by Drug Store Owner or Super Admin</span>
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-end pt-2">
               <button
-                onClick={() => alert('All EIMS system parameters and EFDA configuration saved successfully!')}
-                className="rounded-xl bg-teal-600 px-6 py-2.5 text-xs font-bold text-white hover:bg-teal-700 transition shadow-xs flex items-center gap-2"
+                onClick={handleSaveStoreConfig}
+                className="rounded-xl bg-teal-600 px-6 py-2.5 text-xs font-bold text-white hover:bg-teal-700 transition shadow-xs flex items-center gap-2 cursor-pointer"
               >
                 <CheckCircle2 className="h-4 w-4" /> Save System Configurations
               </button>

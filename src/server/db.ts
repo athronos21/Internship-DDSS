@@ -315,6 +315,7 @@ let pharmacyProfile: PharmacyStoreProfile = {
   is24Hours: true,
   receiptFooterMessage: 'Thank you for trusting our pharmacy. Keep medications stored below 25°C.',
   registeredAt: '2026-01-01T08:00:00Z',
+  enableBarcodeSystem: false,
 };
 
 // Seed Users - Strictly 3 Characters / Roles: Super Admin, Drug Store Owner, Pharmacist

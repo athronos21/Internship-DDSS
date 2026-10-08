@@ -66,6 +66,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isCsvImportOpen, setIsCsvImportOpen] = useState(false);
   const [isBarcodeGenOpen, setIsBarcodeGenOpen] = useState(false);
+  const [enableBarcodeSystem, setEnableBarcodeSystem] = useState<boolean>(true);
   const [selectedBatchForAdjust, setSelectedBatchForAdjust] = useState<MedicineBatch | null>(null);
   const [selectedMedForQr, setSelectedMedForQr] = useState<Medicine | null>(null);
   const [selectedMedForBarcode, setSelectedMedForBarcode] = useState<Medicine | null>(null);
@@ -265,24 +266,29 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const fetchInventoryData = async () => {
     setLoading(true);
     try {
-      const [medRes, batRes, catRes, supRes] = await Promise.all([
+      const [medRes, batRes, catRes, supRes, profRes] = await Promise.all([
         fetch('/api/medicines'),
         fetch('/api/batches'),
         fetch('/api/categories'),
         fetch('/api/suppliers'),
+        fetch('/api/pharmacy/profile'),
       ]);
 
-      const [medData, batData, catData, supData] = await Promise.all([
+      const [medData, batData, catData, supData, profData] = await Promise.all([
         medRes.json(),
         batRes.json(),
         catRes.json(),
         supRes.json(),
+        profRes.json().catch(() => ({ success: false })),
       ]);
 
       if (medData.success) setMedicines(medData.data);
       if (batData.success) setBatches(batData.data);
       if (catData.success) setCategories(catData.data);
       if (supData.success) setSuppliers(supData.data);
+      if (profData?.success && profData.data) {
+        setEnableBarcodeSystem(Boolean(profData.data.enableBarcodeSystem));
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -717,12 +723,29 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
               />
               <button
                 type="button"
-                onClick={() => setIsScannerOpen(true)}
-                className="bg-teal-600 hover:bg-teal-700 text-white px-2.5 py-2 rounded-xl text-xs font-bold shrink-0 flex items-center gap-1 transition"
-                title="Scan QR Code or Barcode with Camera or File"
+                onClick={() => {
+                  if (!enableBarcodeSystem) {
+                    alert(
+                      'The Barcode Scanning subsystem is currently turned OFF by the Drug Store Owner.\n\nTo activate camera & QR/barcode scanning, ask the Drug Store Owner to switch it ON in Settings > System & Store Parameters.'
+                    );
+                    return;
+                  }
+                  setIsScannerOpen(true);
+                }}
+                className={`px-2.5 py-2 rounded-xl text-xs font-bold shrink-0 flex items-center gap-1 transition cursor-pointer ${
+                  enableBarcodeSystem
+                    ? 'bg-teal-600 hover:bg-teal-700 text-white'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-400'
+                }`}
+                title={enableBarcodeSystem ? 'Scan QR Code or Barcode with Camera or File' : 'Barcode scanner turned OFF by Store Owner'}
               >
                 <Scan className="h-4 w-4" />
                 <span className="hidden xl:inline text-[11px]">Scan QR</span>
+                {!enableBarcodeSystem && (
+                  <span className="text-[9px] bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-1 py-0.2 rounded font-bold uppercase">
+                    Off
+                  </span>
+                )}
               </button>
               <button
                 type="button"

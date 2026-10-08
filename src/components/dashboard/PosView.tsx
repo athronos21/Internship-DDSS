@@ -80,6 +80,7 @@ export const PosView: React.FC<PosViewProps> = ({ onOpenShiftHandover }) => {
   const [soundActive, setSoundActive] = useState(isSoundEnabled());
   const [lastScannedItemName, setLastScannedItemName] = useState<string | null>(null);
   const [offlineNotice, setOfflineNotice] = useState<string | null>(null);
+  const [enableBarcodeSystem, setEnableBarcodeSystem] = useState<boolean>(true);
   const scanFlashTimeoutRef = useRef<number | null>(null);
 
   // Draft Sales & Local Persistence state
@@ -94,6 +95,18 @@ export const PosView: React.FC<PosViewProps> = ({ onOpenShiftHandover }) => {
       return [];
     }
   });
+
+  useEffect(() => {
+    // Check pharmacy profile for barcode system toggle
+    fetch('/api/pharmacy/profile')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setEnableBarcodeSystem(Boolean(data.data.enableBarcodeSystem));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Quick Filters, QR codes, Low stock & Offline Log state
   const [isOfflineLogOpen, setIsOfflineLogOpen] = useState(false);
@@ -832,11 +845,29 @@ export const PosView: React.FC<PosViewProps> = ({ onOpenShiftHandover }) => {
               </button>
 
               <button
-                onClick={() => setIsScannerOpen(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-teal-700 transition shadow-sm shrink-0"
+                onClick={() => {
+                  if (!enableBarcodeSystem) {
+                    alert(
+                      'The Barcode Scanning subsystem is currently turned OFF by the Drug Store Owner.\n\nTo activate camera & laser barcode scanning, ask the Drug Store Owner to switch it ON in Settings > System & Store Parameters.'
+                    );
+                    return;
+                  }
+                  setIsScannerOpen(true);
+                }}
+                className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition shadow-sm shrink-0 cursor-pointer ${
+                  enableBarcodeSystem
+                    ? 'bg-teal-600 text-white hover:bg-teal-700'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                }`}
+                title={enableBarcodeSystem ? 'Scan physical medicine barcodes' : 'Barcode scanner turned OFF by Store Owner (Future Feature)'}
               >
                 <Scan className="h-4 w-4" />
-                Barcode Scanner
+                <span>Barcode Scanner</span>
+                {!enableBarcodeSystem && (
+                  <span className="text-[9px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded-md font-bold uppercase">
+                    Off
+                  </span>
+                )}
               </button>
             </div>
           </div>

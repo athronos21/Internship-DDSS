@@ -636,7 +636,7 @@ function AppContent() {
               }}
             />
           )}
-          {dashboardView === 'settings' && <SettingsView initialSubTab={settingsSubTab} />}
+          {dashboardView === 'settings' && <SettingsView initialSubTab={settingsSubTab} currentUser={currentUser} />}
         </DashboardLayout>
       ) : currentScreen === 'gateway' ? (
         /* STAFF WORKSTATION GATEWAY */
