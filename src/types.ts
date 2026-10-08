@@ -55,6 +55,9 @@ export interface PharmacyStoreProfile {
   receiptHeaderMessage?: string;
   receiptFooterMessage?: string;
   openingCashFloat?: number;
+  
+  // Feature flags
+  enableBarcodeSystem?: boolean;
   registeredAt: string;
 }
 
