@@ -10,6 +10,7 @@ import { ROLE_CONFIGS, PERMISSION_DOMAINS, getEffectiveRole, hasPermission } fro
 import { parsePackagingText } from './src/utils/pharmaPackagingParser.js';
 import { toNodeHandler } from 'better-auth/node';
 import { auth, seedInitialBetterAuthUsers } from './src/server/auth.js';
+import { registerDomainRoutes } from './src/server/routes/index.js';
 
 let aiClient: GoogleGenAI | null = null;
 function getGenAI(): GoogleGenAI | null {
@@ -55,6 +56,9 @@ export async function createExpressApp() {
       timestamp: new Date().toISOString(),
     });
   });
+
+  // Register modular domain routers
+  registerDomainRoutes(app);
 
   // AUTH USER SESSION & ROLE PERMISSIONS
   app.get('/api/auth/me', (req, res) => {

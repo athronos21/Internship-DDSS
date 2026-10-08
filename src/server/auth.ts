@@ -135,9 +135,9 @@ export async function seedInitialBetterAuthUsers() {
               name: u.name,
             },
           });
-          // Update user role
-          authDb.run('UPDATE user SET role = ? WHERE email = ?', [u.role, u.email]);
         }
+        // Ensure user role matches configured default role
+        authDb.run('UPDATE user SET role = ? WHERE email = ?', [u.role, u.email]);
       } else {
         await auth.api.signUpEmail({
           body: {
