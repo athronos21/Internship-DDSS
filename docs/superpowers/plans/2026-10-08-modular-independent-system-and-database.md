@@ -35,7 +35,7 @@
 **Interfaces:**
 - Produces: Complete TypeScript interfaces for `PharmacyStoreProfile`, `Medicine`, `MedicineBatch`, `InventoryTransaction`, `Sale`, `SaleItem`, `Supplier`, `PurchaseOrder`, `AuditLog`, `ShiftRecord`, `StockAdjustment`, `StockRequest`.
 
-- [ ] **Step 1: Write unit test for entity types and Barcode toggle property**
+- [x] **Step 1: Write unit test for entity types and Barcode toggle property**
 
 ```typescript
 // tests/dbTypes.test.ts
@@ -54,18 +54,18 @@ describe('Database Entity Types & Constraints', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure**
 Run: `bun test tests/dbTypes.test.ts`  
 Expected: FAIL ("Cannot find module '../src/server/db/types'")
 
-- [ ] **Step 3: Implement `src/server/db/types.ts` and update `src/types.ts`**
+- [x] **Step 3: Implement `src/server/db/types.ts` and update `src/types.ts`**
 Define all 14 entity interfaces with exact types, enums, and properties from Section 2 of the spec.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 Run: `bun test tests/dbTypes.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 ```bash
 git add src/server/db/types.ts src/types.ts tests/dbTypes.test.ts
 git commit -m "feat(db): establish normalized database types and enableBarcodeSystem property"
@@ -90,7 +90,7 @@ git commit -m "feat(db): establish normalized database types and enableBarcodeSy
 - Consumes: Entity interfaces from `src/server/db/types.ts`
 - Produces: `MedicineRepository`, `BatchRepository`, `SalesRepository`, `InventoryRepository`, `PurchaseRepository`, `UserRepository`, `AuditRepository`.
 
-- [ ] **Step 1: Write tests for domain repositories and FEFO atomic allocation**
+- [x] **Step 1: Write tests for domain repositories and FEFO atomic allocation**
 
 ```typescript
 // tests/repositories.test.ts
@@ -113,18 +113,18 @@ describe('Domain Repositories & Data Access Layer', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure**
 Run: `bun test tests/repositories.test.ts`  
 Expected: FAIL
 
-- [ ] **Step 3: Implement domain repositories under `src/server/db/repositories/` and wire into `src/server/db.ts`**
+- [x] **Step 3: Implement domain repositories under `src/server/db/repositories/` and wire into `src/server/db.ts`**
 Extract and modularize data access methods from `db.ts` into individual repository classes/modules while preserving the `db` export facade so existing callers remain unbroken.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 Run: `bun test tests/repositories.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 ```bash
 git add src/server/db/repositories/ src/server/db.ts tests/repositories.test.ts
 git commit -m "feat(db): implement modular domain repositories with atomic FEFO engine"
@@ -151,7 +151,7 @@ git commit -m "feat(db): implement modular domain repositories with atomic FEFO 
 - Consumes: Domain repositories from `src/server/db/` and role guards from `src/server/roleGuard.ts`
 - Produces: `authRouter`, `inventoryRouter`, `posRouter`, `purchasingRouter`, `financeRouter`, `hrRouter`, `adminRouter`, `aiRouter`.
 
-- [ ] **Step 1: Write tests for modular router mounting**
+- [x] **Step 1: Write tests for modular router mounting**
 
 ```typescript
 // tests/modularRoutes.test.ts
@@ -166,17 +166,17 @@ describe('Modular Express Domain Routers', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it passes or fails**
+- [x] **Step 2: Run test to verify it passes or fails**
 Run: `bun test tests/modularRoutes.test.ts`
 
-- [ ] **Step 3: Extract endpoints from `server.ts` into `src/server/routes/*` and register them in `src/server/index.ts`**
+- [x] **Step 3: Extract endpoints from `server.ts` into `src/server/routes/*` and register them in `src/server/index.ts`**
 Move endpoints by domain into separate router files. Keep `server.ts` as the clean ~60-line bootstrap file.
 
-- [ ] **Step 4: Run full test suite to verify all API endpoints work seamlessly**
+- [x] **Step 4: Run full test suite to verify all API endpoints work seamlessly**
 Run: `bun test`  
 Expected: All tests pass (including auth, medicines, sales, and browser UI tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 ```bash
 git add src/server/routes/ src/server/index.ts server.ts tests/modularRoutes.test.ts
 git commit -m "refactor(server): decouple monolithic server into modular domain routers"
@@ -197,7 +197,7 @@ git commit -m "refactor(server): decouple monolithic server into modular domain 
 - Consumes: `PharmacyStoreProfile.enableBarcodeSystem` from `/api/pharmacy/profile`
 - Produces: Dynamic UI adaptation based on owner setting.
 
-- [ ] **Step 1: Write test for Barcode Toggle state and permissions**
+- [x] **Step 1: Write test for Barcode Toggle state and permissions**
 
 ```typescript
 // tests/barcodeToggle.test.ts
@@ -214,16 +214,16 @@ describe('Store Owner Barcode Toggle', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it passes**
+- [x] **Step 2: Run test to verify it passes**
 Run: `bun test tests/barcodeToggle.test.ts`
 
-- [ ] **Step 3: Implement Barcode On/Off Switch in `SettingsView.tsx` and conditional rendering in POS & IMS**
+- [x] **Step 3: Implement Barcode On/Off Switch in `SettingsView.tsx` and conditional rendering in POS & IMS**
 Add a dedicated card in `SettingsView.tsx` (Store Configuration tab) allowing the Store Owner to toggle the Barcode Subsystem on or off. In `InventorySystemWorkstation.tsx` and `PosView.tsx`, fetch or inspect `pharmacyProfile.enableBarcodeSystem` to show or hide the barcode action buttons.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 Run: `bun test tests/barcodeToggle.test.ts`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 ```bash
 git add src/components/dashboard/SettingsView.tsx src/components/inventory/InventorySystemWorkstation.tsx src/components/dashboard/PosView.tsx tests/barcodeToggle.test.ts
 git commit -m "feat(settings): add Drug Store Owner barcode on/off feature toggle switch"
@@ -248,7 +248,7 @@ git commit -m "feat(settings): add Drug Store Owner barcode on/off feature toggl
 - Consumes: `/api/*` endpoints
 - Produces: Strongly typed async API functions returning `Promise<ApiResponse<T>>`.
 
-- [ ] **Step 1: Write test for typed API services**
+- [x] **Step 1: Write test for typed API services**
 
 ```typescript
 // tests/apiServices.test.ts
@@ -263,18 +263,18 @@ describe('Typed Frontend Client Services', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure**
 Run: `bun test tests/apiServices.test.ts`  
 Expected: FAIL
 
-- [ ] **Step 3: Implement typed client services in `src/services/api/`**
+- [x] **Step 3: Implement typed client services in `src/services/api/`**
 Create clean functions with full TypeScript return types.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 Run: `bun test tests/apiServices.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 ```bash
 git add src/services/api/ tests/apiServices.test.ts
 git commit -m "feat(client): implement strongly typed API domain services layer"
@@ -288,16 +288,16 @@ git commit -m "feat(client): implement strongly typed API domain services layer"
 - All created and modified files
 - Test: Run all 14 test files (`bun test`)
 
-- [ ] **Step 1: Run complete automated test suite**
+- [x] **Step 1: Run complete automated test suite**
 Run: `bun test`  
 Expected: 140+ passing tests, 0 failures.
 
-- [ ] **Step 2: Run production build**
+- [x] **Step 2: Run production build**
 Run: `bun run build`  
 Expected: Vite and esbuild build cleanly with 0 errors.
 
-- [ ] **Step 3: Push to remote main for Vercel deployment**
+- [x] **Step 3: Push to remote main for Vercel deployment**
 Run: `git push origin main`  
 Expected: Successfully pushed to GitHub `main` branch.
 
-- [ ] **Step 4: Commit and present final completion evidence**
+- [x] **Step 4: Commit and present final completion evidence**
