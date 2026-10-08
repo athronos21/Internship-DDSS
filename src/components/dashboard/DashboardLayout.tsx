@@ -9,6 +9,7 @@ import {
   ROLE_CONFIGS,
   hasPermission,
 } from '../../utils/roleManager';
+import { WorkstationDropdown, WorkstationId } from './WorkstationDropdown';
 import {
   LayoutDashboard,
   Pill,
@@ -94,6 +95,7 @@ interface DashboardLayoutProps {
   onOpenRoleManager?: () => void;
   onLogout: () => void;
   onBackToPublicPortal?: () => void;
+  onSwitchWorkstation?: (workstation: WorkstationId, subTab?: string) => void;
   children: React.ReactNode;
 }
 
@@ -108,6 +110,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onOpenRoleManager,
   onLogout,
   onBackToPublicPortal,
+  onSwitchWorkstation,
   children,
 }) => {
   const [notifications, setNotifications] = useState<Array<{ title: string; message: string; type: 'warning' | 'danger' }>>([]);
@@ -744,6 +747,33 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <span className="hidden sm:inline">Back to Public Portal</span>
             <span className="sm:hidden">Portal</span>
           </button>
+
+          {/* Workstations Dropdown Switcher */}
+          <WorkstationDropdown
+            currentUser={currentUser}
+            currentWorkstation={
+              activeView === 'inventory_system' || activeView === 'inventory'
+                ? 'IMS'
+                : activeView === 'pos'
+                ? 'POS'
+                : activeView === 'master_admin'
+                ? 'MASTER_ADMIN'
+                : 'STORE_OPS'
+            }
+            onSelectWorkstation={(ws, subTab) => {
+              if (onSwitchWorkstation) {
+                onSwitchWorkstation(ws, subTab);
+              } else if (ws === 'IMS') {
+                setActiveView('inventory_system');
+              } else if (ws === 'POS') {
+                setActiveView('pos');
+              } else if (ws === 'MASTER_ADMIN') {
+                setActiveView('master_admin');
+              } else {
+                setActiveView('dashboard');
+              }
+            }}
+          />
         </div>
 
         {/* Right Controls: Network Status, Notifications, Shift Handover, User Profile */}

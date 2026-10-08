@@ -58,11 +58,21 @@ export const IMS_TOOLBELT_ACTIONS: ImsToolbeltAction[] = [
 
 export interface InventorySystemWorkstationProps {
   currentUser: User;
-  initialSubTab?: 'medicines' | 'batches' | 'adjustments' | 'requests' | 'movements' | 'forecast';
+  initialSubTab?: 'medicines' | 'batches' | 'adjustments' | 'requests' | 'movements' | 'forecast' | string;
   onExitToDashboard: () => void;
   onSwitchWorkstation: (workstation: WorkstationId, subTab?: string) => void;
   onNavigateToAddMedicine?: () => void;
 }
+
+const normalizeImsTab = (tab?: string): 'medicines' | 'batches' | 'adjustments' | 'requests' | 'movements' | 'forecast' => {
+  if (!tab) return 'medicines';
+  if (tab === 'batches' || tab === 'low' || tab === 'expiring' || tab === 'archived') return 'batches';
+  if (tab === 'adjustments') return 'adjustments';
+  if (tab === 'requests') return 'requests';
+  if (tab === 'movements') return 'movements';
+  if (tab === 'forecast') return 'forecast';
+  return 'medicines';
+};
 
 export const InventorySystemWorkstation: React.FC<InventorySystemWorkstationProps> = ({
   currentUser,
@@ -71,7 +81,9 @@ export const InventorySystemWorkstation: React.FC<InventorySystemWorkstationProp
   onSwitchWorkstation,
   onNavigateToAddMedicine,
 }) => {
-  const [activeTab, setActiveTab] = useState<'medicines' | 'batches' | 'adjustments' | 'requests' | 'movements' | 'forecast'>(initialSubTab);
+  const [activeTab, setActiveTab] = useState<'medicines' | 'batches' | 'adjustments' | 'requests' | 'movements' | 'forecast'>(
+    normalizeImsTab(initialSubTab)
+  );
   const [inventoryStats, setInventoryStats] = useState({
     totalSkus: 0,
     totalValuation: 0,
@@ -92,7 +104,10 @@ export const InventorySystemWorkstation: React.FC<InventorySystemWorkstationProp
 
   useEffect(() => {
     if (initialSubTab) {
-      setActiveTab(initialSubTab);
+      setActiveTab(normalizeImsTab(initialSubTab));
+      if (initialSubTab === 'adjustments') {
+        setAutoOpenAdjustModal(true);
+      }
     }
   }, [initialSubTab]);
 
@@ -128,7 +143,10 @@ export const InventorySystemWorkstation: React.FC<InventorySystemWorkstationProp
   };
 
   // Map internal tab to InventoryView tab
-  const getInventoryViewSubTab = () => {
+  const getInventoryViewSubTab = (): 'medicines' | 'batches' | 'low' | 'expiring' | 'archived' | 'movements' | 'requests' => {
+    if (activeTab === 'batches' && (initialSubTab === 'low' || initialSubTab === 'expiring' || initialSubTab === 'archived')) {
+      return initialSubTab as any;
+    }
     switch (activeTab) {
       case 'batches':
         return 'batches';

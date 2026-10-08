@@ -16,6 +16,7 @@ import { OwnerRegistrationModal } from './components/public/OwnerRegistrationMod
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { OverviewView } from './components/dashboard/OverviewView';
 import { InventoryView } from './components/dashboard/InventoryView';
+import { InventorySystemWorkstation } from './components/inventory/InventorySystemWorkstation';
 import { AddMedicineView } from './components/dashboard/AddMedicineView';
 import { PosView } from './components/dashboard/PosView';
 import { SalesView } from './components/dashboard/SalesView';
@@ -406,27 +407,35 @@ function AppContent() {
             } else if (itemId === 'portal_cms') {
               setDashboardView('portal_cms');
             } else if (itemId === 'inventory' || itemId === 'medicines') {
-              setDashboardView('inventory');
+              setDashboardView('inventory_system');
               setInventorySubTab('medicines');
             } else if (itemId === 'inventory_add' || itemId === 'add_product' || itemId === 'add_medicine') {
               setDashboardView('add_medicine');
             } else if (itemId === 'inventory_expired') {
+              setDashboardView('inventory_system');
               setInventorySubTab('expiring');
             } else if (itemId === 'inventory_archived') {
+              setDashboardView('inventory_system');
               setInventorySubTab('archived');
             } else if (itemId === 'stock_movements') {
+              setDashboardView('inventory_system');
               setInventorySubTab('movements');
             } else if (itemId === 'stock_adjustments') {
+              setDashboardView('inventory_system');
               setInventorySubTab('batches');
               setAutoOpenAdjustModal(true);
             } else if (itemId === 'stock_requests') {
+              setDashboardView('inventory_system');
               setInventorySubTab('requests');
             } else if (itemId === 'create_stock_req') {
+              setDashboardView('inventory_system');
               setInventorySubTab('requests');
               setAutoOpenCreateReqModal(true);
             } else if (itemId === 'batch_mgmt') {
+              setDashboardView('inventory_system');
               setInventorySubTab('batches');
             } else if (itemId === 'expiry_tracking') {
+              setDashboardView('inventory_system');
               setInventorySubTab('expiring');
             } else if (itemId === 'stock_report' || itemId === 'movement_report') {
               setDashboardView('reports');
@@ -534,6 +543,18 @@ function AppContent() {
             setCurrentScreen('gateway');
           }}
           onBackToPublicPortal={() => setCurrentScreen('public_home')}
+          onSwitchWorkstation={(ws, subTab) => {
+            if (ws === 'IMS') {
+              setDashboardView('inventory_system');
+              if (subTab) setInventorySubTab(subTab as any);
+            } else if (ws === 'POS') {
+              setDashboardView('pos');
+            } else if (ws === 'MASTER_ADMIN') {
+              setDashboardView('master_admin');
+            } else {
+              setDashboardView('dashboard');
+            }
+          }}
         >
           {/* MASTER ADMIN FLEET VIEW */}
           {(dashboardView === 'master_admin' || (isSuperAdmin && dashboardView === 'dashboard')) && (
@@ -541,7 +562,7 @@ function AppContent() {
               currentUser={currentUser!}
               initialSubTab={masterAdminSubTab}
               initialSubFilter={masterAdminSubFilter}
-              onSwitchToStoreWorkstation={(storeId, targetView) => setDashboardView(targetView || 'inventory')}
+              onSwitchToStoreWorkstation={(storeId, targetView) => setDashboardView(targetView || 'inventory_system')}
               onOpenOwnerRegistration={() => setIsOwnerRegisterModalOpen(true)}
             />
           )}
@@ -549,23 +570,34 @@ function AppContent() {
           {dashboardView === 'dashboard' && !isSuperAdmin && (
             <OverviewView currentUser={currentUser} onNavigate={(v) => setDashboardView(v)} />
           )}
-          {dashboardView === 'inventory' && (
-            <InventoryView
+          {(dashboardView === 'inventory' || dashboardView === 'inventory_system') && (
+            <InventorySystemWorkstation
+              currentUser={currentUser!}
               initialSubTab={inventorySubTab}
-              autoOpenAddModal={autoOpenAddMedModal}
-              autoOpenAdjustModal={autoOpenAdjustModal}
-              autoOpenCreateReqModal={autoOpenCreateReqModal}
+              onExitToDashboard={() => setDashboardView('dashboard')}
+              onSwitchWorkstation={(ws, subTab) => {
+                if (ws === 'IMS') {
+                  setDashboardView('inventory_system');
+                  if (subTab) setInventorySubTab(subTab as any);
+                } else if (ws === 'POS') {
+                  setDashboardView('pos');
+                } else if (ws === 'MASTER_ADMIN') {
+                  setDashboardView('master_admin');
+                } else {
+                  setDashboardView('dashboard');
+                }
+              }}
               onNavigateToAddMedicine={() => setDashboardView('add_medicine')}
             />
           )}
           {dashboardView === 'add_medicine' && (
             <AddMedicineView
               onBack={() => {
-                setDashboardView('inventory');
+                setDashboardView('inventory_system');
                 setInventorySubTab('medicines');
               }}
               onSuccess={() => {
-                setDashboardView('inventory');
+                setDashboardView('inventory_system');
                 setInventorySubTab('medicines');
               }}
             />
