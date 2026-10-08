@@ -90,6 +90,7 @@ Represents the licensed drugstore/pharmacy node.
 | `bankAccountNumber`| `string` | Yes | Bank settlement account number |
 | `receiptHeaderMessage`|`string`| Yes | Custom POS thermal receipt header |
 | `receiptFooterMessage`|`string`| Yes | Custom POS thermal receipt footer |
+| `enableBarcodeSystem` | `boolean`| No | Owner-controlled master feature toggle for Barcode scanner & Label Studio (Default: false) |
 | `status` | `enum` | No | `'ACTIVE' \| 'PENDING_REVIEW' \| 'VERIFIED' \| 'MAINTENANCE'` |
 | `registeredAt` | `string` | No | ISO timestamp of initial registration |
 
@@ -228,6 +229,25 @@ Institutional role management and cashier shifts.
 
 ### 2.8 Entity: `AuditLog` (Security Audit Trail)
 - `id`, `userId`, `action`, `entityType`, `entityId`, `oldData`, `newData`, `ipAddress`, `userAgent`, `createdAt`.
+
+---
+
+### 2.9 Barcode Subsystem & Drug Store Owner On/Off Feature Toggle
+
+The Barcode subsystem (Code-128 generator, Label Studio, thermal sticker printing, hardware USB/Bluetooth scanner listeners, and camera barcode recognition) is designed and fully implemented as a modular future-ready capability, controlled directly by the **Drug Store Owner**.
+
+#### Configuration & Control:
+1. **Master Setting in Database**:
+   - `PharmacyStoreProfile.enableBarcodeSystem: boolean`
+   - Stored in store profile and exposed via `GET /api/pharmacy/profile` and `PUT /api/pharmacy/profile`.
+   - Modifiable strictly by users with `STORE_OWNER` or `SUPER_ADMIN` role permissions.
+2. **Owner Management UI in Settings (`SettingsView.tsx`)**:
+   - Dedicated **"Hardware & Barcode Subsystem"** control card with a toggle switch:
+     - `[ON] Active`: Barcode scanning buttons in IMS and POS are visible; Label Studio is enabled; hardware scanner auto-focuses; medicine intake auto-generates Code-128 stickers.
+     - `[OFF] Disabled`: Barcode scanners, Label Studio buttons, and barcode input requirements are cleanly hidden; system operates entirely in SKU / Formulary search mode.
+3. **Graceful Fallback & Zero Friction**:
+   - When toggled `OFF`, every medicine continues to have an internal unique SKU (`KZN-AMOX-8491`), allowing 100% full POS checkout, inventory audits, and sales reporting without requiring physical barcode scanners.
+   - When toggled `ON`, all Code-128 generation and scanner modals become instantly active without restarting or redeploying the app.
 
 ---
 
