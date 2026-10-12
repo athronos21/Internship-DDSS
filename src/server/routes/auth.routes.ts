@@ -14,8 +14,8 @@ seedInitialBetterAuthUsers().catch((err) => {
 });
 
 // AUTH USER SESSION & ROLE PERMISSIONS
-authRouter.get('/auth/me', (req, res) => {
-  const user = getAuthenticatedUser(req);
+authRouter.get('/auth/me', async (req, res) => {
+  const user = await getAuthenticatedUser(req);
   const effectiveRole = getEffectiveRole(user);
   const roleConfig = ROLE_CONFIGS[effectiveRole];
   res.json({
@@ -161,9 +161,14 @@ authRouter.post('/auth/login', (req, res) => {
     'Admin#2026',
     'Pharma#2026',
     'Atronos#2026',
+    'Beka#2026',
+    'Kaziniya#2026',
     'Alemu#2026',
+    'Monet#2026',
     'Muna#2026',
     'Bethlehem#2026',
+    'Supplier#2026',
+    'MedTech#2026',
     'password123',
   ];
   const isPasswordValid =
@@ -171,16 +176,17 @@ authRouter.post('/auth/login', (req, res) => {
     (user.password && user.password === password) ||
     (user.temporaryPassword && user.temporaryPassword === password) ||
     demoFallbackPasswords.includes(password) ||
-    (user.role === 'SUPER_ADMIN' && password === 'Atronos#2026') ||
-    (user.role === 'STORE_OWNER' && password === 'Alemu#2026') ||
-    (user.role === 'PHARMACIST' && (password === 'Muna#2026' || password === 'Bethlehem#2026'));
+    (user.role === 'SUPER_ADMIN' && (password === 'Atronos#2026' || password === 'Beka#2026')) ||
+    (user.role === 'STORE_OWNER' && (password === 'Kaziniya#2026' || password === 'Alemu#2026' || password === 'Admin#2026')) ||
+    (user.role === 'PHARMACIST' && (password === 'Monet#2026' || password === 'Muna#2026' || password === 'Bethlehem#2026')) ||
+    (user.role === 'SUPPLIER' && (password === 'Supplier#2026' || password === 'MedTech#2026'));
 
   if (!isPasswordValid) {
     return res.status(401).json({ success: false, message: 'Invalid password. Please check your credentials or temporary password slip.' });
   }
 
   // Verify PIN if provided (accept matching PIN or standard demo seed PINs)
-  const demoFallbackPins = ['2144', '1234', '3456', '4567'];
+  const demoFallbackPins = ['2144', '1234', '3456', '4567', '5678'];
   const isPinValid = !pin || (user.pin && user.pin === pin) || demoFallbackPins.includes(pin);
 
   if (!isPinValid) {
@@ -362,7 +368,7 @@ authRouter.post('/auth/register-owner', (req, res) => {
         department: prev.isSuperAdmin ? 'Whole System Administration & Governance' : 'Drug Store Ownership & Executive Management',
         isActive: true,
         isOwner: true,
-        isSuperAdmin: prev.isSuperAdmin || ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com',
+        isSuperAdmin: prev.isSuperAdmin || ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com' || ownerEmail.toLowerCase().trim() === 'beka.girma@gmail.com',
         tinNumber: tinNumber.trim(),
         nationalId: ownerNationalId ? ownerNationalId.trim() : prev.nationalId,
         pharmacistLicense: ownerPharmacistLicense ? ownerPharmacistLicense.trim() : prev.pharmacistLicense,
@@ -384,10 +390,10 @@ authRouter.post('/auth/register-owner', (req, res) => {
         role: 'STORE_OWNER',
         phone: ownerPhone ? ownerPhone.trim() : storePhone || '+251 911 000 000',
         employeeId: employeeCode,
-        department: ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com' ? 'Whole System Administration & Governance' : 'Drug Store Ownership & Executive Management',
+        department: (ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com' || ownerEmail.toLowerCase().trim() === 'beka.girma@gmail.com') ? 'Whole System Administration & Governance' : 'Drug Store Ownership & Executive Management',
         isActive: true,
         isOwner: true,
-        isSuperAdmin: ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com',
+        isSuperAdmin: ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com' || ownerEmail.toLowerCase().trim() === 'beka.girma@gmail.com',
         tinNumber: tinNumber.trim(),
         nationalId: ownerNationalId ? ownerNationalId.trim() : undefined,
         pharmacistLicense: ownerPharmacistLicense ? ownerPharmacistLicense.trim() : undefined,
