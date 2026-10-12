@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { db } from '../db.js';
 import { SalesRepository } from '../db/repositories/sales.repository.js';
 import { MedicineRepository } from '../db/repositories/medicine.repository.js';
+import { OrderRepository } from '../db/repositories/order.repository.js';
 import { requireRole, AuthenticatedRequest } from '../roleGuard.js';
 
 export const posRouter = Router();
@@ -81,47 +82,40 @@ posRouter.post('/sales', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN'
 });
 
 // ORDERS MANAGEMENT (Online Customer Storefront Orders)
-const inMemoryOrders: any[] = [];
-
 posRouter.get('/orders', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
-  res.json({ success: true, data: inMemoryOrders });
+  res.json({ success: true, data: OrderRepository.list(200) });
 });
 
 posRouter.post('/orders', (req, res) => {
   try {
-    const { customerName, phone, address, items, totalAmount, paymentMethod } = req.body;
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ success: false, message: 'Order must contain items' });
-    }
-
-    const newOrder = {
-      id: `ord-${Date.now()}`,
-      orderNumber: `KZ-ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: customerName || 'Walk-in Customer',
-      phone: phone || '',
-      address: address || 'Addis Ababa',
+    const { customerName, phone, address, items, paymentMethod } = req.body;
+    const newOrder = OrderRepository.createOrder({
+      customerName,
+      phone,
+      address,
       items,
-      totalAmount: Number(totalAmount) || 0,
-      paymentMethod: paymentMethod || 'CASH_ON_DELIVERY',
-      paymentStatus: 'PENDING',
-      orderStatus: 'PENDING_DISPENSATION',
-      createdAt: new Date().toISOString(),
-    };
-
-    inMemoryOrders.unshift(newOrder);
+      paymentMethod,
+    });
     res.status(201).json({ success: true, message: 'Prescription order received', data: newOrder });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
 posRouter.patch('/orders/:id', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
-  const order = inMemoryOrders.find((o) => o.id === req.params.id);
-  if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-
-  if (req.body.orderStatus) order.orderStatus = req.body.orderStatus;
-  if (req.body.paymentStatus) order.paymentStatus = req.body.paymentStatus;
-  res.json({ success: true, message: 'Order updated', data: order });
+  try {
+    const { orderStatus, paymentStatus } = req.body;
+    const order = OrderRepository.updateStatus(req.params.id, {
+      orderStatus,
+      paymentStatus,
+    });
+    res.json({ success: true, message: 'Order updated', data: order });
+  } catch (err: any) {
+    if (err.message === 'Order not found.') {
+      return res.status(404).json({ success: false, message: err.message });
+    }
+    res.status(400).json({ success: false, message: err.message });
+  }
 });
 
 // SHIFT HANDOVER
