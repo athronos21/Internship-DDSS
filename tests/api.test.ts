@@ -190,7 +190,7 @@ describe('API Endpoints & Integration Suite', () => {
       const body = await res.json();
       expect(body.success).toBe(true);
       expect(body.data.invoiceNumber).toBeDefined();
-      expect(body.data.totalAmount).toBe(40);
+      expect(body.data.totalAmount).toBe(med!.sellingPrice!);
       createdInvoiceNumber = body.data.invoiceNumber;
     });
 

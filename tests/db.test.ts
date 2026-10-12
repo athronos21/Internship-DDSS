@@ -115,7 +115,7 @@ describe('Database Engine & Pharmacy Business Logic Suite', () => {
       expect(sale.invoiceNumber).toMatch(/^KS-\d+/);
       expect(sale.paymentMethod).toBe('TELEBIRR');
       expect(sale.paymentStatus).toBe('PAID');
-      expect(sale.totalAmount).toBe(2 * 50 - 5);
+      expect(sale.totalAmount).toBe(2 * batchBefore.sellingPrice - 5);
       expect(sale.items.length).toBe(1);
 
       // Verify stock was deducted from target batch

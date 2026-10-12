@@ -42,7 +42,7 @@
 - Consumes: `allocateFefoStock` from `src/server/db.ts`, `medicineBatches` from `src/server/db.ts`
 - Produces: Hardened `processSaleTransaction` and `POST /api/sales` ignoring client prices and validating quantity/discount limits
 
-- [ ] **Step 1: Write failing tests in `tests/posPricingSecurity.test.ts`**
+- [x] **Step 1: Write failing tests in `tests/posPricingSecurity.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
@@ -176,12 +176,12 @@ describe('POS Pricing & Quantity Security (POST /api/sales)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `bun test tests/posPricingSecurity.test.ts`  
 Expected: FAIL because client unit price is currently accepted and discounts/quantities are unvalidated.
 
-- [ ] **Step 3: Refactor `processSaleTransaction` in `src/server/db.ts` & validation in `src/server/routes/pos.routes.ts`**
+- [x] **Step 3: Refactor `processSaleTransaction` in `src/server/db.ts` & validation in `src/server/routes/pos.routes.ts`**
 
 Implement:
 - In `pos.routes.ts`: Validate that `items` is non-empty array ($\le 100$), every item has positive integer quantity `Number.isInteger(q) && q >= 1 && q <= 10000`, and `paymentMethod` is valid.
@@ -191,12 +191,12 @@ Implement:
   - Validate `overallDiscount >= 0 && overallDiscount <= (0.20 * subtotal)`. If greater, throw `new Error('Discretionary cashier discount cannot exceed 20% of cart subtotal.')`.
   - Calculate `totalAmount = Math.round((subtotal - overallDiscount) * 100) / 100`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `bun test tests/posPricingSecurity.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/db.ts src/server/routes/pos.routes.ts tests/posPricingSecurity.test.ts
@@ -215,7 +215,7 @@ git commit -m "feat(pos): enforce server-authoritative batch pricing, positive i
 - Consumes: `withTransactionLock`, `medicineBatches`
 - Produces: Serialized, atomic `processSaleTransaction` with cart medicine aggregation and complete rollback on allocation failure
 
-- [ ] **Step 1: Write failing tests in `tests/posInventoryAtomicity.test.ts`**
+- [x] **Step 1: Write failing tests in `tests/posInventoryAtomicity.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
@@ -312,12 +312,12 @@ describe('POS Inventory Atomicity & Concurrency (POST /api/sales)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `bun test tests/posInventoryAtomicity.test.ts`  
 Expected: FAIL because cart items are evaluated independently without demand pre-aggregation, leading to over-allocation or partial deduction.
 
-- [ ] **Step 3: Implement cart aggregation and snapshot rollback in `src/server/db.ts`**
+- [x] **Step 3: Implement cart aggregation and snapshot rollback in `src/server/db.ts`**
 
 Implement:
 - Add `withTransactionLock` serialization in `src/server/db.ts`.
@@ -333,12 +333,12 @@ Implement:
   ```
 - Wrap deduction in snapshot tracking: if any exception occurs during batch deduction, restore all mutated batches from the snapshot and re-throw.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `bun test tests/posInventoryAtomicity.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/db.ts tests/posInventoryAtomicity.test.ts
@@ -358,7 +358,7 @@ git commit -m "feat(inventory): implement cart demand aggregation, serialized tr
 - Consumes: `MedicineRepository` from `src/server/db/repositories/medicine.repository.ts`
 - Produces: `OrderRepository` providing safe CRUD, catalog price computation, and status lifecycle state transitions
 
-- [ ] **Step 1: Write failing tests in `tests/orderSecurity.test.ts`**
+- [x] **Step 1: Write failing tests in `tests/orderSecurity.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
@@ -462,12 +462,12 @@ describe('Public Order Integrity & Lifecycle (POST /api/orders)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `bun test tests/orderSecurity.test.ts`  
 Expected: FAIL because `totalAmount` is taken directly from the client without catalog lookup, and status transitions are unrestricted.
 
-- [ ] **Step 3: Create `OrderRepository` and update `pos.routes.ts`**
+- [x] **Step 3: Create `OrderRepository` and update `pos.routes.ts`**
 
 Implement:
 - Create `src/server/db/repositories/order.repository.ts`:
@@ -479,12 +479,12 @@ Implement:
     - Terminal states `DISPENSED` and `CANCELLED` cannot transition to other statuses.
 - Update `pos.routes.ts` `/orders` endpoints to use `OrderRepository`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `bun test tests/orderSecurity.test.ts`  
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/db/repositories/order.repository.ts src/server/routes/pos.routes.ts tests/orderSecurity.test.ts
@@ -499,26 +499,26 @@ git commit -m "feat(orders): implement OrderRepository with catalog price deriva
 - Modify: `tests/api.test.ts` (if needed, to match catalog price for test sale)
 - Test: All tests across `tests/`
 
-- [ ] **Step 1: Check existing integration test alignment**
+- [x] **Step 1: Check existing integration test alignment**
 
 Inspect `tests/api.test.ts` line 182-193. Ensure the test item either omits `unitPrice` or expects `med.sellingPrice`.
 
-- [ ] **Step 2: Execute full regression test suite**
+- [x] **Step 2: Execute full regression test suite**
 
 Run: `bun test`  
 Expected: 100% tests passing across all test files.
 
-- [ ] **Step 3: Execute TypeScript check**
+- [x] **Step 3: Execute TypeScript check**
 
 Run: `bun x tsc --noEmit`  
 Expected: 0 errors.
 
-- [ ] **Step 4: Execute production bundle build**
+- [x] **Step 4: Execute production bundle build**
 
 Run: `bun run build`  
 Expected: Client and server bundles build cleanly with exit code 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add tests/ tests/api.test.ts
