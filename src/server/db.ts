@@ -1410,6 +1410,17 @@ export function allocateFefoStock(medicineId: string, quantityNeeded: number): F
   };
 }
 
+// In-memory serialized transaction lock
+let transactionLock: Promise<any> = Promise.resolve();
+
+export async function withTransactionLock<T>(fn: () => Promise<T> | T): Promise<T> {
+  const nextLock = transactionLock.then(async () => {
+    return await fn();
+  });
+  transactionLock = nextLock.catch(() => {});
+  return nextLock;
+}
+
 // ATOMIC SALE PROCESSOR
 export function processSaleTransaction(
   saleData: {
@@ -1422,121 +1433,208 @@ export function processSaleTransaction(
 ): Sale {
   const seller = users.find((u) => u.id === saleData.soldByUserId) || users[3]; // Default Cashier
   const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
   const invoiceNumber = `KS-${Math.floor(100000 + Math.random() * 900000)}`;
 
   let subtotal = 0;
   const processedSaleItems: Sale['items'] = [];
   const inventoryTxLogs: InventoryTransaction[] = [];
 
-  // Step 1: Pre-validate all items and allocate via FEFO atomically
+  // Step 1: Pre-aggregate demand per medicine to check aggregate availability across the cart
+  const aggregateDemand = new Map<string, number>();
+  for (const item of saleData.items) {
+    const current = aggregateDemand.get(item.medicineId) || 0;
+    aggregateDemand.set(item.medicineId, current + item.quantity);
+  }
+
+  for (const [medId, totalNeeded] of aggregateDemand.entries()) {
+    const med = medicines.find((m) => m.id === medId);
+    if (!med) throw new Error(`Medicine with ID ${medId} not found.`);
+    const activeBatches = medicineBatches.filter(
+      (b) => b.medicineId === medId && b.currentQuantity > 0 && b.expiryDate >= todayStr
+    );
+    const totalAvail = activeBatches.reduce((acc, b) => acc + b.currentQuantity, 0);
+    if (totalAvail < totalNeeded) {
+      throw new Error(
+        `Insufficient stock for "${med.name}". Requested: ${totalNeeded}, Available non-expired: ${totalAvail}`
+      );
+    }
+  }
+
+  // Step 2: Simulate FEFO allocation across items with shared remaining quantities
+  const simulatedBatchStock = new Map<string, number>();
+  medicineBatches.forEach((b) => simulatedBatchStock.set(b.id, b.currentQuantity));
+
   const fefoAllocations = saleData.items.map((item) => {
-    return allocateFefoStock(item.medicineId, item.quantity);
-  });
+    const med = medicines.find((m) => m.id === item.medicineId)!;
+    const availableBatches = medicineBatches.filter(
+      (b) => b.medicineId === item.medicineId && (simulatedBatchStock.get(b.id) || 0) > 0 && b.expiryDate >= todayStr
+    );
+    availableBatches.sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
 
-  // Step 2: Perform stock deductions & create sale items
-  fefoAllocations.forEach((allocation, idx) => {
-    const inputItem = saleData.items[idx];
-    const discount = inputItem.discount || 0;
+    let remainingToDeduct = item.quantity;
+    const allocatedBatches: FefoAllocationResult['allocatedBatches'] = [];
 
-    allocation.allocatedBatches.forEach((alloc) => {
-      // Find batch and deduct currentQuantity
-      const targetBatch = medicineBatches.find((b) => b.id === alloc.batchId);
-      if (!targetBatch) throw new Error(`Batch ${alloc.batchId} missing during transaction execution.`);
+    for (const batch of availableBatches) {
+      if (remainingToDeduct <= 0) break;
+      const simQty = simulatedBatchStock.get(batch.id) || 0;
+      if (simQty <= 0) continue;
 
-      const prevQty = targetBatch.currentQuantity;
-      targetBatch.currentQuantity -= alloc.qtyDeducted;
-      targetBatch.updatedAt = now.toISOString();
-
-      // Server-authoritative batch pricing: ignore any client-supplied unitPrice
-      const itemPrice = alloc.unitPrice;
-      const lineSubtotal = alloc.qtyDeducted * itemPrice;
-      if (discount < 0 || discount > lineSubtotal) {
-        throw new Error(`Line discount (${discount}) cannot exceed line subtotal (${lineSubtotal}).`);
-      }
-      const lineTotal = lineSubtotal - discount;
-      subtotal += lineTotal;
-
-      processedSaleItems.push({
-        id: `si-${Math.random().toString(36).substr(2, 9)}`,
-        saleId: invoiceNumber,
-        medicineId: allocation.medicineId,
-        medicineName: allocation.medicineName,
-        batchId: alloc.batchId,
-        batchNumber: alloc.batchNumber,
-        expiryDate: alloc.expiryDate,
-        quantity: alloc.qtyDeducted,
-        unitPrice: itemPrice,
-        discount: discount,
-        totalPrice: lineTotal,
-        unitCost: alloc.unitCost,
+      const deductFromThis = Math.min(simQty, remainingToDeduct);
+      allocatedBatches.push({
+        batchId: batch.id,
+        batchNumber: batch.batchNumber,
+        expiryDate: batch.expiryDate,
+        qtyDeducted: deductFromThis,
+        unitCost: batch.purchasePrice,
+        unitPrice: batch.sellingPrice,
       });
 
-      // Create transaction record
-      const tx: InventoryTransaction = {
-        id: `tx-${Math.random().toString(36).substr(2, 9)}`,
-        medicineId: allocation.medicineId,
-        medicineName: allocation.medicineName,
-        batchId: alloc.batchId,
-        batchNumber: alloc.batchNumber,
-        transactionType: 'SALE',
-        quantity: -alloc.qtyDeducted,
-        previousQuantity: prevQty,
-        newQuantity: targetBatch.currentQuantity,
-        referenceId: invoiceNumber,
-        referenceType: 'SALE',
-        performedBy: seller.id,
-        performedByName: seller.name,
-        notes: `Sale invoice #${invoiceNumber}`,
-        createdAt: now.toISOString(),
-      };
-      inventoryTransactions.unshift(tx);
+      simulatedBatchStock.set(batch.id, simQty - deductFromThis);
+      remainingToDeduct -= deductFromThis;
+    }
+
+    if (remainingToDeduct > 0) {
+      throw new Error(`Insufficient stock for "${med.name}".`);
+    }
+
+    return {
+      medicineId: med.id,
+      medicineName: med.name,
+      requestedQty: item.quantity,
+      allocatedBatches,
+      totalAllocated: item.quantity,
+      unitPrice: allocatedBatches.length > 0 ? allocatedBatches[0].unitPrice : 0,
+    };
+  });
+
+  // Step 3: Perform stock deductions & atomic snapshot tracking
+  const mutatedBatchesSnapshot = new Map<string, number>();
+
+  try {
+    fefoAllocations.forEach((allocation, idx) => {
+      const inputItem = saleData.items[idx];
+      const discount = inputItem.discount || 0;
+
+      allocation.allocatedBatches.forEach((alloc) => {
+        const targetBatch = medicineBatches.find((b) => b.id === alloc.batchId);
+        if (!targetBatch) throw new Error(`Batch ${alloc.batchId} missing during transaction execution.`);
+
+        if (!mutatedBatchesSnapshot.has(targetBatch.id)) {
+          mutatedBatchesSnapshot.set(targetBatch.id, targetBatch.currentQuantity);
+        }
+
+        if (targetBatch.currentQuantity < alloc.qtyDeducted) {
+          throw new Error(`Insufficient batch stock for batch ${alloc.batchNumber}.`);
+        }
+
+        const prevQty = targetBatch.currentQuantity;
+        targetBatch.currentQuantity -= alloc.qtyDeducted;
+        targetBatch.updatedAt = now.toISOString();
+
+        // Server-authoritative batch pricing: ignore any client-supplied unitPrice
+        const itemPrice = alloc.unitPrice;
+        const lineSubtotal = alloc.qtyDeducted * itemPrice;
+        if (discount < 0 || discount > lineSubtotal) {
+          throw new Error(`Line discount (${discount}) cannot exceed line subtotal (${lineSubtotal}).`);
+        }
+        const lineTotal = lineSubtotal - discount;
+        subtotal += lineTotal;
+
+        processedSaleItems.push({
+          id: `si-${Math.random().toString(36).substr(2, 9)}`,
+          saleId: invoiceNumber,
+          medicineId: allocation.medicineId,
+          medicineName: allocation.medicineName,
+          batchId: alloc.batchId,
+          batchNumber: alloc.batchNumber,
+          expiryDate: alloc.expiryDate,
+          quantity: alloc.qtyDeducted,
+          unitPrice: itemPrice,
+          discount: discount,
+          totalPrice: lineTotal,
+          unitCost: alloc.unitCost,
+        });
+
+        // Create transaction record
+        const tx: InventoryTransaction = {
+          id: `tx-${Math.random().toString(36).substr(2, 9)}`,
+          medicineId: allocation.medicineId,
+          medicineName: allocation.medicineName,
+          batchId: alloc.batchId,
+          batchNumber: alloc.batchNumber,
+          transactionType: 'SALE',
+          quantity: -alloc.qtyDeducted,
+          previousQuantity: prevQty,
+          newQuantity: targetBatch.currentQuantity,
+          referenceId: invoiceNumber,
+          referenceType: 'SALE',
+          performedBy: seller.id,
+          performedByName: seller.name,
+          notes: `Sale invoice #${invoiceNumber}`,
+          createdAt: now.toISOString(),
+        };
+        inventoryTxLogs.push(tx);
+      });
     });
-  });
 
-  const overallDiscount = saleData.discount || 0;
-  if (overallDiscount < 0) {
-    throw new Error('Overall discount cannot be negative.');
+    const overallDiscount = saleData.discount || 0;
+    if (overallDiscount < 0) {
+      throw new Error('Overall discount cannot be negative.');
+    }
+    const maxAllowedDiscount = Math.round(subtotal * 0.20 * 100) / 100;
+    if (overallDiscount > maxAllowedDiscount) {
+      throw new Error(
+        `Discretionary cashier discount (${overallDiscount} ETB) cannot exceed 20% of cart subtotal (${maxAllowedDiscount} ETB).`
+      );
+    }
+    const totalAmount = Math.max(0, Math.round((subtotal - overallDiscount) * 100) / 100);
+
+    // Commit inventory transaction logs
+    inventoryTxLogs.forEach((tx) => inventoryTransactions.unshift(tx));
+
+    const newSale: Sale = {
+      id: `inv-${Date.now()}`,
+      invoiceNumber,
+      customerName: saleData.customerName || 'Walk-in Customer',
+      subtotal,
+      discount: overallDiscount,
+      tax: 0,
+      totalAmount,
+      paymentMethod: saleData.paymentMethod,
+      paymentStatus: 'PAID',
+      soldBy: seller.id,
+      soldByName: seller.name,
+      items: processedSaleItems,
+      createdAt: now.toISOString(),
+    };
+
+    sales.unshift(newSale);
+
+    // Add Audit Log
+    auditLogs.unshift({
+      id: `log-${Date.now()}`,
+      userId: seller.id,
+      userName: seller.name,
+      action: 'SALE_COMPLETED',
+      entityType: 'SALE',
+      entityId: newSale.id,
+      newData: { invoiceNumber, totalAmount, itemsCount: processedSaleItems.length },
+      ipAddress: '127.0.0.1',
+      createdAt: now.toISOString(),
+    });
+
+    return newSale;
+  } catch (err) {
+    // ATOMIC ROLLBACK: Restore every mutated batch to its original quantity
+    for (const [batchId, originalQty] of mutatedBatchesSnapshot.entries()) {
+      const b = medicineBatches.find((batch) => batch.id === batchId);
+      if (b) {
+        b.currentQuantity = originalQty;
+      }
+    }
+    throw err;
   }
-  const maxAllowedDiscount = Math.round(subtotal * 0.20 * 100) / 100;
-  if (overallDiscount > maxAllowedDiscount) {
-    throw new Error(
-      `Discretionary cashier discount (${overallDiscount} ETB) cannot exceed 20% of cart subtotal (${maxAllowedDiscount} ETB).`
-    );
-  }
-  const totalAmount = Math.max(0, Math.round((subtotal - overallDiscount) * 100) / 100);
-
-  const newSale: Sale = {
-    id: `inv-${Date.now()}`,
-    invoiceNumber,
-    customerName: saleData.customerName || 'Walk-in Customer',
-    subtotal,
-    discount: overallDiscount,
-    tax: 0,
-    totalAmount,
-    paymentMethod: saleData.paymentMethod,
-    paymentStatus: 'PAID',
-    soldBy: seller.id,
-    soldByName: seller.name,
-    items: processedSaleItems,
-    createdAt: now.toISOString(),
-  };
-
-  sales.unshift(newSale);
-
-  // Add Audit Log
-  auditLogs.unshift({
-    id: `log-${Date.now()}`,
-    userId: seller.id,
-    userName: seller.name,
-    action: 'SALE_COMPLETED',
-    entityType: 'SALE',
-    entityId: newSale.id,
-    newData: { invoiceNumber, totalAmount, itemsCount: processedSaleItems.length },
-    ipAddress: '127.0.0.1',
-    createdAt: now.toISOString(),
-  });
-
-  return newSale;
 }
 
 // ATOMIC STOCK ADJUSTMENT
@@ -1928,6 +2026,7 @@ export const db = {
   getCalculatedMedicines,
   getBatchesWithStatus,
   allocateFefoStock,
+  withTransactionLock,
   processSaleTransaction,
   adjustStock,
   createPurchaseOrder,
