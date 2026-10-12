@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import { db } from '../db.js';
 import { User } from '../../types.js';
 import { getAuthenticatedUser, requireRole, requireAuth, AuthenticatedRequest } from '../roleGuard.js';
@@ -130,11 +131,15 @@ authRouter.put('/pharmacy/profile', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (
 });
 
 // Backward-compatible auth routes (Staff Login Verification Endpoint)
-authRouter.post('/auth/login', (req, res) => {
+authRouter.post('/auth/login', async (req, res) => {
   const { identifier, email, password, pin } = req.body;
   const loginId = identifier || email;
   if (!loginId) {
     return res.status(400).json({ success: false, message: 'Work email or Employee ID is required' });
+  }
+
+  if (!password || typeof password !== 'string' || !password.trim()) {
+    return res.status(400).json({ success: false, message: 'Password is required' });
   }
 
   const cleanId = loginId.toLowerCase().trim();
@@ -147,64 +152,109 @@ authRouter.post('/auth/login', (req, res) => {
   );
 
   if (!user) {
-    return res.status(404).json({ success: false, message: 'No staff account found with this email/ID' });
+    return res.status(401).json({ success: false, message: 'Invalid credentials' });
   }
 
   if (user.isActive === false) {
     return res.status(403).json({ success: false, message: 'This staff account has been deactivated. Please contact the administrator.' });
   }
 
-  // Verify password if provided (accept matching password or standard demo seed passwords)
-  const demoFallbackPasswords = [
-    '12242144',
-    'Password123!',
-    'Admin#2026',
-    'Pharma#2026',
-    'Atronos#2026',
-    'Beka#2026',
-    'Kaziniya#2026',
-    'Alemu#2026',
-    'Monet#2026',
-    'Muna#2026',
-    'Bethlehem#2026',
-    'Supplier#2026',
-    'MedTech#2026',
-    'password123',
-  ];
-  const isPasswordValid =
-    !password ||
-    (user.password && user.password === password) ||
-    (user.temporaryPassword && user.temporaryPassword === password) ||
-    demoFallbackPasswords.includes(password) ||
-    (user.role === 'SUPER_ADMIN' && (password === 'Atronos#2026' || password === 'Beka#2026')) ||
-    (user.role === 'STORE_OWNER' && (password === 'Kaziniya#2026' || password === 'Alemu#2026' || password === 'Admin#2026')) ||
-    (user.role === 'PHARMACIST' && (password === 'Monet#2026' || password === 'Muna#2026' || password === 'Bethlehem#2026')) ||
-    (user.role === 'SUPPLIER' && (password === 'Supplier#2026' || password === 'MedTech#2026'));
-
-  if (!isPasswordValid) {
-    return res.status(401).json({ success: false, message: 'Invalid password. Please check your credentials or temporary password slip.' });
-  }
-
-  // Verify PIN if provided (accept matching PIN or standard demo seed PINs)
-  const demoFallbackPins = ['2144', '1234', '3456', '4567', '5678'];
-  const isPinValid = !pin || (user.pin && user.pin === pin) || demoFallbackPins.includes(pin);
-
-  if (!isPinValid) {
+  // Verify PIN if provided
+  if (pin && user.pin && user.pin !== pin) {
     return res.status(401).json({ success: false, message: 'Invalid terminal PIN.' });
   }
 
-  const token = `token-${user.id}-${Date.now()}`;
+  let sessionToken: string | null = null;
+  let authenticated = false;
+
+  // 1. Try Better Auth signInEmail
+  try {
+    const result = await auth.api.signInEmail({
+      body: { email: user.email, password },
+      headers: req.headers as any,
+    });
+    if (result?.token) {
+      sessionToken = result.token;
+      authenticated = true;
+    }
+  } catch {
+    // Better Auth sign-in failed or user not yet in Better Auth
+  }
+
+  // 2. If not authenticated via Better Auth, verify against stored hash / password in db.users
+  if (!authenticated) {
+    const isMatch =
+      (user.password && verifyPassword(password, user.password)) ||
+      (user.temporaryPassword && verifyPassword(password, user.temporaryPassword));
+
+    if (isMatch) {
+      authenticated = true;
+      try {
+        // Ensure user exists in Better Auth / authDb
+        if (authDb) {
+          const existing = authDb.query('SELECT id FROM user WHERE email = ?').get(user.email);
+          if (!existing) {
+            await auth.api.signUpEmail({
+              body: { email: user.email, password, name: user.name, role: user.role } as any,
+            });
+          }
+        }
+        const signInRes = await auth.api.signInEmail({
+          body: { email: user.email, password },
+          headers: req.headers as any,
+        });
+        sessionToken = signInRes.token;
+      } catch {
+        // Fallback: create verified session record directly in authDb
+        if (authDb) {
+          try {
+            let userId = user.id;
+            const existingUser = authDb.query('SELECT id FROM user WHERE email = ?').get(user.email);
+            if (existingUser) {
+              userId = existingUser.id;
+            } else {
+              authDb.run(
+                'INSERT INTO user (id, name, email, createdAt, updatedAt, role) VALUES (?, ?, ?, ?, ?, ?)',
+                [userId, user.name, user.email, new Date().toISOString(), new Date().toISOString(), user.role || 'PHARMACIST']
+              );
+            }
+            const token = `kzn-sess-${crypto.randomUUID()}`;
+            const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+            authDb.run(
+              'INSERT INTO session (id, expiresAt, token, createdAt, updatedAt, userId) VALUES (?, ?, ?, ?, ?, ?)',
+              [`sess-${crypto.randomUUID()}`, expiresAt, token, new Date().toISOString(), new Date().toISOString(), userId]
+            );
+            sessionToken = token;
+          } catch (dbErr) {
+            console.error('Error creating fallback session in authDb:', dbErr);
+          }
+        }
+      }
+    }
+  }
+
+  if (!authenticated || !sessionToken) {
+    return res.status(401).json({ success: false, message: 'Invalid credentials' });
+  }
+
+  // Sanitize user object: strictly strip sensitive secrets
+  const sanitizedUser: Partial<User> = { ...user };
+  delete sanitizedUser.password;
+  delete sanitizedUser.pin;
+  delete sanitizedUser.temporaryPassword;
+
   res.json({
     success: true,
     message: user.mustChangePassword
       ? 'First-time login detected. You must change your temporary password to proceed.'
       : 'Authentication successful',
-    token,
-    data: user,
-    user,
+    token: sessionToken,
+    data: sanitizedUser,
+    user: sanitizedUser,
     mustChangePassword: !!user.mustChangePassword,
   });
 });
+
 
 authRouter.post('/auth/logout', (req, res) => {
   res.json({ success: true, message: 'Successfully logged out' });
