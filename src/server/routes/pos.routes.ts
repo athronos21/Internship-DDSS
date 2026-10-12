@@ -34,6 +34,34 @@ posRouter.post('/sales', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN'
       return res.status(400).json({ success: false, message: 'Cart cannot be empty. Please add items to dispense.' });
     }
 
+    if (items.length > 100) {
+      return res.status(400).json({ success: false, message: 'Cart exceeds maximum allowed items (100).' });
+    }
+
+    for (const item of items) {
+      if (!item || !item.medicineId || typeof item.medicineId !== 'string') {
+        return res.status(400).json({ success: false, message: 'Each item must have a valid medicineId.' });
+      }
+      if (
+        typeof item.quantity !== 'number' ||
+        !Number.isInteger(item.quantity) ||
+        item.quantity <= 0 ||
+        item.quantity > 10000
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: 'Item quantity must be a positive integer between 1 and 10,000.',
+        });
+      }
+      if (item.discount !== undefined && (typeof item.discount !== 'number' || item.discount < 0)) {
+        return res.status(400).json({ success: false, message: 'Item discount must be a non-negative number.' });
+      }
+    }
+
+    if (discount !== undefined && (typeof discount !== 'number' || discount < 0)) {
+      return res.status(400).json({ success: false, message: 'Overall discount must be a non-negative number.' });
+    }
+
     const processedSale = SalesRepository.processSale({
       items,
       paymentMethod,

@@ -1447,8 +1447,13 @@ export function processSaleTransaction(
       targetBatch.currentQuantity -= alloc.qtyDeducted;
       targetBatch.updatedAt = now.toISOString();
 
-      const itemPrice = inputItem.unitPrice || alloc.unitPrice;
-      const lineTotal = alloc.qtyDeducted * itemPrice - discount;
+      // Server-authoritative batch pricing: ignore any client-supplied unitPrice
+      const itemPrice = alloc.unitPrice;
+      const lineSubtotal = alloc.qtyDeducted * itemPrice;
+      if (discount < 0 || discount > lineSubtotal) {
+        throw new Error(`Line discount (${discount}) cannot exceed line subtotal (${lineSubtotal}).`);
+      }
+      const lineTotal = lineSubtotal - discount;
       subtotal += lineTotal;
 
       processedSaleItems.push({
@@ -1489,7 +1494,16 @@ export function processSaleTransaction(
   });
 
   const overallDiscount = saleData.discount || 0;
-  const totalAmount = Math.max(0, subtotal - overallDiscount);
+  if (overallDiscount < 0) {
+    throw new Error('Overall discount cannot be negative.');
+  }
+  const maxAllowedDiscount = Math.round(subtotal * 0.20 * 100) / 100;
+  if (overallDiscount > maxAllowedDiscount) {
+    throw new Error(
+      `Discretionary cashier discount (${overallDiscount} ETB) cannot exceed 20% of cart subtotal (${maxAllowedDiscount} ETB).`
+    );
+  }
+  const totalAmount = Math.max(0, Math.round((subtotal - overallDiscount) * 100) / 100);
 
   const newSale: Sale = {
     id: `inv-${Date.now()}`,
