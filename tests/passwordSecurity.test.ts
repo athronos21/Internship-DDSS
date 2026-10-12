@@ -9,6 +9,7 @@ describe('Password Security & Credential Hardening', () => {
   const TEST_PORT = 5688;
   const baseUrl = `http://localhost:${TEST_PORT}`;
   let validSessionToken: string = '';
+  const testUserEmail = 'pwd-test-user@kaziniya.com';
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -16,11 +17,32 @@ describe('Password Security & Credential Hardening', () => {
     const result = await startServer(TEST_PORT);
     serverInstance = result.server;
 
+    // Create a dedicated isolated test account
+    try {
+      await auth.api.signUpEmail({
+        body: {
+          email: testUserEmail,
+          password: 'InitialPassword123!',
+          name: 'Dedicated Test Staff',
+        },
+      });
+    } catch {}
+
+    db.users.push({
+      id: 'u-pwd-isolated-test',
+      name: 'Dedicated Test Staff',
+      email: testUserEmail,
+      role: 'PHARMACIST',
+      isActive: true,
+      password: 'InitialPassword123!',
+      createdAt: new Date().toISOString(),
+    });
+
     // Sign in using Better Auth to obtain a verified session token
     const signin = await auth.api.signInEmail({
       body: {
-        email: 'athronos21@gmail.com',
-        password: 'Password123!',
+        email: testUserEmail,
+        password: 'InitialPassword123!',
       },
     });
     validSessionToken = signin.token;
@@ -89,7 +111,7 @@ describe('Password Security & Credential Hardening', () => {
         Authorization: `Bearer ${validSessionToken}`,
       },
       body: JSON.stringify({
-        currentPassword: 'Password123!',
+        currentPassword: 'InitialPassword123!',
         newPassword: 'short',
       }),
     });
@@ -99,10 +121,6 @@ describe('Password Security & Credential Hardening', () => {
   });
 
   it('successfully updates and hashes password when authenticated with valid credentials', async () => {
-    // Current password for superadmin is 12242144 or Password123!
-    const superAdmin = db.users.find((u) => u.email === 'athronos21@gmail.com')!;
-    const currentPass = superAdmin.password || '12242144';
-
     const res = await fetch(`${baseUrl}/api/auth/change-password`, {
       method: 'POST',
       headers: {
@@ -110,7 +128,7 @@ describe('Password Security & Credential Hardening', () => {
         Authorization: `Bearer ${validSessionToken}`,
       },
       body: JSON.stringify({
-        currentPassword: currentPass,
+        currentPassword: 'InitialPassword123!',
         newPassword: 'BrandNewSecure#2026',
       }),
     });
@@ -120,7 +138,7 @@ describe('Password Security & Credential Hardening', () => {
     expect(body.success).toBe(true);
 
     // Verify stored password is now hashed (contains salt separator :)
-    const updatedUser = db.users.find((u) => u.email === 'athronos21@gmail.com')!;
+    const updatedUser = db.users.find((u) => u.email === testUserEmail)!;
     expect(updatedUser.password).toBeDefined();
     expect(updatedUser.password).toContain(':');
     expect(updatedUser.password).not.toBe('BrandNewSecure#2026');

@@ -2,16 +2,30 @@ import { describe, expect, it, beforeAll, afterAll } from 'bun:test';
 import { Server } from 'http';
 import { startServer } from '../server';
 import { db } from '../src/server/db';
+import { auth, seedInitialBetterAuthUsers } from '../src/server/auth';
 
 describe('API Endpoints & Integration Suite', () => {
   let serverInstance: Server;
   const TEST_PORT = 5188;
   const baseUrl = `http://localhost:${TEST_PORT}`;
+  let ownerToken: string = '';
+  let pharmacistToken: string = '';
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
+    await seedInitialBetterAuthUsers();
     const result = await startServer(TEST_PORT);
     serverInstance = result.server;
+
+    const ownerSignin = await auth.api.signInEmail({
+      body: { email: 'kaziniya@kaziniya.com', password: 'Password123!' },
+    });
+    ownerToken = ownerSignin.token;
+
+    const pharmSignin = await auth.api.signInEmail({
+      body: { email: 'monet@kaziniya.com', password: 'Password123!' },
+    });
+    pharmacistToken = pharmSignin.token;
   });
 
   afterAll((done) => {
@@ -36,7 +50,7 @@ describe('API Endpoints & Integration Suite', () => {
   describe('Authentication & RBAC Endpoints', () => {
     it('GET /api/auth/me returns authenticated user session, effective role and permissions', async () => {
       const res = await fetch(`${baseUrl}/api/auth/me`, {
-        headers: { 'x-user-id': 'u-1' },
+        headers: { Authorization: `Bearer ${ownerToken}` },
       });
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -62,7 +76,7 @@ describe('API Endpoints & Integration Suite', () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': 'u-2', // Pharmacist
+          Authorization: `Bearer ${pharmacistToken}`,
         },
         body: JSON.stringify({ storeSlogan: 'Unauthorized Slogan Change' }),
       });
@@ -77,7 +91,7 @@ describe('API Endpoints & Integration Suite', () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': 'u-1', // Store Owner
+          Authorization: `Bearer ${ownerToken}`,
         },
         body: JSON.stringify({ storeSlogan: 'Authorized Owner Slogan' }),
       });
@@ -159,7 +173,7 @@ describe('API Endpoints & Integration Suite', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': 'u-2', // Pharmacist
+          Authorization: `Bearer ${pharmacistToken}`,
         },
         body: JSON.stringify({
           items: [{ medicineId: med!.id, quantity: 1, unitPrice: 40 }],
@@ -178,7 +192,9 @@ describe('API Endpoints & Integration Suite', () => {
     });
 
     it('GET /api/sales returns recorded sales invoices', async () => {
-      const res = await fetch(`${baseUrl}/api/sales`);
+      const res = await fetch(`${baseUrl}/api/sales`, {
+        headers: { Authorization: `Bearer ${pharmacistToken}` },
+      });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.success).toBe(true);
@@ -188,7 +204,9 @@ describe('API Endpoints & Integration Suite', () => {
 
     it('GET /api/sales/:id retrieves single invoice by ID or invoice number', async () => {
       expect(createdInvoiceNumber).toBeDefined();
-      const res = await fetch(`${baseUrl}/api/sales/${createdInvoiceNumber}`);
+      const res = await fetch(`${baseUrl}/api/sales/${createdInvoiceNumber}`, {
+        headers: { Authorization: `Bearer ${pharmacistToken}` },
+      });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.success).toBe(true);
@@ -203,7 +221,7 @@ describe('API Endpoints & Integration Suite', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': 'u-1',
+          Authorization: `Bearer ${ownerToken}`,
         },
         body: JSON.stringify({
           medicineId: batch.medicineId,
@@ -221,7 +239,9 @@ describe('API Endpoints & Integration Suite', () => {
     });
 
     it('GET /api/reports/stock-movement returns transaction audit trail', async () => {
-      const res = await fetch(`${baseUrl}/api/reports/stock-movement`);
+      const res = await fetch(`${baseUrl}/api/reports/stock-movement`, {
+        headers: { Authorization: `Bearer ${ownerToken}` },
+      });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.success).toBe(true);
@@ -232,7 +252,9 @@ describe('API Endpoints & Integration Suite', () => {
 
   describe('Purchases & Replenishment', () => {
     it('GET /api/purchases returns purchase orders', async () => {
-      const res = await fetch(`${baseUrl}/api/purchases`);
+      const res = await fetch(`${baseUrl}/api/purchases`, {
+        headers: { Authorization: `Bearer ${ownerToken}` },
+      });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.success).toBe(true);
@@ -247,7 +269,7 @@ describe('API Endpoints & Integration Suite', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': 'u-1',
+          Authorization: `Bearer ${ownerToken}`,
         },
         body: JSON.stringify({
           supplierId: sup.id,
@@ -276,7 +298,9 @@ describe('API Endpoints & Integration Suite', () => {
 
   describe('Analytics & AI Demand Forecasting', () => {
     it('GET /api/dashboard returns executive KPIs, stock health, and sales trend', async () => {
-      const res = await fetch(`${baseUrl}/api/dashboard`);
+      const res = await fetch(`${baseUrl}/api/dashboard`, {
+        headers: { Authorization: `Bearer ${ownerToken}` },
+      });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.success).toBe(true);
@@ -295,7 +319,9 @@ describe('API Endpoints & Integration Suite', () => {
     });
 
     it('GET /api/reports/profit returns profit and loss breakdown', async () => {
-      const res = await fetch(`${baseUrl}/api/reports/profit`);
+      const res = await fetch(`${baseUrl}/api/reports/profit`, {
+        headers: { Authorization: `Bearer ${ownerToken}` },
+      });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.success).toBe(true);

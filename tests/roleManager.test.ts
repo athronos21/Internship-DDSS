@@ -28,6 +28,9 @@ describe('Role Manager & RBAC Security Suite', () => {
 
       const u3: Partial<User> = { id: '3', role: 'PHARMACIST', email: 'athronos21@gmail.com' };
       expect(getEffectiveRole(u3 as User)).toBe('SUPER_ADMIN');
+
+      const u4: Partial<User> = { id: '4', role: 'PHARMACIST', email: 'beka.girma@gmail.com' };
+      expect(getEffectiveRole(u4 as User)).toBe('SUPER_ADMIN');
     });
 
     it('correctly resolves STORE_OWNER role', () => {
@@ -44,6 +47,11 @@ describe('Role Manager & RBAC Security Suite', () => {
     it('correctly resolves PHARMACIST role', () => {
       const u1: Partial<User> = { id: '1', role: 'PHARMACIST' };
       expect(getEffectiveRole(u1 as User)).toBe('PHARMACIST');
+    });
+
+    it('correctly resolves SUPPLIER role', () => {
+      const u1: Partial<User> = { id: '1', role: 'SUPPLIER' };
+      expect(getEffectiveRole(u1 as User)).toBe('SUPPLIER');
     });
 
     it('defaults to CUSTOMER when user is null or undefined', () => {
@@ -98,6 +106,15 @@ describe('Role Manager & RBAC Security Suite', () => {
       expect(hasPermission(pharmacist as User, 'GLOBAL_SYSTEM_GOVERNANCE')).toBe(false);
     });
 
+    it('Supplier possesses wholesale procurement & inventory replenishment permissions', () => {
+      const supplier: Partial<User> = { id: 'u5', role: 'SUPPLIER' };
+      expect(hasPermission(supplier as User, 'MANAGE_PURCHASES')).toBe(true);
+      expect(hasPermission(supplier as User, 'MANAGE_SUPPLIERS')).toBe(true);
+      expect(hasPermission(supplier as User, 'VIEW_STOCK_AVAILABILITY')).toBe(true);
+      expect(hasPermission(supplier as User, 'USE_POS_CHECKOUT')).toBe(false);
+      expect(hasPermission(supplier as User, 'MANAGE_STAFF_ACCOUNTS')).toBe(false);
+    });
+
     it('Customer only possesses public catalog viewing permission', () => {
       expect(hasPermission(customer as User, 'VIEW_STOCK_AVAILABILITY')).toBe(true);
       expect(hasPermission(customer as User, 'USE_POS_CHECKOUT')).toBe(false);
@@ -136,6 +153,19 @@ describe('Role Manager & RBAC Security Suite', () => {
     it('Super Admin can access national master administration view', () => {
       expect(canAccessDashboardView(superAdmin as User, 'master_admin')).toBe(true);
       expect(canAccessDashboardView(superAdmin as User, 'dashboard')).toBe(true);
+    });
+
+    it('Supplier can access purchases, inventory, dashboard and reports but not pos, users, or settings', () => {
+      const supplier: Partial<User> = { id: 'u5', role: 'SUPPLIER' };
+      expect(canAccessDashboardView(supplier as User, 'purchases')).toBe(true);
+      expect(canAccessDashboardView(supplier as User, 'inventory')).toBe(true);
+      expect(canAccessDashboardView(supplier as User, 'dashboard')).toBe(true);
+      expect(canAccessDashboardView(supplier as User, 'reports')).toBe(true);
+
+      expect(canAccessDashboardView(supplier as User, 'pos')).toBe(false);
+      expect(canAccessDashboardView(supplier as User, 'users')).toBe(false);
+      expect(canAccessDashboardView(supplier as User, 'settings')).toBe(false);
+      expect(canAccessDashboardView(supplier as User, 'master_admin')).toBe(false);
     });
   });
 

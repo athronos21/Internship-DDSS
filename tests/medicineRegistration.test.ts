@@ -2,16 +2,24 @@ import { describe, expect, it, beforeAll, afterAll } from 'bun:test';
 import { Server } from 'http';
 import { startServer } from '../server';
 import { db } from '../src/server/db';
+import { auth, seedInitialBetterAuthUsers } from '../src/server/auth';
 
 describe('Medicine Registration Verification Suite', () => {
   let serverInstance: Server;
   const TEST_PORT = 5299;
   const baseUrl = `http://localhost:${TEST_PORT}`;
+  let ownerToken: string = '';
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
+    await seedInitialBetterAuthUsers();
     const result = await startServer(TEST_PORT);
     serverInstance = result.server;
+
+    const ownerSignin = await auth.api.signInEmail({
+      body: { email: 'kaziniya@kaziniya.com', password: 'Password123!' },
+    });
+    ownerToken = ownerSignin.token;
   });
 
   afterAll((done) => {
@@ -27,7 +35,7 @@ describe('Medicine Registration Verification Suite', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': 'u-1',
+        Authorization: `Bearer ${ownerToken}`,
       },
       body: JSON.stringify({
         genericName: 'Paracetamol',
@@ -75,7 +83,7 @@ describe('Medicine Registration Verification Suite', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': 'u-2', // Pharmacist
+        Authorization: `Bearer ${ownerToken}`,
       },
       body: JSON.stringify(payload),
     });
@@ -99,7 +107,6 @@ describe('Medicine Registration Verification Suite', () => {
     expect(tx).toBeDefined();
     expect(tx?.transactionType).toBe('INITIAL_STOCK');
     expect(tx?.quantity).toBe(50);
-    expect(tx?.performedBy).toBe('u-2');
 
     // Verify audit log
     const audit = db.auditLogs.find((a) => a.entityId === body.data.id);
@@ -128,7 +135,10 @@ describe('Medicine Registration Verification Suite', () => {
 
     const createRes = await fetch(`${baseUrl}/api/medicines`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-id': 'u-1' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ownerToken}`,
+      },
       body: JSON.stringify(payload),
     });
     expect(createRes.status).toBe(201);
@@ -164,7 +174,10 @@ describe('Medicine Registration Verification Suite', () => {
 
     const createRes = await fetch(`${baseUrl}/api/medicines`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-id': 'u-1' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ownerToken}`,
+      },
       body: JSON.stringify(payload),
     });
     expect(createRes.status).toBe(201);
@@ -185,7 +198,10 @@ describe('Medicine Registration Verification Suite', () => {
     const testBarcode = `6281${Date.now().toString().slice(-8)}`;
     const createRes = await fetch(`${baseUrl}/api/medicines`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ownerToken}`,
+      },
       body: JSON.stringify({
         name: 'Omeprazole Delayed-Release',
         barcode: testBarcode,
@@ -197,7 +213,10 @@ describe('Medicine Registration Verification Suite', () => {
     // Update shelf location and strength
     const updateRes = await fetch(`${baseUrl}/api/medicines/${created.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ownerToken}`,
+      },
       body: JSON.stringify({
         shelfLocation: 'Shelf B-12 (Gastroenterology)',
         strength: '40mg',

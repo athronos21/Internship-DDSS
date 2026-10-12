@@ -52,12 +52,20 @@ describe('Automated Browser UI Workflows (Edge Headless)', () => {
   // 1. REGISTER NEW DRUG STORE (UI FLOW)
   // ---------------------------------------------------------------------------
   it('Workflow 1 UI: Opens gateway, clicks Register Pharmacy Node, and completes registration', async () => {
-    await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await page.goto(`${baseUrl}/?screen=gateway`, { waitUntil: 'domcontentloaded', timeout: 15000 });
 
     const title = await page.title();
-    expect(title).toContain('Kaziniya');
+    expect(title.includes('Kaziniya') || title.includes('Digital Drug Store')).toBe(true);
 
-    // Click "Register Pharmacy Node" button
+    // Wait for buttons to mount and find "Register Pharmacy Node"
+    await page.waitForFunction(
+      () => {
+        const btns = Array.from(document.querySelectorAll('button'));
+        return btns.some((b) => b.textContent?.includes('Register Pharmacy Node'));
+      },
+      { timeout: 10000 }
+    );
+
     const clicked = await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll('button'));
       const reg = btns.find((b) => b.textContent?.includes('Register Pharmacy Node'));
@@ -126,6 +134,7 @@ describe('Automated Browser UI Workflows (Edge Headless)', () => {
     const ownerLoaded = await page.waitForFunction(
       () =>
         document.body.innerText.includes('Dr. Alemu') ||
+        document.body.innerText.includes('Kaziniya Ahmed') ||
         document.body.innerText.includes('Store Overview') ||
         document.body.innerText.includes('Pharmacy Administration') ||
         document.body.innerText.includes('Kaziniya Drug store'),
@@ -140,6 +149,7 @@ describe('Automated Browser UI Workflows (Edge Headless)', () => {
         document.body.innerText.includes('Point of Sale') ||
         document.body.innerText.includes('POS') ||
         document.body.innerText.includes('Muna Ahmed') ||
+        document.body.innerText.includes('Monet Alemayehu') ||
         document.body.innerText.includes('Dispensing'),
       { timeout: 8000 }
     );

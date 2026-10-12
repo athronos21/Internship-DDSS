@@ -1,16 +1,30 @@
 import { describe, expect, it, beforeAll, afterAll } from 'bun:test';
 import { Server } from 'http';
 import { startServer } from '../server';
+import { auth, seedInitialBetterAuthUsers } from '../src/server/auth';
 
 describe('Store Owner Barcode Feature Toggle Switch (Task 4)', () => {
   let serverInstance: Server;
   const TEST_PORT = 5392;
   const baseUrl = `http://localhost:${TEST_PORT}`;
+  let pharmToken: string = '';
+  let ownerToken: string = '';
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
+    await seedInitialBetterAuthUsers();
     const result = await startServer(TEST_PORT);
     serverInstance = result.server;
+
+    const pharmSignin = await auth.api.signInEmail({
+      body: { email: 'monet@kaziniya.com', password: 'Password123!' },
+    });
+    pharmToken = pharmSignin.token;
+
+    const ownerSignin = await auth.api.signInEmail({
+      body: { email: 'kaziniya@kaziniya.com', password: 'Password123!' },
+    });
+    ownerToken = ownerSignin.token;
   });
 
   afterAll((done) => {
@@ -35,7 +49,7 @@ describe('Store Owner Barcode Feature Toggle Switch (Task 4)', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': 'u-munaa', // Pharmacist user
+        Authorization: `Bearer ${pharmToken}`,
       },
       body: JSON.stringify({ enableBarcodeSystem: true }),
     });
@@ -51,7 +65,7 @@ describe('Store Owner Barcode Feature Toggle Switch (Task 4)', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': 'u-1', // Dr. Alemu Tadesse (STORE_OWNER)
+        Authorization: `Bearer ${ownerToken}`,
       },
       body: JSON.stringify({ enableBarcodeSystem: true }),
     });
@@ -72,7 +86,7 @@ describe('Store Owner Barcode Feature Toggle Switch (Task 4)', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': 'u-1', // STORE_OWNER
+        Authorization: `Bearer ${ownerToken}`,
       },
       body: JSON.stringify({ enableBarcodeSystem: false }),
     });

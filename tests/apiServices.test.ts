@@ -10,6 +10,8 @@ import {
   adminApi,
 } from '../src/services/api';
 
+import { auth, seedInitialBetterAuthUsers } from '../src/server/auth';
+
 describe('Typed Frontend API Client Services (Task 5)', () => {
   let serverInstance: Server;
   const TEST_PORT = 5396;
@@ -17,8 +19,18 @@ describe('Typed Frontend API Client Services (Task 5)', () => {
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
     process.env.API_BASE_URL = `http://localhost:${TEST_PORT}`;
+    await seedInitialBetterAuthUsers();
     const result = await startServer(TEST_PORT);
     serverInstance = result.server;
+
+    const signin = await auth.api.signInEmail({
+      body: { email: 'kaziniya@kaziniya.com', password: 'Password123!' },
+    });
+    (globalThis as any).localStorage = {
+      getItem: (key: string) => (key === 'kaziniya_auth_token' ? signin.token : null),
+      setItem: () => {},
+      removeItem: () => {},
+    };
   });
 
   afterAll((done) => {
