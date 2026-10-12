@@ -40,15 +40,56 @@ authRouter.get('/auth/role-matrix', (req, res) => {
   });
 });
 
-// PHARMACY PROFILE ENDPOINTS (Guarded to Store Owner & Super Admin)
-authRouter.get('/pharmacy/profile', (req, res) => {
+// PHARMACY PROFILE ENDPOINTS (Guarded to Store Owner & Super Admin for private/banking data)
+authRouter.get('/pharmacy/profile', async (req, res) => {
   try {
     const profile = db.getPharmacyProfile();
-    res.json({ success: true, data: profile });
+    const caller = await getAuthenticatedUser(req);
+    const isPrivileged = caller && (caller.role === 'STORE_OWNER' || caller.role === 'SUPER_ADMIN');
+
+    if (isPrivileged) {
+      return res.json({ success: true, data: profile });
+    }
+
+    // Return sanitized public profile for unauthenticated callers, customers, or staff
+    const publicFields = [
+      'id',
+      'storeName',
+      'storeNameAmharic',
+      'storeType',
+      'logoUrl',
+      'storeSlogan',
+      'phone',
+      'email',
+      'operatingHours',
+      'is24Hours',
+      'coldChainAvailable',
+      'deliveryAvailable',
+      'city',
+      'subcity',
+      'woreda',
+      'kebele',
+      'houseNumber',
+      'streetAddress',
+      'landmark',
+      'gpsCoordinates',
+      'receiptHeaderMessage',
+      'receiptFooterMessage',
+      'registeredAt',
+      'enableBarcodeSystem',
+    ];
+    const sanitized: any = {};
+    for (const k of publicFields) {
+      if ((profile as any)[k] !== undefined) {
+        sanitized[k] = (profile as any)[k];
+      }
+    }
+    res.json({ success: true, data: sanitized });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
 
 authRouter.put('/pharmacy/profile', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req: AuthenticatedRequest, res) => {
   try {
