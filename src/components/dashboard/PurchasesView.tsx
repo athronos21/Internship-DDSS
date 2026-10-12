@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Purchase, Supplier, Medicine } from '../../types';
+import { Purchase, Supplier, Medicine, User } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import {
   Truck,
@@ -22,12 +22,14 @@ import {
 } from 'lucide-react';
 
 interface PurchasesViewProps {
+  currentUser?: User | null;
   initialSubTab?: 'suppliers' | 'purchase_orders' | 'goods_receipts' | 'purchase_invoices' | 'supplier_payments' | 'purchase_returns' | 'ap_dashboard';
   autoOpenAddSupplierModal?: boolean;
   autoOpenNewPOModal?: boolean;
 }
 
 export const PurchasesView: React.FC<PurchasesViewProps> = ({
+  currentUser,
   initialSubTab = 'purchase_orders',
   autoOpenAddSupplierModal = false,
   autoOpenNewPOModal = false,
@@ -247,6 +249,33 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* WHOLESALE SUPPLIER AUTHENTICATED BADGE STRIP */}
+      {currentUser?.role === 'SUPPLIER' && (
+        <div className="bg-gradient-to-r from-teal-900 via-teal-800 to-slate-900 text-white p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-teal-700/50 shadow-md animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
+              <Truck className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-sm text-teal-200">Wholesale Supplier Portal</span>
+                <span className="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[10px] font-bold border border-teal-500/30">
+                  EFDA B2B Authorized Distributor
+                </span>
+              </div>
+              <p className="text-xs text-slate-300">
+                Connected as <strong className="text-white">{currentUser.name}</strong> • {currentUser.pharmacyName || 'MedTech Wholesale Distribution Hub'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 font-mono text-teal-200 font-semibold">
+              Distributor License: {currentUser.pharmacistLicense || 'EFDA-DIST-AA-5501'}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Top Controls & Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800">
         <div>

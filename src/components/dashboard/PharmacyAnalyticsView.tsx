@@ -348,19 +348,19 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
       {/* ========================================================================= */}
       {/* 🧭 FILTER & DRILLDOWN COMMAND STRIP */}
       {/* ========================================================================= */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+      <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-[#E0EFF9] text-[#0070BA] flex items-center justify-center font-bold">
                 <BarChart3 className="h-5 w-5" />
               </div>
-              <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                National Pharmacy Fleet & Drug Store Analytics
+              <h2 className="text-xl font-black tracking-tight text-slate-900">
+                Pharmacy Sales & Analytics Dashboard
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-1 max-w-3xl">
-              Comprehensive clinical dispensing volume, GMV velocity, FEFO shelf expiry risk, therapeutic drug category distribution, and EFDA regulatory stewardship across connected community and retail pharmacies.
+              Track sales, prescription volume, medicine expiry dates, and performance across all your pharmacies.
             </p>
           </div>
 
@@ -370,36 +370,36 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
               type="button"
               onClick={handleRefreshTelemetry}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin text-indigo-600' : ''}`} />
-              <span>{isRefreshing ? 'Syncing...' : 'Sync Telemetry'}</span>
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin text-[#0070BA]' : ''}`} />
+              <span>{isRefreshing ? 'Syncing...' : 'Refresh Data'}</span>
             </button>
 
             <button
               type="button"
               onClick={handleExportCsv}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#0070BA] hover:bg-[#005A96] text-white text-xs font-bold transition cursor-pointer shadow-xs"
             >
               <Download className="h-4 w-4" />
-              <span>Export Analytics CSV</span>
+              <span>Download Report (CSV)</span>
             </button>
           </div>
         </div>
 
         {/* Dynamic Filter Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
           <div className="flex flex-wrap items-center gap-2">
             {/* Pharmacy Node Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-3 py-1.5 text-xs">
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-1.5 text-xs">
               <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-              <span className="font-bold text-slate-500 dark:text-slate-400">Node:</span>
+              <span className="font-bold text-slate-500">Store:</span>
               <select
                 value={selectedNodeId}
                 onChange={(e) => setSelectedNodeId(e.target.value)}
-                className="bg-transparent font-extrabold text-slate-900 dark:text-white outline-none cursor-pointer text-xs"
+                className="bg-transparent font-extrabold text-slate-900 outline-none cursor-pointer text-xs"
               >
-                <option value="ALL">All Network Fleet (6 Stores)</option>
+                <option value="ALL">All Stores Combined (6 Stores)</option>
                 {pharmacyFleet.map((node) => (
                   <option key={node.id} value={node.id}>
                     {node.storeName} ({node.city})
@@ -409,13 +409,13 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             </div>
 
             {/* Therapeutic Class Filter */}
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-3 py-1.5 text-xs">
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-1.5 text-xs">
               <Pill className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-              <span className="font-bold text-slate-500 dark:text-slate-400">Drug Class:</span>
+              <span className="font-bold text-slate-500">Drug Class:</span>
               <select
                 value={selectedTherapeuticClass}
                 onChange={(e) => setSelectedTherapeuticClass(e.target.value)}
-                className="bg-transparent font-extrabold text-slate-900 dark:text-white outline-none cursor-pointer text-xs"
+                className="bg-transparent font-extrabold text-slate-900 outline-none cursor-pointer text-xs"
               >
                 <option value="ALL">All Therapeutic Classes</option>
                 <option value="ANTIBIOTICS">Antimicrobials & Antibiotics</option>
@@ -429,14 +429,14 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
           </div>
 
           {/* Timeframe Selector Pill Group */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs font-bold">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl text-xs font-bold">
             <button
               type="button"
               onClick={() => setTimeframe('LAST_7_DAYS')}
               className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
                 timeframe === 'LAST_7_DAYS'
-                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               7 Days
@@ -446,8 +446,8 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
               onClick={() => setTimeframe('LAST_30_DAYS')}
               className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
                 timeframe === 'LAST_30_DAYS'
-                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               30 Days
@@ -457,8 +457,8 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
               onClick={() => setTimeframe('LAST_90_DAYS')}
               className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
                 timeframe === 'LAST_90_DAYS'
-                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               90 Days
@@ -468,8 +468,8 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
               onClick={() => setTimeframe('YEAR_TO_DATE')}
               className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
                 timeframe === 'YEAR_TO_DATE'
-                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               2026 YTD
@@ -483,48 +483,48 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {/* KPI 1: Gross Revenue */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Gross Dispensing GMV</span>
-            <div className="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center">
+            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Total Sales (Revenue)</span>
+            <div className="w-7 h-7 rounded-xl bg-[#E0EFF9] text-[#0070BA] flex items-center justify-center">
               <DollarSign className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900">
             {formatCurrency(totalGmvComputed)}
           </div>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
             <TrendingUp className="h-3 w-3" />
-            <span>+18.4% vs prev cycle</span>
+            <span>+18.4% vs last period</span>
           </div>
         </div>
 
         {/* KPI 2: Prescriptions Filled */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Prescriptions Filled</span>
-            <div className="w-7 h-7 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <FileText className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900">
             {totalRxComputed.toLocaleString()} Rx
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold">
-            <span>Avg ticket:</span>
-            <span className="font-mono font-bold text-slate-900 dark:text-slate-100">ETB 189.60</span>
+            <span>Avg per order:</span>
+            <span className="font-mono font-bold text-slate-900">ETB 189.60</span>
           </div>
         </div>
 
         {/* KPI 3: Cashless Telebirr/CBE Rate */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Cashless Settlement</span>
-            <div className="w-7 h-7 rounded-xl bg-purple-50 dark:bg-purple-950 text-purple-600 flex items-center justify-center">
+            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Mobile & Bank Payments</span>
+            <div className="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
               <Smartphone className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900">
             90.0%
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-purple-600 font-bold">
@@ -533,52 +533,52 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
         </div>
 
         {/* KPI 4: Shelf In-Stock Availability */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Stock Availability</span>
-            <div className="w-7 h-7 rounded-xl bg-sky-50 dark:bg-sky-950 text-sky-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
               <Pill className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900">
             96.8%
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-rose-600 font-bold">
             <AlertTriangle className="h-3 w-3" />
-            <span>2 Critical Shortages</span>
+            <span>2 Low Stock Alerts</span>
           </div>
         </div>
 
         {/* KPI 5: Generic Dispensing Rate */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Generic Sub Rate</span>
-            <div className="w-7 h-7 rounded-xl bg-teal-50 dark:bg-teal-950 text-teal-600 flex items-center justify-center">
+            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Generic Medicines Rate</span>
+            <div className="w-7 h-7 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
               <Percent className="h-4 w-4" />
             </div>
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900">
             74.2%
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-teal-600 font-bold">
-            <span>Saved: ETB 1.42M</span>
+            <span>Customer Savings: ETB 1.42M</span>
           </div>
         </div>
 
         {/* KPI 6: Cold Chain Temp Compliance */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2">
+        <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Cold Chain Health</span>
-            <div className="w-7 h-7 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center">
+            <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Medicine Fridge Temps</span>
+            <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <Thermometer className="h-4 w-4" />
             </div>
           </div>
           <div className="text-xl font-black font-mono text-emerald-600">
-            100%
+            100% Safe
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">
+          <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold">
             <CheckCircle2 className="h-3 w-3" />
-            <span>Mean: 4.2°C (2–8°C safe)</span>
+            <span>All fridges 2°C - 8°C safe</span>
           </div>
         </div>
       </div>
@@ -588,12 +588,12 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chart 1: Daily Revenue & Prescription Dispensing Velocity */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <span>Prescription Dispensing & Revenue Velocity</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#E0EFF9] text-[#005A96] border border-[#BAE0F4]">
                   Daily GMV & Ticket Volume
                 </span>
               </h3>
@@ -603,12 +603,12 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             </div>
             <div className="flex items-center gap-3 text-xs font-bold">
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-full bg-indigo-600" />
-                <span className="text-slate-600 dark:text-slate-300">Revenue (ETB)</span>
+                <span className="w-3 h-3 rounded-full bg-[#0070BA]" />
+                <span className="text-slate-600">Revenue (ETB)</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-full bg-teal-500" />
-                <span className="text-slate-600 dark:text-slate-300">Prescriptions (Rx)</span>
+                <span className="text-slate-600">Prescriptions (Rx)</span>
               </div>
             </div>
           </div>
@@ -700,14 +700,14 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
         </div>
 
         {/* Chart 2: Hourly Dispensing Peak Load Heatmap */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4 flex flex-col justify-between">
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <Clock className="h-4 w-4 text-amber-500" />
                 <span>Peak Dispensing Rush Hours</span>
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900">
                 Staffing Optimization
               </span>
             </div>
@@ -743,8 +743,8 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             </ResponsiveContainer>
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
-            <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
+            <div className="font-bold text-slate-900 flex items-center gap-1.5">
               <Flame className="h-3.5 w-3.5 text-rose-500" />
               <span>Primary Rush: 16:30 – 19:30 (Evening Commute)</span>
             </div>
@@ -758,11 +758,11 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Chart 3: Therapeutic Category Breakdown (Donut + Table) */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <Layers className="h-4 w-4 text-indigo-600" />
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <Layers className="h-4 w-4 text-[#0070BA]" />
                 <span>Therapeutic Drug Category Distribution</span>
               </h3>
               <p className="text-xs text-slate-500">
@@ -807,7 +807,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                 {therapeuticCategoryData.map((cat, idx) => (
                   <div
                     key={cat.name}
-                    className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 hover:bg-slate-100/80 transition"
+                    className="p-2.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-3 hover:bg-slate-100/80 transition"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
@@ -815,13 +815,13 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                         style={{ backgroundColor: CATEGORY_PIE_COLORS[idx % CATEGORY_PIE_COLORS.length] }}
                       />
                       <div className="truncate">
-                        <div className="font-extrabold text-slate-900 dark:text-white truncate">{cat.name}</div>
+                        <div className="font-extrabold text-slate-900 truncate">{cat.name}</div>
                         <div className="text-[10px] text-slate-400">{cat.units.toLocaleString()} units dispensed</div>
                       </div>
                     </div>
 
                     <div className="text-right shrink-0">
-                      <div className="font-black font-mono text-slate-900 dark:text-white">
+                      <div className="font-black font-mono text-slate-900">
                         {formatCurrency(cat.value)}
                       </div>
                       <div className="text-[10px] font-bold text-emerald-600">{cat.percentage}% ({cat.growth})</div>
@@ -834,14 +834,14 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
         </div>
 
         {/* Chart 4: Prescription Mix (Rx vs OTC vs Chronic) */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4 flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <Pill className="h-4 w-4 text-emerald-600" />
                 <span>Clinical Dispensing Profile</span>
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-900">
                 EFDA Standards
               </span>
             </div>
@@ -854,13 +854,13 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             {prescriptionMixData.map((item) => (
               <div key={item.name} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-extrabold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <span className="font-extrabold text-slate-800 flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                     <span>{item.name}</span>
                   </span>
-                  <span className="font-black font-mono text-slate-900 dark:text-white">{item.value}%</span>
+                  <span className="font-black font-mono text-slate-900">{item.value}%</span>
                 </div>
-                <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{ width: `${item.value}%`, backgroundColor: item.color }}
@@ -871,8 +871,8 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             ))}
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-[11px] text-indigo-900 dark:text-indigo-200 flex items-center gap-2.5">
-            <ShieldCheck className="h-4 w-4 text-indigo-600 shrink-0" />
+          <div className="p-3.5 rounded-2xl bg-[#E0EFF9]/70 border border-[#BAE0F4] text-[11px] text-slate-900 flex items-center gap-2.5">
+            <ShieldCheck className="h-4 w-4 text-[#0070BA] shrink-0" />
             <div>
               <span className="font-bold">Chronic Care Loyalty:</span> 42% of volume represents repeating hypertension & diabetes patients, securing steady monthly demand predictability.
             </div>
@@ -885,10 +885,10 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Chart 5: Cashless Payment Channels Breakdown */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <Smartphone className="h-4 w-4 text-purple-600" />
                 <span>Payment Settlement Channels</span>
               </h3>
@@ -896,7 +896,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                 National digital payments share with Telebirr, CBE Birr, and cash reconciliation.
               </p>
             </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-900">
               90% Digital
             </span>
           </div>
@@ -905,7 +905,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             {paymentChannelData.map((channel, i) => (
               <div
                 key={channel.name}
-                className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 space-y-2"
+                className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2"
               >
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
@@ -913,14 +913,14 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: PAYMENT_COLORS[i % PAYMENT_COLORS.length] }}
                     />
-                    <span className="font-black text-slate-900 dark:text-white">{channel.name}</span>
+                    <span className="font-black text-slate-900">{channel.name}</span>
                   </div>
-                  <span className="font-black font-mono text-slate-900 dark:text-white">
+                  <span className="font-black font-mono text-slate-900">
                     {formatCurrency(channel.value)}
                   </span>
                 </div>
 
-                <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -940,11 +940,11 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
         </div>
 
         {/* Chart 6: Shelf Expiry & FEFO Inventory Risk Pipeline */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-rose-600" />
                   <span>FEFO Inventory Expiry Risk Pipeline</span>
                 </h3>
@@ -952,7 +952,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                   First-Expired-First-Out stock valuation by remaining shelf life horizon across all warehouse & shelf locations.
                 </p>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-300 border border-rose-200">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-900 border border-rose-200">
                 FEFO Compliance Active
               </span>
             </div>
@@ -972,27 +972,27 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                   <span className="font-extrabold" style={{ color: item.color }}>
                     {item.horizon}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white border border-slate-200">
                     {item.skuCount} SKUs
                   </span>
                 </div>
 
-                <div className="text-lg font-black font-mono text-slate-900 dark:text-white">
+                <div className="text-lg font-black font-mono text-slate-900">
                   {formatCurrency(item.value)}
                 </div>
 
-                <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                <p className="text-[11px] text-slate-600">
                   {item.action}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShieldAlert className="h-4 w-4 text-amber-500 shrink-0" />
               <span>
-                Total At-Risk Stock (&lt; 90 Days): <strong className="text-slate-900 dark:text-white font-mono">{formatCurrency(142000 + 385000)}</strong>
+                Total At-Risk Stock (&lt; 90 Days): <strong className="text-slate-900 font-mono">{formatCurrency(142000 + 385000)}</strong>
               </span>
             </div>
             <button
@@ -1000,7 +1000,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
               onClick={() => {
                 showToast('Initiated inter-branch stock rebalancing recommendation for near-expiry medicines.', 'info', 'Rebalance Triggered');
               }}
-              className="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition cursor-pointer"
+              className="px-3 py-1 rounded-xl bg-[#0070BA] hover:bg-[#0070BA] text-white font-bold text-xs transition cursor-pointer"
             >
               Rebalance Stock
             </button>
@@ -1013,10 +1013,10 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Top 10 Fast-Moving Medicines Table */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <Flame className="h-4 w-4 text-rose-500" />
                 <span>Top 10 High-Velocity Medicines (Fast-Movers)</span>
               </h3>
@@ -1027,7 +1027,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+              <thead className="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
                 <tr>
                   <th className="py-3 px-4">#</th>
                   <th className="py-3 px-4">Medicine & Form</th>
@@ -1037,28 +1037,28 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                   <th className="py-3 px-4 text-right">In-Stock Rate</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100">
                 {top10FastMovers.map((item) => (
-                  <tr key={item.rank} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+                  <tr key={item.rank} className="hover:bg-slate-50/70 transition">
                     <td className="py-3 px-4 font-black text-slate-400 font-mono">{item.rank}</td>
                     <td className="py-3 px-4">
-                      <div className="font-extrabold text-slate-900 dark:text-white">{item.name}</div>
+                      <div className="font-extrabold text-slate-900">{item.name}</div>
                       <div className="text-[10px] text-slate-400">{item.brand}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
                         {item.category}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                    <td className="py-3 px-4 font-mono font-bold text-slate-900">
                       {item.units.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                    <td className="py-3 px-4 font-mono font-bold text-[#0070BA]">
                       {formatCurrency(item.revenue)}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <div className="w-16 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div className="w-16 h-2 rounded-full bg-slate-100 overflow-hidden">
                           <div
                             className={`h-full rounded-full ${
                               item.availability >= 90
@@ -1070,7 +1070,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                             style={{ width: `${item.availability}%` }}
                           />
                         </div>
-                        <span className="font-mono font-bold text-[11px] text-slate-700 dark:text-slate-300">
+                        <span className="font-mono font-bold text-[11px] text-slate-700">
                           {item.availability}%
                         </span>
                       </div>
@@ -1083,14 +1083,14 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
         </div>
 
         {/* Store-by-Store Operational Benchmarking Matrix */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4 flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-indigo-600" />
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-[#0070BA]" />
                 <span>Multi-Store Fleet Benchmarking</span>
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-300">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#E0EFF9] text-slate-900">
                 6 Operating Nodes
               </span>
             </div>
@@ -1103,11 +1103,11 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             {storeBenchmarkingData.map((node) => (
               <div
                 key={node.id}
-                className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2 hover:border-indigo-300 transition"
+                className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 hover:border-indigo-300 transition"
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-extrabold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <div className="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
                       <span>{node.storeName}</span>
                       <span className="text-[10px] font-medium text-slate-400">({node.city})</span>
                     </div>
@@ -1115,17 +1115,17 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                   </div>
 
                   <div className="text-right">
-                    <div className="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">
+                    <div className="font-mono font-bold text-xs text-[#0070BA]">
                       {formatCurrency(node.gmv)}
                     </div>
                     <div className="text-[10px] text-slate-400 font-mono">{node.rxCount.toLocaleString()} Rx</div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100 dark:border-slate-800 text-[10px]">
+                <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100 text-[10px]">
                   <div>
                     <span className="text-slate-400">Stock Turn:</span>{' '}
-                    <strong className="text-slate-700 dark:text-slate-300 font-mono">{node.stockTurnover}x</strong>
+                    <strong className="text-slate-700 font-mono">{node.stockTurnover}x</strong>
                   </div>
                   <div>
                     <span className="text-slate-400">Telebirr:</span>{' '}
@@ -1133,14 +1133,14 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                   </div>
                   <div className="text-right">
                     <span className="text-slate-400">Audit:</span>{' '}
-                    <strong className="text-indigo-600 font-mono">{node.efdaAuditScore}%</strong>
+                    <strong className="text-[#0070BA] font-mono">{node.efdaAuditScore}%</strong>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300 flex items-center justify-between">
+          <div className="p-3 rounded-2xl bg-slate-100 text-[11px] text-slate-600 flex items-center justify-between">
             <span>Audit Standard: EFDA Directive 98/2022</span>
             <span className="font-bold text-emerald-600">All 6 Stores Compliant</span>
           </div>
@@ -1152,10 +1152,10 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* WHO & EFDA Antimicrobial Resistance (AMR) AWaRe Classification */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-teal-600" />
                 <span>Antimicrobial Stewardship (WHO AWaRe Classification)</span>
               </h3>
@@ -1163,7 +1163,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                 Stewardship tracking to prevent antibiotic resistance as mandated by the Ministry of Health and EFDA.
               </p>
             </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-300">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-teal-100 text-teal-900">
               WHO Target Met
             </span>
           </div>
@@ -1173,9 +1173,9 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-emerald-600">ACCESS Group (First-line, narrow spectrum)</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">66.5% (WHO Target &gt;= 60%)</span>
+                <span className="font-mono font-bold text-slate-900">66.5% (WHO Target &gt;= 60%)</span>
               </div>
-              <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden">
                 <div className="h-full rounded-full bg-emerald-500" style={{ width: '66.5%' }} />
               </div>
               <p className="text-[10px] text-slate-400">Amoxicillin, Doxycycline, Ampicillin, Cotrimoxazole</p>
@@ -1185,9 +1185,9 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-amber-500">WATCH Group (Higher resistance potential)</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">26.8%</span>
+                <span className="font-mono font-bold text-slate-900">26.8%</span>
               </div>
-              <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden">
                 <div className="h-full rounded-full bg-amber-500" style={{ width: '26.8%' }} />
               </div>
               <p className="text-[10px] text-slate-400">Ciprofloxacin, Azithromycin, Ceftriaxone, Levofloxacin</p>
@@ -1197,9 +1197,9 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-rose-500">RESERVE Group (Last-resort antibiotics)</span>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">6.7%</span>
+                <span className="font-mono font-bold text-slate-900">6.7%</span>
               </div>
-              <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden">
                 <div className="h-full rounded-full bg-rose-500" style={{ width: '6.7%' }} />
               </div>
               <p className="text-[10px] text-slate-400">Meropenem, Linezolid, Colistin, Vancomycin (Hospital Rx verified)</p>
@@ -1208,10 +1208,10 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
         </div>
 
         {/* Cold-Chain 24H Continuous Digital Logger Temperature Stability */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <Thermometer className="h-4 w-4 text-emerald-600" />
                 <span>Cold-Chain 24-Hour Digital Logger Logs (2°C – 8°C)</span>
               </h3>
@@ -1219,7 +1219,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
                 Continuous IoT telemetry tracking vaccine & insulin refrigerators with zero temperature excursion.
               </p>
             </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-900">
               0 Excursions
             </span>
           </div>
@@ -1240,7 +1240,7 @@ export const PharmacyAnalyticsView: React.FC<PharmacyAnalyticsViewProps> = ({
             </ResponsiveContainer>
           </div>
 
-          <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-200 flex items-center justify-between">
+          <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-center justify-between">
             <span>Biological Integrity: Insulins, Vaccines, Tetanus Toxoid, Anti-Rabies</span>
             <span className="font-bold">Active Solar Battery Backup Online</span>
           </div>

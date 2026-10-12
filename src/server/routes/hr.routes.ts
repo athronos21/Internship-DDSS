@@ -37,6 +37,7 @@ hrRouter.post('/users', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) =>
       SUPER_ADMIN: 'SYS',
       STORE_OWNER: 'OWN',
       PHARMACIST: 'PH',
+      SUPPLIER: 'SUP',
     };
     const prefix = roleCodeMap[role] || 'PH';
     const count = db.users.length + 1;
@@ -55,6 +56,8 @@ hrRouter.post('/users', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) =>
           ? 'Drug Store Ownership & Management'
           : role === 'SUPER_ADMIN'
           ? 'System Administration'
+          : role === 'SUPPLIER'
+          ? 'Wholesale Procurement & B2B Distribution Hub'
           : 'Prescription Dispensary & POS'),
       phone: phone || '+251 911 000 000',
       employeeId: genEmployeeId,

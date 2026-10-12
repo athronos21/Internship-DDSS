@@ -56,7 +56,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
   const currentRole = getEffectiveRole(currentUser);
   const currentConfig = getRoleConfig(currentRole);
 
-  const rolesList: UserRole[] = ['SUPER_ADMIN', 'STORE_OWNER', 'PHARMACIST'];
+  const rolesList: UserRole[] = ['SUPER_ADMIN', 'STORE_OWNER', 'PHARMACIST', 'SUPPLIER'];
 
   const handleCopyToken = (permId: string) => {
     navigator.clipboard.writeText(permId);
@@ -80,7 +80,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                   Unified Role Manager & Access Control Engine
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 uppercase tracking-wider">
-                  3-Character Architecture
+                  5-Role Architecture
                 </span>
               </div>
               <p className="text-xs text-indigo-200/80">
@@ -202,7 +202,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                       }`}
                     >
-                      {r === 'SUPER_ADMIN' ? 'Super Admin' : r === 'STORE_OWNER' ? 'Store Owner' : 'Pharmacist'}
+                      {getRoleConfig(r).shortTitle}
                     </button>
                   );
                 })}
@@ -246,7 +246,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
             }`}
           >
             <UserCheck className="h-4 w-4" />
-            <span>3-Character Specifications</span>
+            <span>4-Role Specifications</span>
           </button>
 
           <button
@@ -326,6 +326,10 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                           <div className="font-extrabold text-emerald-700 dark:text-emerald-400">Pharmacist</div>
                           <div className="text-[9px] font-normal lowercase text-slate-400">Tier 3: Clinical & POS</div>
                         </th>
+                        <th className="py-3.5 px-4 text-center">
+                          <div className="font-extrabold text-teal-700 dark:text-teal-400">Wholesale Supplier</div>
+                          <div className="text-[9px] font-normal lowercase text-slate-400">Procurement & B2B</div>
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
@@ -346,7 +350,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                           <React.Fragment key={domain.domain}>
                             <tr className="bg-slate-50/70 dark:bg-slate-950/40">
                               <td
-                                colSpan={4}
+                                colSpan={5}
                                 className="py-2.5 px-4 text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider"
                               >
                                 {domain.domain} — <span className="text-[10px] font-normal text-slate-400 lowercase">{domain.description}</span>
@@ -356,6 +360,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                               const hasSuperAdmin = ROLE_CONFIGS.SUPER_ADMIN.permissions.includes(perm.id);
                               const hasStoreOwner = ROLE_CONFIGS.STORE_OWNER.permissions.includes(perm.id);
                               const hasPharmacist = ROLE_CONFIGS.PHARMACIST.permissions.includes(perm.id);
+                              const hasSupplier = ROLE_CONFIGS.SUPPLIER.permissions.includes(perm.id);
 
                               return (
                                 <tr key={perm.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
@@ -410,6 +415,19 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                                     ) : (
                                       <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-500 bg-rose-50 dark:bg-rose-950/40 px-2 py-1 rounded-full border border-rose-200 dark:border-rose-900/40">
                                         <Lock className="h-3 w-3" /> Prohibited
+                                      </span>
+                                    )}
+                                  </td>
+
+                                  {/* Wholesale Supplier */}
+                                  <td className="py-3 px-4 text-center">
+                                    {hasSupplier ? (
+                                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-teal-600 bg-teal-50 dark:bg-teal-950/50 px-2.5 py-1 rounded-full border border-teal-200 dark:border-teal-800/60">
+                                        <Check className="h-3 w-3" /> Granted
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+                                        <X className="h-3 w-3" /> Restricted
                                       </span>
                                     )}
                                   </td>
@@ -470,7 +488,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                     view: 'purchases',
                     title: 'Procurement & Supplier POs',
                     desc: 'Wholesale pharmaceutical suppliers, purchase orders, goods receiving vouchers, and accounts payable.',
-                    allowed: ['STORE_OWNER', 'SUPER_ADMIN'],
+                    allowed: ['STORE_OWNER', 'SUPER_ADMIN', 'SUPPLIER'],
                   },
                   {
                     view: 'reports',
@@ -526,11 +544,13 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                                   ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-300'
                                   : r === 'STORE_OWNER'
                                   ? 'bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300'
-                                  : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
+                                  : r === 'PHARMACIST'
+                                  ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
+                                  : 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-200'
                                 : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 line-through opacity-60'
                             }`}
                           >
-                            {r === 'SUPER_ADMIN' ? 'Super Admin' : r === 'STORE_OWNER' ? 'Store Owner' : 'Pharmacist'}
+                            {getRoleConfig(r).shortTitle}
                           </span>
                         );
                       })}

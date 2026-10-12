@@ -1,16 +1,66 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-primary: #0070BA;
+  --color-brand-bg: #F8FAFC;
+
+  --color-emerald-50: #F0F7FC;
+  --color-emerald-100: #E0EFF9;
+  --color-emerald-200: #BAE0F4;
+  --color-emerald-300: #7DC5ED;
+  --color-emerald-400: #38A5E3;
+  --color-emerald-500: #0070BA;
+  --color-emerald-600: #0070BA;
+  --color-emerald-700: #005A96;
+  --color-emerald-800: #004C7F;
+  --color-emerald-900: #05406B;
+  --color-emerald-950: #032947;
+
+  --color-teal-50: #F0F7FC;
+  --color-teal-100: #E0EFF9;
+  --color-teal-200: #BAE0F4;
+  --color-teal-300: #7DC5ED;
+  --color-teal-400: #38A5E3;
+  --color-teal-500: #0070BA;
+  --color-teal-600: #0070BA;
+  --color-teal-700: #005A96;
+  --color-teal-800: #004C7F;
+  --color-teal-900: #05406B;
+  --color-teal-950: #032947;
+
+  --color-indigo-50: #F0F7FC;
+  --color-indigo-100: #E0EFF9;
+  --color-indigo-200: #BAE0F4;
+  --color-indigo-300: #7DC5ED;
+  --color-indigo-400: #38A5E3;
+  --color-indigo-500: #0070BA;
+  --color-indigo-600: #0070BA;
+  --color-indigo-700: #005A96;
+  --color-indigo-800: #004C7F;
+  --color-indigo-900: #05406B;
+  --color-indigo-950: #032947;
+}
+
+:root {
+  --color-primary: #0070BA;
+  --color-surface: #F8FAFC;
+}
+
 ::selection {
-  background-color: #0d9488;
+  background-color: #0070BA;
   color: #ffffff;
 }
 
 :focus-visible {
-  outline: 2px solid #0d9488;
+  outline: 2px solid #0070BA;
   outline-offset: 2px;
 }
 
-html {
+html, body {
+  background-color: #F8FAFC;
+  color: #0A2A52;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

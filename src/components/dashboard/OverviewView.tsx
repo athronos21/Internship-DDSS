@@ -166,34 +166,62 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
   return (
     <div className="space-y-6">
       {/* 1. BLUE HEADER CARD (STORE DASHBOARD) */}
-      <div className="bg-[#0284c7] text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+      <div className="bg-[#0070BA] text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
         <div className="space-y-1 z-10">
           <div className="inline-flex items-center gap-1.5 bg-white/15 px-3 py-1 rounded-full text-[11px] font-semibold text-sky-100 backdrop-blur-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            Welcome Back, {currentUser?.name || 'Dr. Alemu Tadesse'} • {currentUser?.role === 'STORE_OWNER' || currentUser?.isOwner ? 'Drug Store Owner' : 'Store Executive'}
+            Welcome Back, {currentUser?.name || 'Monet Alemayehu'} • {
+              currentUser?.role === 'PHARMACIST'
+                ? 'Clinical Pharmacist'
+                : currentUser?.role === 'SUPPLIER'
+                ? 'Wholesale Supplier'
+                : currentUser?.role === 'STORE_OWNER' || currentUser?.isOwner
+                ? 'Store Owner'
+                : 'Store Team'
+            }
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white pt-1">
-            {currentUser?.pharmacyName || 'Kaziniya Drug Store'} • Executive Management
+            {currentUser?.pharmacyName || 'Kaziniya Drug Store'} • {
+              currentUser?.role === 'PHARMACIST'
+                ? 'Pharmacist Station'
+                : currentUser?.role === 'SUPPLIER'
+                ? 'Wholesale Supplier Hub'
+                : 'Store Overview'
+            }
           </h1>
-          <p className="text-xs text-sky-100/80 font-medium">
-            Store Business Managed by Owner • Clinical Dispensing & Inventory Handled by Pharmacist
+          <p className="text-xs text-sky-100/90 font-medium">
+            {currentUser?.role === 'PHARMACIST'
+              ? 'Dispense prescriptions, manage shelf medicines, and track daily sales.'
+              : currentUser?.role === 'SUPPLIER'
+              ? 'Track purchase orders, bulk medicine shipments, and supplier invoices.'
+              : 'Keep track of sales, stock levels, and daily store performance.'}
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 z-10">
-          <button
-            onClick={() => onNavigate('pos')}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            <span>New Sale (POS)</span>
-          </button>
+          {currentUser?.role === 'SUPPLIER' ? (
+            <button
+              onClick={() => onNavigate('purchases')}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer"
+            >
+              <Truck className="h-4 w-4" />
+              <span>Wholesale Orders</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => onNavigate('pos')}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              <span>Sell Medicines (POS)</span>
+            </button>
+          )}
           <button
             onClick={() => onNavigate('inventory')}
             className="bg-white/20 hover:bg-white/30 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition border border-white/30 flex items-center gap-1.5 cursor-pointer"
           >
             <Pill className="h-4 w-4" />
-            <span>Manage Inventory</span>
+            <span>Medicines & Stock</span>
           </button>
           <button
             onClick={() => fetchData()}
@@ -207,19 +235,19 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
 
       {/* 4 TOP STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Total Products (Light Blue Card) */}
+        {/* Total Products (Brand Blue Tint Card) */}
         <div
           onClick={() => onNavigate('inventory')}
-          className="bg-[#e0f2fe] border border-sky-200 p-5 rounded-2xl shadow-2xs space-y-2 cursor-pointer hover:border-sky-400 transition"
+          className="bg-[#E0EFF9] border border-[#BAE0F4] p-5 rounded-2xl shadow-2xs space-y-2 cursor-pointer hover:border-[#0070BA] transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-sky-800 uppercase tracking-wider">Total Products</span>
-            <div className="p-2 bg-sky-200/80 rounded-xl text-sky-800">
+            <span className="text-xs font-bold text-[#005A96] uppercase tracking-wider">Total Medicines</span>
+            <div className="p-2 bg-white/80 rounded-xl text-[#0070BA] shadow-2xs">
               <Pill className="h-5 w-5" />
             </div>
           </div>
-          <p className="text-3xl font-black text-sky-950">{summary?.totalMedicinesCount ?? 64}</p>
-          <p className="text-[11px] font-semibold text-sky-700">Essential Pharmacy Formulary</p>
+          <p className="text-3xl font-black text-[#00385F]">{summary?.totalMedicinesCount ?? 64}</p>
+          <p className="text-[11px] font-semibold text-[#0070BA]">Available on shelves</p>
         </div>
 
         {/* Inventory Value (Light Green Card) */}
@@ -228,7 +256,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
           className="bg-[#dcfce7] border border-emerald-200 p-5 rounded-2xl shadow-2xs space-y-2 cursor-pointer hover:border-emerald-400 transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Inventory Value</span>
+            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Total Stock Value</span>
             <div className="p-2 bg-emerald-200/80 rounded-xl text-emerald-800">
               <DollarSign className="h-5 w-5" />
             </div>
@@ -237,7 +265,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
             {formatCurrency(summary?.totalInventoryValue || 162459.62)}
           </p>
           <p className="text-[11px] font-semibold text-emerald-700">
-            {summary?.lowStockCount ? `${summary.lowStockCount} Low Stock Items` : 'Optimal Shelf Levels'}
+            {summary?.lowStockCount ? `${summary.lowStockCount} items low on stock` : 'All items well-stocked'}
           </p>
         </div>
 
@@ -247,7 +275,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
           className="bg-[#f3e8ff] border border-purple-200 p-5 rounded-2xl shadow-2xs space-y-2 cursor-pointer hover:border-purple-400 transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Total Sales</span>
+            <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Today's Sales Count</span>
             <div className="p-2 bg-purple-200/80 rounded-xl text-purple-800">
               <ShoppingCart className="h-5 w-5" />
             </div>
@@ -256,7 +284,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
             {summary?.todaySalesCount ?? salesLog.length}
           </p>
           <p className="text-[11px] font-semibold text-purple-700 font-mono">
-            {formatCurrency(summary?.todayRevenue || 0)} Recorded
+            {formatCurrency(summary?.todayRevenue || 0)} Total Made
           </p>
         </div>
 
@@ -266,7 +294,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
           className="bg-[#fef3c7] border border-amber-200 p-5 rounded-2xl shadow-2xs space-y-2 cursor-pointer hover:border-amber-400 transition"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Today's Sales</span>
+            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Today's Earnings</span>
             <div className="p-2 bg-amber-200/80 rounded-xl text-amber-800">
               <Calendar className="h-5 w-5" />
             </div>
@@ -274,7 +302,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
           <p className="text-2xl font-black text-amber-950 font-mono">
             {formatCurrency(summary?.todayRevenue || 0)}
           </p>
-          <p className="text-[11px] font-semibold text-amber-700">Click to view Day-End Z-Report</p>
+          <p className="text-[11px] font-semibold text-amber-700">Click to view Day-End Summary</p>
         </div>
       </div>
 
@@ -289,15 +317,15 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
           </div>
           <div>
             <h4 className="font-bold text-sm text-amber-900">
-              14 Low Stock Items Require Reorder
+              14 Medicines Running Low
             </h4>
             <p className="text-xs text-amber-700">
-              Essential medicines reached minimum safety stock levels in Main Warehouse.
+              These medicines are running low and need to be ordered soon.
             </p>
           </div>
         </div>
-        <button className="text-xs font-bold text-amber-900 hover:underline flex items-center gap-1">
-          <span>View Items</span>
+        <button className="text-xs font-bold text-amber-900 hover:underline flex items-center gap-1 cursor-pointer">
+          <span>View Medicines</span>
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
@@ -485,9 +513,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h3 className="font-bold text-slate-900 text-sm">Sales & Purchases Trends</h3>
-              <p className="text-xs text-slate-400">Monthly overview in ETB</p>
+              <p className="text-xs text-slate-400">Monthly purchases compared to sales (in ETB)</p>
             </div>
-            <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">
+            <span className="text-[10px] font-bold text-[#0070BA] bg-[#E0EFF9] px-2.5 py-1 rounded-full border border-[#BAE0F4]">
               Sep 2025 - Aug 2026
             </span>
           </div>
@@ -497,7 +525,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
                 <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} />
                 <YAxis stroke="#94a3b8" fontSize={11} />
                 <Tooltip />
-                <Area type="monotone" dataKey="purchases" stroke="#0284c7" fill="#e0f2fe" name="Purchases (ETB)" />
+                <Area type="monotone" dataKey="purchases" stroke="#0070BA" fill="#E0EFF9" name="Purchases (ETB)" />
                 <Area type="monotone" dataKey="sales" stroke="#10b981" fill="#dcfce7" name="Sales (ETB)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -509,7 +537,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h3 className="font-bold text-slate-900 text-sm">Stock Movement Trends</h3>
-              <p className="text-xs text-slate-400">Weekly inbound vs outbound items</p>
+              <p className="text-xs text-slate-400">Weekly incoming stock vs outgoing dispensed medicines</p>
             </div>
             <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
               FEFO Tracked
@@ -534,8 +562,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
         {/* Table 1: Top Selling Products */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 className="font-bold text-slate-900 text-sm">Top Selling Products</h3>
-            <button onClick={() => onNavigate('inventory')} className="text-xs font-bold text-sky-600 hover:underline">
+            <h3 className="font-bold text-slate-900 text-sm">Top Selling Medicines</h3>
+            <button onClick={() => onNavigate('inventory')} className="text-xs font-bold text-[#0070BA] hover:underline cursor-pointer">
               View All →
             </button>
           </div>
@@ -543,17 +571,27 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
                 <tr>
-                  <th className="p-3">Product</th>
-                  <th className="p-3 text-center">Sold</th>
+                  <th className="p-3">Medicine</th>
+                  <th className="p-3 text-center">Units Sold</th>
                   <th className="p-3 text-right">Revenue</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colSpan={3} className="p-8 text-center text-slate-400 font-medium italic">
-                    No Sales Data Available
-                  </td>
-                </tr>
+                {summary?.topSellingMedicines && summary.topSellingMedicines.length > 0 ? (
+                  summary.topSellingMedicines.map((item, idx) => (
+                    <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition">
+                      <td className="p-3 font-semibold text-slate-800">{item.medicineName}</td>
+                      <td className="p-3 text-center font-bold text-slate-700">{item.unitsSold}</td>
+                      <td className="p-3 text-right font-mono font-bold text-emerald-700">{formatCurrency(item.totalRevenue)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="p-8 text-center text-slate-400 font-medium italic">
+                      No Sales Recorded Yet
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -563,22 +601,38 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="font-bold text-slate-900 text-sm">Recent Stock Movements</h3>
-            <button onClick={() => onNavigate('inventory')} className="text-xs font-bold text-sky-600 hover:underline">
+            <button onClick={() => onNavigate('inventory')} className="text-xs font-bold text-[#0070BA] hover:underline cursor-pointer">
               View All →
             </button>
           </div>
           <div className="space-y-2">
-            {recentMovements.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                <div>
-                  <span className="font-bold text-slate-800 block">{item.name}</span>
-                  <span className="text-[10px] text-slate-400">{item.type} • {item.date}</span>
-                </div>
-                <span className={`px-2.5 py-1 rounded-lg font-bold border ${item.color}`}>
-                  {item.qty}
-                </span>
-              </div>
-            ))}
+            {summary?.recentTransactions && summary.recentTransactions.length > 0
+              ? summary.recentTransactions.slice(0, 5).map((tx, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                    <div className="min-w-0 pr-2">
+                      <span className="font-bold text-slate-800 block truncate">{tx.medicineName}</span>
+                      <span className="text-[10px] text-slate-400">
+                        {tx.transactionType === 'SALE' ? 'Dispensed' : tx.transactionType === 'PURCHASE' ? 'Stock In' : 'Count Check'} • {new Date(tx.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                    <span className={`px-2.5 py-1 rounded-lg font-bold border shrink-0 ${
+                      tx.quantity > 0 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : 'text-slate-600 bg-slate-100 border-slate-200'
+                    }`}>
+                      {tx.quantity > 0 ? `+${tx.quantity}` : tx.quantity}
+                    </span>
+                  </div>
+                ))
+              : recentMovements.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                    <div>
+                      <span className="font-bold text-slate-800 block">{item.name}</span>
+                      <span className="text-[10px] text-slate-400">{item.type} • {item.date}</span>
+                    </div>
+                    <span className={`px-2.5 py-1 rounded-lg font-bold border ${item.color}`}>
+                      {item.qty}
+                    </span>
+                  </div>
+                ))}
           </div>
         </div>
       </div>
@@ -589,27 +643,27 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <button
             onClick={() => onNavigate('pos')}
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-sky-500 hover:shadow-md transition text-left space-y-2 group"
+            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-[#0070BA] hover:shadow-md transition text-left space-y-2 group cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:bg-sky-500 group-hover:text-white transition">
+            <div className="w-8 h-8 rounded-xl bg-[#E0EFF9] text-[#0070BA] flex items-center justify-center group-hover:bg-[#0070BA] group-hover:text-white transition">
               <ShoppingCart className="h-4 w-4" />
             </div>
-            <span className="font-bold text-xs text-slate-800 block">POS Terminal</span>
+            <span className="font-bold text-xs text-slate-800 block">Cashier (POS)</span>
           </button>
 
           <button
             onClick={() => onNavigate('purchases')}
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md transition text-left space-y-2 group"
+            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md transition text-left space-y-2 group cursor-pointer"
           >
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition">
               <Truck className="h-4 w-4" />
             </div>
-            <span className="font-bold text-xs text-slate-800 block">New Purchase</span>
+            <span className="font-bold text-xs text-slate-800 block">Order Medicines</span>
           </button>
 
           <button
             onClick={() => onNavigate('inventory')}
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-amber-500 hover:shadow-md transition text-left space-y-2 group"
+            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-amber-500 hover:shadow-md transition text-left space-y-2 group cursor-pointer"
           >
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition">
               <Box className="h-4 w-4" />
@@ -619,17 +673,17 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
 
           <button
             onClick={() => onNavigate('inventory')}
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-purple-500 hover:shadow-md transition text-left space-y-2 group"
+            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-purple-500 hover:shadow-md transition text-left space-y-2 group cursor-pointer"
           >
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition">
               <Pill className="h-4 w-4" />
             </div>
-            <span className="font-bold text-xs text-slate-800 block">Products</span>
+            <span className="font-bold text-xs text-slate-800 block">Medicines List</span>
           </button>
 
           <button
             onClick={() => onNavigate('users')}
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-500 hover:shadow-md transition text-left space-y-2 group"
+            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-500 hover:shadow-md transition text-left space-y-2 group cursor-pointer"
           >
             <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition">
               <Users className="h-4 w-4" />
@@ -639,7 +693,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigate, currentU
 
           <button
             onClick={() => onNavigate('purchases')}
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-rose-500 hover:shadow-md transition text-left space-y-2 group"
+            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-rose-500 hover:shadow-md transition text-left space-y-2 group cursor-pointer"
           >
             <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition">
               <Store className="h-4 w-4" />

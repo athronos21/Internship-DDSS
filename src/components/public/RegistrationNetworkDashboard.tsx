@@ -1436,7 +1436,7 @@ export const RegistrationNetworkDashboard: React.FC<RegistrationNetworkDashboard
                 <div className="space-y-0.5">
                   <span className="font-bold text-white block">Authorized Master Administrator?</span>
                   <span className="text-[11px] text-slate-400">
-                    Use your master credentials (e.g. athronos21@gmail.com) to access the super-governance cockpit.
+                    Use your master credentials (e.g. athronos21@gmail.com or beka.girma@gmail.com) to access the super-governance cockpit.
                   </span>
                 </div>
                 <button

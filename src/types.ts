@@ -1,4 +1,4 @@
-export type UserRole = 'SUPER_ADMIN' | 'STORE_OWNER' | 'PHARMACIST' | 'CUSTOMER';
+export type UserRole = 'SUPER_ADMIN' | 'STORE_OWNER' | 'PHARMACIST' | 'CUSTOMER' | 'SUPPLIER';
 
 export interface PharmacyStoreProfile {
   id: string;
@@ -173,6 +173,7 @@ export interface User {
   tinNumber?: string;
   nationalId?: string;
   pharmacistLicense?: string;
+  licenseNumber?: string;
   pharmacyName?: string;
   pharmacyLogo?: string;
   storeAddress?: string;
@@ -243,13 +244,14 @@ export type TransactionType =
   | 'ADJUSTMENT'
   | 'DAMAGED'
   | 'EXPIRED'
-  | 'TRANSFER';
+  | 'TRANSFER'
+  | 'DISCARD';
 
 export interface InventoryTransaction {
   id: string;
   medicineId: string;
   medicineName?: string;
-  batchId: string;
+  batchId?: string;
   batchNumber?: string;
   transactionType: TransactionType;
   quantity: number;
@@ -260,6 +262,9 @@ export interface InventoryTransaction {
   performedBy: string;
   performedByName?: string;
   notes?: string;
+  reason?: string;
+  unitCost?: number;
+  unitPrice?: number;
   createdAt: string;
 }
 
@@ -270,8 +275,12 @@ export interface Supplier {
   phone: string;
   email: string;
   address: string;
-  licenseNumber: string;
-  isActive: boolean;
+  licenseNumber?: string;
+  tinNumber?: string;
+  creditLimit?: number;
+  paymentTerms?: string;
+  status?: 'ACTIVE' | 'INACTIVE';
+  isActive?: boolean;
   createdAt: string;
 }
 
@@ -342,9 +351,12 @@ export interface Sale {
   invoiceNumber: string;
   customerId?: string;
   customerName?: string;
+  cashierId?: string;
+  cashierName?: string;
   subtotal: number;
   discount: number;
   tax: number;
+  taxAmount?: number;
   totalAmount: number;
   paymentMethod: PaymentMethod;
   paymentStatus: 'PAID' | 'REFUNDED' | 'PARTIALLY_REFUNDED';

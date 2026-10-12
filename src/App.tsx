@@ -13,6 +13,8 @@ import { PublicProfileModal } from './components/public/PublicProfileModal';
 import { AuthModal } from './components/public/AuthModal';
 import { DDSGatewayPage } from './components/public/DDSGatewayPage';
 import { OwnerRegistrationModal } from './components/public/OwnerRegistrationModal';
+import { SupplierRegistrationModal } from './components/public/SupplierRegistrationModal';
+import { PharmacistAuthorizationModal } from './components/public/PharmacistAuthorizationModal';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { OverviewView } from './components/dashboard/OverviewView';
 import { InventoryView } from './components/dashboard/InventoryView';
@@ -36,9 +38,120 @@ import { ToastProvider, useToast } from './context/ToastContext';
 import { PortalContentProvider } from './context/PortalContentContext';
 import { Smartphone, FileText } from 'lucide-react';
 
+const DEFAULT_AVAILABLE_USERS: User[] = [
+  {
+    id: 'u-superadmin',
+    name: 'Atronos Sisay',
+    email: 'athronos21@gmail.com',
+    role: 'SUPER_ADMIN',
+    employeeId: 'SYS-ADMIN-001',
+    isSuperAdmin: true,
+    isOwner: false,
+    department: 'Whole System Administration & Governance',
+    password: '••••••••••',
+    pin: '2144',
+    status: 'ACTIVE',
+    isActive: true,
+    createdAt: '2026-01-01T08:00:00Z',
+  },
+  {
+    id: 'u-superadmin-2',
+    name: 'Beka Girma',
+    email: 'beka.girma@gmail.com',
+    role: 'SUPER_ADMIN',
+    employeeId: 'SYS-ADMIN-002',
+    isSuperAdmin: true,
+    isOwner: false,
+    department: 'Whole System Administration & Governance',
+    password: '••••••••••',
+    pin: '2144',
+    status: 'ACTIVE',
+    isActive: true,
+    createdAt: '2026-01-01T08:00:00Z',
+  },
+  {
+    id: 'u-1',
+    name: 'Kaziniya Ahmed',
+    email: 'kaziniya@kaziniya.com',
+    role: 'STORE_OWNER',
+    employeeId: 'KZN-OWNER-001',
+    isOwner: true,
+    isSuperAdmin: false,
+    department: 'Pharmacy Administration & Ownership',
+    password: '••••••••••',
+    pin: '1234',
+    status: 'ACTIVE',
+    isActive: true,
+    createdAt: '2026-01-01T08:00:00Z',
+  },
+  {
+    id: 'u-munaa',
+    name: 'Monet Alemayehu',
+    email: 'monet@kaziniya.com',
+    role: 'PHARMACIST',
+    employeeId: 'EMP-PHARM-01',
+    isSuperAdmin: false,
+    isOwner: false,
+    department: 'Dispensary & Counter',
+    password: '••••••••••',
+    pin: '2144',
+    status: 'ACTIVE',
+    isActive: true,
+    createdAt: '2026-01-01T08:00:00Z',
+  },
+  {
+    id: 'u-2',
+    name: 'Pharm. Solomon Bekele',
+    email: 'pharmacist@kaziniya.com',
+    role: 'PHARMACIST',
+    employeeId: 'KZN-PH-002',
+    department: 'Clinical Dispensing & POS Counter',
+    isActive: true,
+    isOwner: false,
+    isSuperAdmin: false,
+    password: '••••••••••',
+    pin: '3456',
+    status: 'ACTIVE',
+    createdAt: '2026-01-03T08:00:00Z',
+  },
+  {
+    id: 'u-3',
+    name: 'Pharm. Bethlehem Worku',
+    email: 'bethlehem@kaziniya.com',
+    role: 'PHARMACIST',
+    employeeId: 'KZN-PH-003',
+    department: 'Prescription Verification & Dispensing',
+    isActive: true,
+    isOwner: false,
+    isSuperAdmin: false,
+    mustChangePassword: true,
+    temporaryPassword: 'Temp#Pharma2026',
+    password: 'Temp#Pharma2026',
+    pin: '4567',
+    status: 'PENDING_FIRST_LOGIN',
+    createdAt: '2026-01-04T08:00:00Z',
+  },
+  {
+    id: 'u-sup-1',
+    name: 'Supplier',
+    email: 'supplier@medtech.com',
+    role: 'SUPPLIER',
+    employeeId: 'SUP-WHL-001',
+    department: 'Pharmaceutical Wholesale & Procurement',
+    pharmacyName: 'MedTech Wholesale Distribution Hub',
+    isActive: true,
+    isOwner: false,
+    isSuperAdmin: false,
+    password: '••••••••••',
+    pin: '5678',
+    status: 'ACTIVE',
+    createdAt: '2026-01-05T08:00:00Z',
+  },
+];
+
 function AppContent() {
-  const [currentScreen, setCurrentScreen] = useState<'gateway' | 'public_home' | 'public_products' | 'public_orders' | 'public_favorites' | 'public_contact' | 'public_registration' | 'dashboard'>('gateway');
-  const [dashboardView, setDashboardView] = useState<string>('dashboard');
+  const [currentScreen, setCurrentScreen] = useState<'gateway' | 'public_home' | 'public_products' | 'public_orders' | 'public_favorites' | 'public_contact' | 'public_registration' | 'dashboard'>('dashboard');
+  const [dashboardView, setDashboardView] = useState<string>('purchases');
   const [loginInitialMode, setLoginInitialMode] = useState<'STORE_STAFF' | 'MASTER_ADMIN'>('STORE_STAFF');
   const [inventorySubTab, setInventorySubTab] = useState<'medicines' | 'batches' | 'low' | 'expiring' | 'archived' | 'movements' | 'requests'>('medicines');
   const [salesSubTab, setSalesSubTab] = useState<'all_sales' | 'online_orders' | 'sales_returns'>('all_sales');
@@ -54,88 +167,13 @@ function AppContent() {
   const [autoOpenAddSupplierModal, setAutoOpenAddSupplierModal] = useState(false);
   const [autoOpenNewPOModal, setAutoOpenNewPOModal] = useState(false);
   const [autoOpenCreateExpenseModal, setAutoOpenCreateExpenseModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(DEFAULT_AVAILABLE_USERS[5]);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isOwnerRegisterModalOpen, setIsOwnerRegisterModalOpen] = useState(false);
+  const [isSupplierRegisterModalOpen, setIsSupplierRegisterModalOpen] = useState(false);
+  const [isPharmacistAuthModalOpen, setIsPharmacistAuthModalOpen] = useState(false);
+  const [landingMode, setLandingMode] = useState<'NATIONAL' | 'REGISTERED_STORE' | 'REGISTERED_SUPPLIER'>('NATIONAL');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const DEFAULT_AVAILABLE_USERS: User[] = [
-    {
-      id: 'u-superadmin',
-      name: 'Atronos Sisay',
-      email: 'athronos21@gmail.com',
-      role: 'SUPER_ADMIN',
-      employeeId: 'SYS-ADMIN-001',
-      isSuperAdmin: true,
-      isOwner: false,
-      department: 'Whole System Administration & Governance',
-      password: '••••••••••',
-      pin: '2144',
-      status: 'ACTIVE',
-      isActive: true,
-      createdAt: '2026-01-01T08:00:00Z',
-    },
-    {
-      id: 'u-1',
-      name: 'Dr. Alemu Tadesse',
-      email: 'admin@kaziniya.com',
-      role: 'STORE_OWNER',
-      employeeId: 'KZN-OWNER-001',
-      isOwner: true,
-      department: 'Pharmacy Administration',
-      password: '••••••••••',
-      pin: '1234',
-      status: 'ACTIVE',
-      isActive: true,
-      createdAt: '2026-01-01T08:00:00Z',
-    },
-    {
-      id: 'u-munaa',
-      name: 'Muna Ahmed',
-      email: 'munaa7536@gmail.com',
-      role: 'PHARMACIST',
-      employeeId: 'EMP-PHARM-01',
-      isSuperAdmin: false,
-      isOwner: false,
-      department: 'Dispensary & Counter',
-      password: '••••••••••',
-      pin: '2144',
-      status: 'ACTIVE',
-      isActive: true,
-      createdAt: '2026-01-01T08:00:00Z',
-    },
-    {
-      id: 'u-2',
-      name: 'Pharm. Solomon Bekele',
-      email: 'pharmacist@kaziniya.com',
-      role: 'PHARMACIST',
-      employeeId: 'KZN-PH-002',
-      department: 'Clinical Dispensing & POS Counter',
-      isActive: true,
-      isOwner: false,
-      isSuperAdmin: false,
-      password: '••••••••••',
-      pin: '3456',
-      status: 'ACTIVE',
-      createdAt: '2026-01-03T08:00:00Z',
-    },
-    {
-      id: 'u-3',
-      name: 'Pharm. Bethlehem Worku',
-      email: 'bethlehem@kaziniya.com',
-      role: 'PHARMACIST',
-      employeeId: 'KZN-PH-003',
-      department: 'Prescription Verification & Dispensing',
-      isActive: true,
-      isOwner: false,
-      isSuperAdmin: false,
-      mustChangePassword: true,
-      temporaryPassword: 'Temp#Pharma2026',
-      password: 'Temp#Pharma2026',
-      pin: '4567',
-      status: 'PENDING_FIRST_LOGIN',
-      createdAt: '2026-01-04T08:00:00Z',
-    },
-  ];
 
   const [isFlutterModalOpen, setIsFlutterModalOpen] = useState(false);
   const [isPhoneQrModalOpen, setIsPhoneQrModalOpen] = useState(false);
@@ -202,9 +240,11 @@ function AppContent() {
                 const uList: User[] = data.data;
                 let targetUser = uList.find((u) => u.role === 'STORE_OWNER');
                 if (roleParam === 'superadmin' || viewParam === 'master_admin') {
-                  targetUser = uList.find((u) => u.isSuperAdmin || u.email === 'athronos21@gmail.com') || targetUser;
+                  targetUser = uList.find((u) => u.isSuperAdmin || u.email === 'athronos21@gmail.com' || u.email === 'beka.girma@gmail.com') || targetUser;
                 } else if (roleParam === 'pharmacist' || viewParam === 'pos') {
                   targetUser = uList.find((u) => u.role === 'PHARMACIST') || targetUser;
+                } else if (roleParam === 'supplier' || viewParam === 'purchases') {
+                  targetUser = uList.find((u) => u.role === 'SUPPLIER') || targetUser;
                 }
                 if (targetUser) {
                   setCurrentUser(targetUser);
@@ -261,25 +301,36 @@ function AppContent() {
   const isSuperAdmin = !!(
     currentUser?.isSuperAdmin ||
     currentUser?.role === 'SUPER_ADMIN' ||
-    currentUser?.email?.toLowerCase() === 'athronos21@gmail.com'
+    currentUser?.email?.toLowerCase() === 'athronos21@gmail.com' ||
+    currentUser?.email?.toLowerCase() === 'beka.girma@gmail.com' ||
+    currentUser?.email?.toLowerCase() === 'beka@kaziniya.et'
   );
 
-  const handleSelectRole = (role: UserRole) => {
-    const matchedUser = availableUsers.find((u) => u.role === role);
+  const handleSelectRole = (role: UserRole, userEmail?: string) => {
+    let matchedUser = userEmail
+      ? availableUsers.find((u) => u.email?.toLowerCase() === userEmail.toLowerCase())
+      : undefined;
+    if (!matchedUser) {
+      matchedUser = availableUsers.find((u) => u.role === role);
+    }
+
     if (matchedUser) {
       setCurrentUser({
         ...matchedUser,
         role,
-        isSuperAdmin: role === 'SUPER_ADMIN' || matchedUser.isSuperAdmin,
+        isSuperAdmin: role === 'SUPER_ADMIN',
+        isOwner: role === 'STORE_OWNER',
       });
       if (role === 'SUPER_ADMIN') {
         setDashboardView('master_admin');
         setMasterAdminSubTab('HUB');
-      } else if (role === 'PHARMACIST') {
-        setDashboardView('pos');
+      } else if (role === 'SUPPLIER') {
+        setDashboardView('purchases');
+        setPurchasesSubTab('purchase_orders');
       } else {
         setDashboardView('dashboard');
       }
+      setCurrentScreen('dashboard');
     } else if (currentUser) {
       const updatedUser = {
         ...currentUser,
@@ -291,17 +342,19 @@ function AppContent() {
       if (role === 'SUPER_ADMIN') {
         setDashboardView('master_admin');
         setMasterAdminSubTab('HUB');
-      } else if (role === 'PHARMACIST') {
-        setDashboardView('pos');
+      } else if (role === 'SUPPLIER') {
+        setDashboardView('purchases');
+        setPurchasesSubTab('purchase_orders');
       } else {
         setDashboardView('dashboard');
       }
+      setCurrentScreen('dashboard');
     }
   };
 
   const handleLoginClick = () => {
     setLoginInitialMode('STORE_STAFF');
-    if (currentUser && currentUser.role !== 'CUSTOMER') {
+    if (currentUser) {
       setCurrentScreen('dashboard');
     } else {
       setIsLoginModalOpen(true);
@@ -310,7 +363,7 @@ function AppContent() {
 
   const handleMasterAdminLoginClick = () => {
     setLoginInitialMode('MASTER_ADMIN');
-    if (currentUser && (currentUser.isSuperAdmin || currentUser.email === 'athronos21@gmail.com')) {
+    if (currentUser && (currentUser.isSuperAdmin || currentUser.email === 'athronos21@gmail.com' || currentUser.email === 'beka.girma@gmail.com')) {
       setDashboardView('master_admin');
       setCurrentScreen('dashboard');
     } else {
@@ -331,9 +384,9 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col antialiased dark:bg-slate-950 dark:text-slate-100">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans flex flex-col antialiased">
       {/* RENDER MANAGEMENT DASHBOARD SIDE (For Staff Users Only) */}
-      {currentScreen === 'dashboard' && currentUser && currentUser.role !== 'CUSTOMER' ? (
+      {currentScreen === 'dashboard' && currentUser ? (
         <DashboardLayout
           currentUser={currentUser}
           onSelectRole={handleSelectRole}
@@ -543,6 +596,7 @@ function AppContent() {
             setCurrentScreen('gateway');
           }}
           onBackToPublicPortal={() => setCurrentScreen('public_home')}
+          onOpenDocumentation={() => setIsInternshipModalOpen(true)}
           onSwitchWorkstation={(ws, subTab) => {
             if (ws === 'IMS') {
               setDashboardView('inventory_system');
@@ -606,6 +660,7 @@ function AppContent() {
           {dashboardView === 'sales' && <SalesView initialSubTab={salesSubTab} />}
           {dashboardView === 'purchases' && (
             <PurchasesView
+              currentUser={currentUser}
               initialSubTab={purchasesSubTab}
               autoOpenAddSupplierModal={autoOpenAddSupplierModal}
               autoOpenNewPOModal={autoOpenNewPOModal}
@@ -644,8 +699,11 @@ function AppContent() {
           availableUsers={availableUsers}
           onLoginSuccess={(user) => {
             setCurrentUser(user);
-            if (user.role === 'SUPER_ADMIN' || user.isSuperAdmin || user.email === 'athronos21@gmail.com') {
+            if (user.role === 'SUPER_ADMIN' || user.isSuperAdmin || user.email === 'athronos21@gmail.com' || user.email === 'beka.girma@gmail.com') {
               setDashboardView('master_admin');
+            } else if (user.role === 'SUPPLIER') {
+              setDashboardView('purchases');
+              setPurchasesSubTab('purchase_orders');
             } else if (user.role === 'PHARMACIST') {
               setDashboardView('pos');
             } else if (user.role === 'STORE_OWNER' || user.isOwner) {
@@ -658,6 +716,54 @@ function AppContent() {
           onOpenOwnerRegistration={() => setIsOwnerRegisterModalOpen(true)}
           onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}
           onOpenPublicPortal={() => setCurrentScreen('public_home')}
+          onOpenDocumentation={() => setIsInternshipModalOpen(true)}
+        />
+      ) : currentScreen === 'public_home' ? (
+        <PublicHome
+          onExploreProducts={() => setCurrentScreen('public_products')}
+          onOpenLogin={() => setCurrentScreen('gateway')}
+          onOpenDashboard={() => {
+            if (currentUser) {
+              if (currentUser.role === 'SUPER_ADMIN' || currentUser.isSuperAdmin || currentUser.email === 'athronos21@gmail.com' || currentUser.email === 'beka.girma@gmail.com') {
+                setDashboardView('master_admin');
+              } else if (currentUser.role === 'SUPPLIER') {
+                setDashboardView('purchases');
+                setPurchasesSubTab('purchase_orders');
+              } else if (currentUser.role === 'PHARMACIST') {
+                setDashboardView('pos');
+              } else {
+                setDashboardView('dashboard');
+              }
+              setCurrentScreen('dashboard');
+            } else {
+              setCurrentScreen('gateway');
+            }
+          }}
+          onOpenOwnerRegister={() => setIsOwnerRegisterModalOpen(true)}
+          onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}
+          onNavigateToContact={() => setCurrentScreen('public_contact')}
+          onNavigateToRegistration={() => setCurrentScreen('public_registration')}
+          onLoginSuccess={(user) => {
+            setCurrentUser(user);
+            if (user.role === 'SUPER_ADMIN' || user.isSuperAdmin || user.email === 'athronos21@gmail.com' || user.email === 'beka.girma@gmail.com') {
+              setDashboardView('master_admin');
+            } else if (user.role === 'SUPPLIER') {
+              setDashboardView('purchases');
+              setPurchasesSubTab('purchase_orders');
+            } else if (user.role === 'PHARMACIST') {
+              setDashboardView('pos');
+            } else if (user.role === 'STORE_OWNER' || user.isOwner) {
+              setDashboardView('dashboard');
+            } else {
+              setDashboardView('dashboard');
+            }
+            setCurrentScreen('dashboard');
+          }}
+          currentUser={currentUser}
+          availableUsers={availableUsers}
+          onOpenDocumentation={() => setIsInternshipModalOpen(true)}
+          landingMode={landingMode}
+          onSwitchLandingMode={setLandingMode}
         />
       ) : (
         /* PUBLIC PATIENT & CUSTOMER STOREFRONT PORTAL */
@@ -674,6 +780,8 @@ function AppContent() {
             onLoginClick={() => setCurrentScreen('gateway')}
             onOpenMasterAdminLogin={handleMasterAdminLoginClick}
             onOpenOwnerRegister={() => setIsOwnerRegisterModalOpen(true)}
+            onOpenSupplierRegister={() => setIsSupplierRegisterModalOpen(true)}
+            onOpenPharmacistAuth={() => setIsPharmacistAuthModalOpen(true)}
             onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}
             currentUser={currentUser}
             onSignOut={() => {
@@ -683,8 +791,11 @@ function AppContent() {
             }}
             onOpenDashboard={() => {
               if (currentUser) {
-                if (currentUser.role === 'SUPER_ADMIN' || currentUser.isSuperAdmin || currentUser.email === 'athronos21@gmail.com') {
+                if (currentUser.role === 'SUPER_ADMIN' || currentUser.isSuperAdmin || currentUser.email === 'athronos21@gmail.com' || currentUser.email === 'beka.girma@gmail.com') {
                   setDashboardView('master_admin');
+                } else if (currentUser.role === 'SUPPLIER') {
+                  setDashboardView('purchases');
+                  setPurchasesSubTab('purchase_orders');
                 } else if (currentUser.role === 'PHARMACIST') {
                   setDashboardView('pos');
                 } else {
@@ -697,28 +808,20 @@ function AppContent() {
             }}
             wishlistCount={wishlistIds.length}
             onOpenProfile={() => setIsProfileModalOpen(true)}
+            onOpenDocumentation={() => setIsInternshipModalOpen(true)}
+            onQuickRoleLogin={(role, userEmail) => handleSelectRole(role, userEmail)}
+            landingMode={landingMode}
+            onSwitchLandingMode={(mode) => {
+              setLandingMode(mode);
+              try {
+                localStorage.setItem('dds_active_landing_mode', mode);
+              } catch {}
+              setCurrentScreen('public_home');
+            }}
           />
 
           <main className="flex-1">
             <AnimatePresence mode="wait">
-              {currentScreen === 'public_home' && (
-                <motion.div
-                  key="public_home"
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <PublicHome
-                    onExploreProducts={() => setCurrentScreen('public_products')}
-                    onOpenDashboard={() => setCurrentScreen('gateway')}
-                    onOpenOwnerRegister={() => setIsOwnerRegisterModalOpen(true)}
-                    onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}
-                    onNavigateToContact={() => setCurrentScreen('public_contact')}
-                    onNavigateToRegistration={() => setCurrentScreen('public_registration')}
-                  />
-                </motion.div>
-              )}
 
               {currentScreen === 'public_products' && (
                 <motion.div
@@ -805,6 +908,7 @@ function AppContent() {
             onOpenDashboard={() => setCurrentScreen('gateway')}
             onNavigateToContact={() => setCurrentScreen('public_contact')}
             onNavigateToRegistration={() => setCurrentScreen('public_registration')}
+            onOpenDocumentation={() => setIsInternshipModalOpen(true)}
           />
         </div>
       )}
@@ -850,16 +954,21 @@ function AppContent() {
         onOpenOwnerRegistration={() => setIsOwnerRegisterModalOpen(true)}
         onLoginSuccess={(user, isStaff) => {
           setCurrentUser(user);
-          if (user.isSuperAdmin || user.email === 'athronos21@gmail.com') {
+          if (user.isSuperAdmin || user.email === 'athronos21@gmail.com' || user.email === 'beka.girma@gmail.com') {
             setDashboardView('master_admin');
             setCurrentScreen('dashboard');
             showToast(`Master Admin Session active for ${user.name}. Whole system governance unlocked.`, 'success', 'Whole System Authority');
+          } else if (user.role === 'SUPPLIER') {
+            setDashboardView('purchases');
+            setPurchasesSubTab('purchase_orders');
+            setCurrentScreen('dashboard');
+            showToast(`Wholesale Supplier Session active for ${user.name}. Wholesale procurement hub ready.`, 'success', 'Wholesale Hub Active');
+          } else if (user.role === 'PHARMACIST') {
+            setDashboardView('pos');
+            setCurrentScreen('dashboard');
+            showToast(`Pharmacist Session active for ${user.name}. Clinical POS ready.`, 'success', 'Pharmacist Station Active');
           } else if (isStaff) {
-            if (user.role === 'PHARMACIST') {
-              setDashboardView('pos');
-            } else {
-              setDashboardView('dashboard');
-            }
+            setDashboardView('dashboard');
             setCurrentScreen('dashboard');
             showToast(`Welcome back, ${user.name} (${user.role}). Workstation ready.`, 'success', 'Staff Authenticated');
           } else {
@@ -874,11 +983,15 @@ function AppContent() {
         onClose={() => setIsOwnerRegisterModalOpen(false)}
         onSuccess={(ownerUser, pharmacyProfile) => {
           setCurrentUser(ownerUser);
+          try {
+            localStorage.setItem('dds_registered_store', JSON.stringify(pharmacyProfile));
+            localStorage.setItem('dds_active_landing_mode', 'REGISTERED_STORE');
+          } catch {}
           setDashboardView('dashboard');
-          setCurrentScreen('dashboard');
+          setCurrentScreen('public_home');
           fetchUsers();
           showToast(
-            `Pharmacy "${pharmacyProfile.storeName}" successfully registered! Redirected directly to your store management dashboard.`,
+            `Pharmacy "${pharmacyProfile.storeName}" successfully registered! You can now authorize your pharmacist staff right here on your store landing page.`,
             'success',
             'Registration Completed'
           );
@@ -891,6 +1004,62 @@ function AppContent() {
         onViewStorefront={() => {
           setCurrentScreen('public_home');
           fetchUsers();
+        }}
+      />
+
+      {/* PHARMACEUTICAL WHOLESALER / SUPPLIER REGISTRATION MODAL */}
+      <SupplierRegistrationModal
+        isOpen={isSupplierRegisterModalOpen}
+        onClose={() => setIsSupplierRegisterModalOpen(false)}
+        onSuccess={(supplier, user) => {
+          try {
+            localStorage.setItem('dds_registered_supplier', JSON.stringify(supplier));
+            localStorage.setItem('dds_active_landing_mode', 'REGISTERED_SUPPLIER');
+            window.dispatchEvent(new CustomEvent('dds_state_updated'));
+          } catch {}
+          setLandingMode('REGISTERED_SUPPLIER');
+          setCurrentScreen('public_home');
+          fetchUsers();
+          showToast(
+            `Wholesale Supplier "${supplier.name}" successfully registered! Procurement portal activated.`,
+            'success',
+            'Supplier Registered'
+          );
+        }}
+      />
+
+      {/* STORE OWNER PHARMACIST AUTHORIZATION MODAL */}
+      <PharmacistAuthorizationModal
+        isOpen={isPharmacistAuthModalOpen}
+        onClose={() => setIsPharmacistAuthModalOpen(false)}
+        pharmacyProfile={(() => {
+          try {
+            const stored = localStorage.getItem('dds_registered_store');
+            return stored ? JSON.parse(stored) : null;
+          } catch {
+            return null;
+          }
+        })()}
+        onSuccess={(pharmacistUser) => {
+          try {
+            const stored = localStorage.getItem('dds_authorized_pharmacists');
+            const list = stored ? JSON.parse(stored) : [];
+            list.push(pharmacistUser);
+            localStorage.setItem('dds_authorized_pharmacists', JSON.stringify(list));
+            window.dispatchEvent(new CustomEvent('dds_state_updated'));
+          } catch {}
+          fetchUsers();
+          showToast(
+            `Pharmacist ${pharmacistUser.name} authorized! License: ${pharmacistUser.licenseNumber || 'Active'}. Added to dispensary roster.`,
+            'success',
+            'Staff Authorized'
+          );
+        }}
+        onInstantLogin={(pharmacistUser) => {
+          setCurrentUser(pharmacistUser);
+          setDashboardView('pos');
+          setCurrentScreen('dashboard');
+          showToast(`Direct login active as Pharmacist ${pharmacistUser.name}. POS Terminal loaded.`, 'success', 'Staff Session');
         }}
       />
 

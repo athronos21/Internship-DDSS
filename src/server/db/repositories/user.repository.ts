@@ -1,5 +1,5 @@
 import { db } from '../../db.js';
-import type { User } from '../../types.js';
+import type { User } from '../types.js';
 
 export const UserRepository = {
   list(): User[] {
@@ -24,10 +24,10 @@ export const UserRepository = {
       department: userData.department,
       phone: userData.phone,
       employeeId: userData.employeeId,
+      isActive: userData.isActive ?? true,
       mustChangePassword: userData.mustChangePassword ?? true,
       createdAt: new Date().toISOString(),
-      status: 'Active',
-      permissions: [],
+      status: 'ACTIVE',
     };
     db.users.push(newUser);
     return newUser;

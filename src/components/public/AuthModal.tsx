@@ -49,7 +49,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   // Master Admin direct state
   const masterAdminUser: User = availableUsers.find(
-    (u) => u.isSuperAdmin || u.email === 'athronos21@gmail.com' || u.employeeId === 'SYS-ADMIN-001'
+    (u) => u.isSuperAdmin || u.email === 'athronos21@gmail.com' || u.email === 'beka.girma@gmail.com' || u.employeeId === 'SYS-ADMIN-001'
   ) || {
     id: 'u-superadmin',
     name: 'Atronos Sisay',
@@ -67,7 +67,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   // Login Form State (pre-filled with clean defaults)
-  const [emailOrId, setEmailOrId] = useState('munaa7536@gmail.com');
+  const [emailOrId, setEmailOrId] = useState('monet@kaziniya.com');
   const [password, setPassword] = useState('••••••••••');
   const [rawPassword, setRawPassword] = useState('12242144');
   const [keepSignedIn, setKeepSignedIn] = useState(true);
@@ -183,7 +183,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           }
         } else if (
           emailOrId.toLowerCase() === 'athronos21@gmail.com' ||
+          emailOrId.toLowerCase() === 'beka.girma@gmail.com' ||
+          emailOrId.toLowerCase() === 'kaziniya@kaziniya.com' ||
           emailOrId.toLowerCase() === 'admin@kaziniya.com' ||
+          emailOrId.toLowerCase() === 'monet@kaziniya.com' ||
           emailOrId.toLowerCase() === 'munaa7536@gmail.com'
         ) {
           showToast(`Welcome back!`, 'success', 'Workstation Active');
@@ -205,7 +208,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onClose();
       } else if (
         emailOrId.toLowerCase() === 'athronos21@gmail.com' ||
+        emailOrId.toLowerCase() === 'beka.girma@gmail.com' ||
+        emailOrId.toLowerCase() === 'kaziniya@kaziniya.com' ||
         emailOrId.toLowerCase() === 'admin@kaziniya.com' ||
+        emailOrId.toLowerCase() === 'monet@kaziniya.com' ||
         emailOrId.toLowerCase() === 'munaa7536@gmail.com'
       ) {
         onLoginSuccess(masterAdminUser, true);
@@ -276,7 +282,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   const getRoleBadge = (user: User) => {
-    if (user.role === 'SUPER_ADMIN' || user.isSuperAdmin || user.email === 'athronos21@gmail.com') {
+    if (user.role === 'SUPER_ADMIN' || user.isSuperAdmin || user.email === 'athronos21@gmail.com' || user.email === 'beka.girma@gmail.com') {
       return { label: 'Super Admin (System Governance)', color: 'bg-indigo-900/90 text-indigo-200 border-indigo-600' };
     }
     if (user.role === 'STORE_OWNER' || user.isOwner) {
@@ -284,6 +290,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
     if (user.role === 'PHARMACIST') {
       return { label: 'Licensed Pharmacist (POS & Rx)', color: 'bg-emerald-900/80 text-emerald-200 border-emerald-700' };
+    }
+    if (user.role === 'SUPPLIER') {
+      return { label: 'Wholesale Supplier (B2B Hub)', color: 'bg-teal-900/80 text-teal-200 border-teal-700' };
     }
     return { label: user.role, color: 'bg-slate-800 text-slate-200 border-slate-700' };
   };
@@ -556,7 +565,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         required
                         value={emailOrId}
                         onChange={(e) => setEmailOrId(e.target.value)}
-                        placeholder="munaa7536@gmail.com or EMP ID"
+                        placeholder="monet@kaziniya.com or EMP ID"
                         className="w-full rounded-xl border border-sky-300 dark:border-slate-700 bg-sky-50/30 dark:bg-slate-950/60 pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:border-[#0060df] focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-900/50 focus:outline-none transition"
                       />
                     </div>
@@ -699,27 +708,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* ======================================================== */}
-          {/* OFFICIAL FOOTER: MINISTRY OF HEALTH ETHIOPIA & EFDA LOGOS */}
-          {/* ======================================================== */}
-          <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col items-center justify-center gap-1.5 text-center select-none">
-            <div className="flex items-center gap-3 opacity-80 hover:opacity-100 transition">
-              {/* Ministry of Health Emblem & Text */}
-              <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                <div className="w-5 h-5 rounded-full bg-sky-700 text-white flex items-center justify-center text-[9px] font-black">
-                  🇪🇹
-                </div>
-                <span>የኢትዮጵያ ጤና ጥበቃ ሚኒስቴር</span>
-              </div>
-              <span className="text-slate-300 dark:text-slate-700">|</span>
-              <div className="text-[9px] font-black tracking-wider text-slate-500 uppercase">
-                MINISTRY OF HEALTH
-              </div>
-            </div>
-            <span className="text-[9.5px] text-slate-400 font-medium">
-              Powered by Ministry of Health Ethiopia & EFDA Ecosystem
-            </span>
-          </div>
+
         </div>
 
       </div>

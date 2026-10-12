@@ -1,12 +1,13 @@
 import React from 'react';
-import { Pill, Phone, Mail, MapPin, Clock, ShieldCheck, Heart } from 'lucide-react';
+import { Pill, Phone, Mail, MapPin, Clock, ShieldCheck, Heart, FileText } from 'lucide-react';
 import { usePortalContent } from '../../context/PortalContentContext';
 
 export const PublicFooter: React.FC<{
   onOpenDashboard: () => void;
   onNavigateToContact?: () => void;
   onNavigateToRegistration?: () => void;
-}> = ({ onOpenDashboard, onNavigateToContact, onNavigateToRegistration }) => {
+  onOpenDocumentation?: () => void;
+}> = ({ onOpenDashboard, onNavigateToContact, onNavigateToRegistration, onOpenDocumentation }) => {
   const { content } = usePortalContent();
 
   return (
@@ -84,6 +85,15 @@ export const PublicFooter: React.FC<{
               >
                 <MapPin className="h-3.5 w-3.5" />
                 <span>Building Gallery & Contact Us</span>
+              </button>
+            )}
+            {onOpenDocumentation && (
+              <button
+                onClick={onOpenDocumentation}
+                className="w-full rounded-xl bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/30 font-bold text-xs py-2.5 px-4 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              >
+                <FileText className="h-3.5 w-3.5 text-teal-400" />
+                <span>Academic Report & Docs (.docx/.pdf)</span>
               </button>
             )}
           </div>

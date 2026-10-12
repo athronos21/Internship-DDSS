@@ -14,7 +14,8 @@ export type VatTotType = 'VAT_15' | 'TOT_2' | 'TOT_10' | 'EXEMPT';
 
 export type NodeStatus = 'ACTIVE' | 'PENDING_REVIEW' | 'VERIFIED' | 'MAINTENANCE';
 
-export type UserRole = 'SUPER_ADMIN' | 'STORE_OWNER' | 'PHARMACIST' | 'CUSTOMER';
+export type UserRole = 'SUPER_ADMIN' | 'STORE_OWNER' | 'PHARMACIST' | 'CUSTOMER' | 'SUPPLIER';
+export type { User } from '../../types.js';
 
 export interface PharmacyStoreProfile {
   id: string;
@@ -149,13 +150,15 @@ export type TransactionType =
   | 'SALE_RETURN'
   | 'PURCHASE_RETURN'
   | 'ADJUSTMENT'
+  | 'DAMAGED'
+  | 'EXPIRED'
   | 'TRANSFER'
   | 'DISCARD';
 
 export interface InventoryTransaction {
   id: string;
   medicineId: string;
-  medicineName: string;
+  medicineName?: string;
   batchId?: string;
   batchNumber?: string;
   transactionType: TransactionType;
@@ -206,7 +209,9 @@ export interface Supplier {
   address: string;
   creditLimit?: number;
   paymentTerms?: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  licenseNumber?: string;
+  isActive?: boolean;
+  status?: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
 }
 
@@ -231,12 +236,12 @@ export interface PurchaseOrder {
   createdAt: string;
 }
 
-export type PaymentMethod = 'CASH' | 'TELEBIRR' | 'CBE_BIRR' | 'CREDIT_CARD' | 'INSURANCE';
-export type PaymentStatus = 'PAID' | 'PENDING' | 'REFUNDED' | 'PARTIAL';
+export type PaymentMethod = 'CASH' | 'TELEBIRR' | 'CBE_BIRR' | 'CREDIT_CARD' | 'INSURANCE' | 'CARD' | 'MOBILE_MONEY' | 'BANK_TRANSFER' | 'OTHER';
+export type PaymentStatus = 'PAID' | 'PENDING' | 'REFUNDED' | 'PARTIAL' | 'PARTIALLY_REFUNDED';
 
 export interface SaleItem {
   medicineId: string;
-  medicineName: string;
+  medicineName?: string;
   batchId?: string;
   batchNumber?: string;
   expiryDate?: string;
@@ -251,13 +256,16 @@ export interface Sale {
   invoiceNumber: string;
   customerId?: string;
   customerName?: string;
-  cashierId: string;
+  cashierId?: string;
   cashierName?: string;
+  soldBy?: string;
+  soldByName?: string;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   subtotal: number;
   discount: number;
   taxAmount?: number;
+  tax?: number;
   totalAmount: number;
   items: SaleItem[];
   createdAt: string;

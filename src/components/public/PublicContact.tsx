@@ -103,14 +103,14 @@ export const PublicContact: React.FC<PublicContactProps> = ({ onExploreProducts 
             {/* Overlaid Bottom Title */}
             <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
               <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
-                Addis Ababa, Ethiopia
+                Adama, Ethiopia
               </p>
               <h2 className="text-xl sm:text-2xl font-extrabold leading-tight">
-                Kaziniya Pharmacy Main Store & Healthcare Center
+                Digital Drug Store Main Store & Healthcare Center
               </h2>
               <p className="text-xs text-slate-300 flex items-center gap-1.5">
                 <MapPin className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span>Bole Medhanealem Road, Next to Edna Mall, Bole Subcity</span>
+                <span>Adama, Ethiopia</span>
               </p>
             </div>
           </div>
@@ -133,7 +133,7 @@ export const PublicContact: React.FC<PublicContactProps> = ({ onExploreProducts 
                     <MapPin className="h-4 w-4 text-emerald-600" /> Exact Location
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 pl-6">
-                    Bole Medhanealem Road, Woreda 03, Bole Subcity, Addis Ababa, Ethiopia
+                    Adama, Ethiopia
                   </p>
                 </div>
 
@@ -142,7 +142,7 @@ export const PublicContact: React.FC<PublicContactProps> = ({ onExploreProducts 
                     <Phone className="h-4 w-4 text-emerald-600" /> Urgent Phone Lines
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 pl-6 font-mono font-bold">
-                    +251 11 661 2345 / +251 911 889 001
+                    +251903852218
                   </p>
                 </div>
 
@@ -159,7 +159,7 @@ export const PublicContact: React.FC<PublicContactProps> = ({ onExploreProducts 
 
             <div className="space-y-2 pt-2">
               <button
-                onClick={() => handleCopyAddress('Bole Medhanealem Road, Next to Edna Mall, Addis Ababa, Ethiopia')}
+                onClick={() => handleCopyAddress('Adama, Ethiopia')}
                 className="w-full py-3 rounded-2xl border border-slate-200 bg-white text-xs font-bold text-slate-800 hover:bg-slate-50 transition flex items-center justify-center gap-2 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
               >
                 <Copy className="h-4 w-4 text-emerald-600" /> Copy Flagship Address

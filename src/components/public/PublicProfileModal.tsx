@@ -60,7 +60,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({
               </h3>
               <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Verified Patient Account ({currentUser.role === 'CUSTOMER' ? 'Public Portal' : currentUser.role})</span>
+                <span>Verified Account ({currentUser.role})</span>
               </p>
             </div>
           </div>

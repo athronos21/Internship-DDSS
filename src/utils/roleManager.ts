@@ -198,8 +198,8 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
     textColor: 'text-emerald-900 dark:text-emerald-200',
     description:
       'Licensed clinical healthcare professional executing all daily drug store operations: POS counter checkout, prescription verification, patient counselling, shelf inventory management & stock intake, receiving batches, FEFO expiry tracking, and shift handover Z-reports.',
-    primaryLandingView: 'pos',
-    allowedViews: ['pos', 'inventory', 'add_medicine', 'sales', 'reports'],
+    primaryLandingView: 'dashboard',
+    allowedViews: ['dashboard', 'pos', 'inventory', 'add_medicine', 'sales', 'reports'],
     permissions: [
       'USE_POS_CHECKOUT',
       'VERIFY_PRESCRIPTIONS',
@@ -222,6 +222,33 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
       'Accessing confidential store profit & loss, balance sheets, or employee payroll compensation',
       'Creating, editing, or deleting staff credentials or modifying system-level tax formulas',
       'Modifying store merchant payment credentials or central fiscal printer architecture',
+    ],
+  },
+
+  SUPPLIER: {
+    role: 'SUPPLIER',
+    title: 'Wholesale Supplier',
+    shortTitle: 'Supplier',
+    tier: 2,
+    tierLabel: 'Tier 2: Wholesale Procurement & B2B Distribution Hub',
+    badgeColor: 'bg-teal-600 text-white',
+    accentBg: 'bg-teal-50 dark:bg-teal-950/40',
+    borderColor: 'border-teal-300 dark:border-teal-800',
+    textColor: 'text-teal-900 dark:text-teal-200',
+    description:
+      'Licensed pharmaceutical wholesaler supplying bulk medicines to registered drug stores, managing purchase orders, batch certification, goods deliveries, invoices, and accounts payable.',
+    primaryLandingView: 'purchases',
+    allowedViews: ['purchases', 'dashboard', 'inventory', 'reports'],
+    permissions: [
+      'VIEW_STOCK_AVAILABILITY',
+      'MANAGE_PURCHASES',
+      'MANAGE_SUPPLIERS',
+      'RECEIVE_BATCHES',
+      'VIEW_BASIC_AUDIT_LOGS',
+    ],
+    prohibitedActions: [
+      'Altering clinical retail prescription records or accessing patient dispensing history',
+      'Modifying store staff accounts or retail counter POS cashier drawers',
     ],
   },
 
@@ -255,7 +282,9 @@ export function getEffectiveRole(user: User | null | undefined): UserRole {
     user.role === 'SUPER_ADMIN' ||
     ((user.role as string) === 'ADMIN' && user.isSuperAdmin) ||
     user.isSuperAdmin ||
-    user.email?.toLowerCase() === 'athronos21@gmail.com'
+    user.email?.toLowerCase() === 'athronos21@gmail.com' ||
+    user.email?.toLowerCase() === 'beka.girma@gmail.com' ||
+    user.email?.toLowerCase() === 'beka@kaziniya.et'
   ) {
     return 'SUPER_ADMIN';
   }
@@ -268,7 +297,11 @@ export function getEffectiveRole(user: User | null | undefined): UserRole {
     return 'PHARMACIST';
   }
 
-  return (['SUPER_ADMIN', 'STORE_OWNER', 'PHARMACIST', 'CUSTOMER'].includes(user.role)
+  if (user.role === 'SUPPLIER') {
+    return 'SUPPLIER';
+  }
+
+  return (['SUPER_ADMIN', 'STORE_OWNER', 'PHARMACIST', 'CUSTOMER', 'SUPPLIER'].includes(user.role)
     ? user.role
     : 'PHARMACIST') as UserRole;
 }

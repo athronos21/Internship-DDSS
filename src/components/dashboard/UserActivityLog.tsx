@@ -142,8 +142,8 @@ export const UserActivityLog: React.FC<UserActivityLogProps> = ({
     setIsSimulating(true);
     const actionsPool = [
       {
-        userId: 'u-3',
-        userName: 'Pharm. Solomon Bekele',
+        userId: 'u-munaa',
+        userName: 'Monet Alemayehu',
         action: 'SALE_COMPLETED',
         entityType: 'SALE',
         details: `Processed prescription transaction #INV-${Math.floor(100000 + Math.random() * 900000)} (Paracetamol 500mg, Amoxicillin 500mg) for 480 ETB via Mobile Money`,

@@ -21,6 +21,8 @@ export const PurchaseRepository = {
       address: data.address || '',
       creditLimit: Number(data.creditLimit) || 0,
       paymentTerms: data.paymentTerms || 'Net 30',
+      licenseNumber: data.licenseNumber || 'EFDA/GEN/2026',
+      isActive: true,
       status: 'ACTIVE',
       createdAt: new Date().toISOString(),
     };

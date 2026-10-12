@@ -9,7 +9,7 @@ import {
   ROLE_CONFIGS,
   hasPermission,
 } from '../../utils/roleManager';
-import { WorkstationDropdown, WorkstationId } from './WorkstationDropdown';
+import { WorkstationId } from './WorkstationDropdown';
 import {
   LayoutDashboard,
   Pill,
@@ -96,6 +96,7 @@ interface DashboardLayoutProps {
   onLogout: () => void;
   onBackToPublicPortal?: () => void;
   onSwitchWorkstation?: (workstation: WorkstationId, subTab?: string) => void;
+  onOpenDocumentation?: () => void;
   children: React.ReactNode;
 }
 
@@ -111,6 +112,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onLogout,
   onBackToPublicPortal,
   onSwitchWorkstation,
+  onOpenDocumentation,
   children,
 }) => {
   const [notifications, setNotifications] = useState<Array<{ title: string; message: string; type: 'warning' | 'danger' }>>([]);
@@ -120,7 +122,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [isRoleManagerOpen, setIsRoleManagerOpen] = useState(false);
   const [shortcutToast, setShortcutToast] = useState<string | null>(null);
   const [sidebarSearch, setSidebarSearch] = useState('');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isOnline, queuedSalesCount } = useNetworkStatus();
 
@@ -293,139 +295,140 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const effectiveRole = getEffectiveRole(currentUser);
   const isSuperAdmin = effectiveRole === 'SUPER_ADMIN';
   const isPharmacist = effectiveRole === 'PHARMACIST';
+  const isSupplier = effectiveRole === 'SUPPLIER';
   const roleConfig = getRoleConfig(effectiveRole);
 
   // View Permission Guard: Ensure activeView is allowed for the user's effective role
   useEffect(() => {
     if (roleConfig && !roleConfig.allowedViews.includes(activeView)) {
-      const fallback = isSuperAdmin ? 'master_admin' : isPharmacist ? 'pos' : 'dashboard';
+      const fallback = isSuperAdmin ? 'master_admin' : isSupplier ? 'purchases' : 'dashboard';
       setActiveView(fallback);
     }
-  }, [effectiveRole, activeView, roleConfig, isSuperAdmin, isPharmacist, setActiveView]);
+  }, [effectiveRole, activeView, roleConfig, isSuperAdmin, isPharmacist, isSupplier, setActiveView]);
 
   // Menubar structure - strictly Super Admin centric for Super Admin, store-centric for owner, and dispensing-centric for pharmacist
   const navGroups = isSuperAdmin
     ? [
         {
-          group: 'NATIONAL FLEET GOVERNANCE',
+          group: 'PHARMACIES & STORES',
           items: [
             {
               id: 'master_hub',
-              label: 'Command Hub',
+              label: 'Overview',
               icon: Shield,
               hasSubmenu: false,
             },
             {
               id: 'master_nodes',
-              label: 'Pharmacy Fleet (Nodes)',
+              label: 'Branch Stores',
               icon: Building2,
               hasSubmenu: true,
               subItems: [
-                { id: 'master_nodes_list', label: 'All Connected Pharmacies (6)', icon: List },
+                { id: 'master_nodes_list', label: 'All Stores (6)', icon: List },
                 { id: 'master_nodes_pending', label: 'Pending Approvals (1)', icon: Clock },
-                { id: 'master_nodes_onboard', label: 'Onboard New Pharmacy', icon: PlusCircle },
+                { id: 'master_nodes_onboard', label: 'Add New Store', icon: PlusCircle },
               ],
             },
             {
               id: 'master_compliance',
-              label: 'EFDA Compliance & Recalls',
+              label: 'Licenses & Recalls',
               icon: FileCheck,
               hasSubmenu: true,
               subItems: [
-                { id: 'master_efda_licenses', label: 'EFDA License Registry', icon: ShieldCheck },
-                { id: 'master_recalls', label: 'National Batch Recalls', icon: AlertOctagon },
+                { id: 'master_efda_licenses', label: 'Store Licenses', icon: ShieldCheck },
+                { id: 'master_recalls', label: 'Medicine Recalls', icon: AlertOctagon },
               ],
             },
           ],
         },
         {
-          group: 'CENTRAL FORMULARY & SHORTAGES',
+          group: 'MEDICINES & CATALOG',
           items: [
             {
               id: 'master_catalog',
-              label: 'National Drug Index',
+              label: 'Medicine Catalog',
               icon: Pill,
               hasSubmenu: true,
               subItems: [
-                { id: 'master_catalog_all', label: 'Master Medicine Registry', icon: List },
-                { id: 'master_shortages', label: 'Critical Shortage Alerts', icon: AlertTriangle },
-                { id: 'master_price_ceilings', label: 'EFDA Price Ceilings', icon: Tag },
+                { id: 'master_catalog_all', label: 'All Medicines List', icon: List },
+                { id: 'master_shortages', label: 'Low Stock Alerts', icon: AlertTriangle },
+                { id: 'master_price_ceilings', label: 'Price Limits Check', icon: Tag },
               ],
             },
           ],
         },
         {
-          group: 'MULTI-STORE FINANCIALS & SETTLEMENT',
+          group: 'SALES & FINANCES',
           items: [
             {
               id: 'master_financials',
-              label: 'Consolidated GMV',
+              label: 'Sales & Revenue',
               icon: BarChart3,
               hasSubmenu: true,
               subItems: [
-                { id: 'master_analytics', label: 'Pharmacy Analytics & Charts', icon: TrendingUp, badge: 'Live' },
-                { id: 'master_gmv', label: 'Multi-Store GMV Analytics', icon: BarChart3 },
-                { id: 'master_settlements', label: 'Telebirr / CBE Settlements', icon: Receipt },
+                { id: 'master_analytics', label: 'Sales Analytics & Charts', icon: TrendingUp, badge: 'Live' },
+                { id: 'master_gmv', label: 'Branch Sales Reports', icon: BarChart3 },
+                { id: 'master_settlements', label: 'Mobile & Bank Payments', icon: Receipt },
               ],
             },
           ],
         },
         {
-          group: 'NATIONAL HR & PERSONNEL',
+          group: 'STAFF & TEAMS',
           items: [
             {
               id: 'master_staff',
-              label: 'National Staff Directory',
+              label: 'Staff Directory',
               icon: Users,
               hasSubmenu: true,
               subItems: [
-                { id: 'master_staff_all', label: 'Licensed Staff Directory', icon: List },
-                { id: 'role_manager', label: 'Unified Role Manager & RBAC', icon: Lock },
+                { id: 'master_staff_all', label: 'All Staff Members', icon: List },
+                { id: 'role_manager', label: 'Roles & Permissions', icon: Lock },
               ],
             },
           ],
         },
         {
-          group: 'CLOUD PLATFORM & BROADCASTS',
+          group: 'SYSTEM & TOOLS',
           items: [
             {
               id: 'master_health',
-              label: 'Platform & Broadcast',
+              label: 'System & Announcements',
               icon: Server,
               hasSubmenu: true,
               subItems: [
-                { id: 'master_broadcast', label: 'Emergency System Broadcast', icon: Radio },
-                { id: 'master_telemetry', label: 'PostgreSQL Sync & Latency', icon: Activity },
+                { id: 'master_broadcast', label: 'Send Urgent Announcement', icon: Radio },
+                { id: 'master_telemetry', label: 'System & Database Health', icon: Activity },
               ],
             },
-            { id: 'portal_cms', label: 'Public Portal CMS', icon: Globe },
-            { id: 'registration_hub', label: 'Registration & Onboarding Hub', icon: Store },
+            { id: 'portal_cms', label: 'Website Content', icon: Globe },
+            { id: 'registration_hub', label: 'New Store Applications', icon: Store },
           ],
         },
         {
-          group: 'STORE WORKSTATION INSPECTION',
+          group: 'VISIT PHARMACY STORES',
           items: [
             {
               id: 'store_inspection_grp',
-              label: 'Inspect Store Workstations',
+              label: 'Switch to Store View',
               icon: Store,
               hasSubmenu: true,
               subItems: [
-                { id: 'inspect_flagship', label: 'Inspect Flagship Store (AA)', icon: Store },
-                { id: 'inventory', label: 'Inspect Local Shelf Stock', icon: Boxes },
-                { id: 'pos', label: 'Inspect POS Counter Terminal', icon: CreditCard },
-                { id: 'all_sales', label: 'Inspect Branch Sales Invoices', icon: Receipt },
-                { id: 'reports', label: 'Inspect Branch Day-End Z-Report', icon: FileText },
+                { id: 'inspect_flagship', label: 'Flagship Store (Addis Ababa)', icon: Store },
+                { id: 'inventory', label: 'View Shelf Inventory', icon: Boxes },
+                { id: 'pos', label: 'View POS Cashier Counter', icon: CreditCard },
+                { id: 'all_sales', label: 'View Sales Invoices', icon: Receipt },
+                { id: 'reports', label: 'View Daily Cash Reports (Z-Report)', icon: FileText },
               ],
             },
             {
               id: 'sys_config',
-              label: 'System Configuration',
+              label: 'Settings',
               icon: SlidersHorizontal,
               hasSubmenu: true,
               subItems: [
-                { id: 'store_settings', label: 'Global Store Settings', icon: PenSquare },
-                { id: 'eims_config', label: 'EIMS & Tax Configuration', icon: FileText },
+                { id: 'store_settings', label: 'Store Settings', icon: PenSquare },
+                { id: 'eims_config', label: 'Tax & Invoice Settings', icon: FileText },
               ],
             },
           ],
@@ -434,67 +437,97 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     : isPharmacist
     ? [
         {
-          group: 'CLINICAL DISPENSING & POS',
+          group: 'DISPENSING & CASHIER',
           items: [
-            { id: 'pos', label: 'Point of Sale (POS Terminal)', icon: Store },
+            { id: 'dashboard', label: 'Pharmacist Overview', icon: Gauge },
+            { id: 'pos', label: 'Cashier / Sell (POS)', icon: Store },
             {
               id: 'sales_mgmt',
-              label: 'Sales & Dispensing History',
+              label: 'Sales & Dispense History',
               icon: FileText,
               hasSubmenu: true,
               subItems: [
-                { id: 'all_sales', label: 'Dispensed Invoices', icon: List },
-                { id: 'sales_returns', label: 'Sales Returns & Void Logs', icon: RotateCcw },
+                { id: 'all_sales', label: 'All Dispensed Sales', icon: List },
+                { id: 'sales_returns', label: 'Sales Returns & Refunds', icon: RotateCcw },
               ],
             },
           ],
         },
         {
-          group: 'MEDICINE SHELF & INVENTORY WORK',
+          group: 'MEDICINES & SHELVES',
           items: [
             {
               id: 'medicines',
-              label: 'Medicine Shelf & Formulary',
+              label: 'Medicines & Shelves',
               icon: Pill,
               hasSubmenu: true,
               subItems: [
-                { id: 'inventory', label: 'Medicine Registry & Search', icon: List },
-                { id: 'inventory_add', label: 'Add Medicine to Stock', icon: PlusCircle },
-                { id: 'batch_mgmt', label: 'Batch Intake & FEFO Expiry', icon: Layers },
-                { id: 'stock_adjustments', label: 'Stock Intake & Adjustments', icon: PenSquare },
-                { id: 'stock_movements', label: 'Stock Movements & Dispense Log', icon: ArrowLeftRight },
+                { id: 'inventory', label: 'Search Medicines', icon: List },
+                { id: 'inventory_add', label: 'Add Medicine', icon: PlusCircle },
+                { id: 'batch_mgmt', label: 'Batches & Expiry Dates', icon: Layers },
+                { id: 'stock_adjustments', label: 'Adjust Stock Count', icon: PenSquare },
+                { id: 'stock_movements', label: 'Stock & Dispense Logs', icon: ArrowLeftRight },
               ],
             },
           ],
         },
         {
-          group: 'SHIFT SUMMARY & PERMISSIONS',
+          group: 'DAILY SUMMARY & PERMISSIONS',
           items: [
-            { id: 'reports', label: 'Day-End Z-Report & Summary', icon: FileSpreadsheet },
-            { id: 'role_manager', label: 'My Clinical Permissions & RBAC', icon: ShieldCheck },
+            { id: 'reports', label: 'Daily Sales Report (Z-Report)', icon: FileSpreadsheet },
+            { id: 'role_manager', label: 'My Permissions', icon: ShieldCheck },
+          ],
+        },
+      ]
+    : isSupplier
+    ? [
+        {
+          group: 'WHOLESALE & PURCHASES',
+          items: [
+            { id: 'purchases', label: 'Wholesale Orders & POs', icon: Truck },
+            { id: 'suppliers', label: 'Supplier Accounts & AP', icon: Building2 },
+            { id: 'goods_receipts', label: 'Goods Receipts (GRN)', icon: FileCheck },
+            { id: 'purchase_invoices', label: 'Invoices & Vendor Bills', icon: Receipt },
+            { id: 'supplier_payments', label: 'Supplier Payments', icon: Banknote },
+            { id: 'purchase_returns', label: 'Purchase Returns', icon: RotateCcw },
+          ],
+        },
+        {
+          group: 'BULK CATALOG & STOCK',
+          items: [
+            { id: 'inventory', label: 'Bulk Medicines Catalog', icon: Pill },
+            { id: 'batch_mgmt', label: 'Batches & Expiry Dates', icon: Layers },
+          ],
+        },
+        {
+          group: 'SUMMARY & PERMISSIONS',
+          items: [
+            { id: 'dashboard', label: 'Supplier Station Overview', icon: Gauge },
+            { id: 'reports', label: 'Procurement Reports', icon: BarChart3 },
+            { id: 'role_manager', label: 'My Permissions', icon: ShieldCheck },
           ],
         },
       ]
     : [
         {
-          group: 'PRODUCT MANAGEMENT',
+          group: 'MEDICINES & POS',
           items: [
             {
               id: 'medicines',
-              label: 'Products',
+              label: 'Medicines',
               icon: Pill,
               hasSubmenu: true,
               subItems: [
-                { id: 'inventory', label: 'All Products', icon: List },
-                { id: 'inventory_add', label: 'Add Product', icon: PlusCircle },
-                { id: 'inventory_expired', label: 'Expired Products', icon: CalendarX },
-                { id: 'inventory_archived', label: 'Archived Products', icon: Box },
+                { id: 'inventory', label: 'All Medicines', icon: List },
+                { id: 'inventory_add', label: 'Add Medicine', icon: PlusCircle },
+                { id: 'inventory_expired', label: 'Expired Medicines', icon: CalendarX },
+                { id: 'inventory_archived', label: 'Archived Medicines', icon: Box },
               ],
             },
-            { id: 'pos', label: 'Point of Sale (POS)', icon: Receipt },
+            { id: 'pos', label: 'Cashier / Sell (POS)', icon: Receipt },
             {
               id: 'sales_mgmt',
-              label: 'Sales Management',
+              label: 'Sales Records',
               icon: FileText,
               hasSubmenu: true,
               subItems: [
@@ -506,10 +539,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           ],
         },
         {
-          group: 'INVENTORY MANAGEMENT',
+          group: 'STOCK & SUPPLIERS',
           items: [
-            { id: 'inventory_health', label: 'Inventory Dashboard', icon: TrendingUp },
-            { id: 'store_settings', label: 'Warehouses', icon: Warehouse },
+            { id: 'inventory_health', label: 'Stock Health', icon: TrendingUp },
+            { id: 'store_settings', label: 'Store Shelves & Rooms', icon: Warehouse },
             {
               id: 'stock_mgmt',
               label: 'Stock Management',
@@ -517,70 +550,70 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               hasSubmenu: true,
               subItems: [
                 { id: 'stock_movements', label: 'Stock Movements', icon: ArrowLeftRight },
-                { id: 'stock_adjustments', label: 'Adjustments', icon: PenSquare },
+                { id: 'stock_adjustments', label: 'Adjust Stock Count', icon: PenSquare },
                 { id: 'stock_requests', label: 'Stock Requests', icon: HandHeart },
-                { id: 'create_stock_req', label: 'Create Stock Request', icon: PlusCircle },
-                { id: 'batch_mgmt', label: 'Batch Management', icon: Layers },
+                { id: 'create_stock_req', label: 'New Stock Request', icon: PlusCircle },
+                { id: 'batch_mgmt', label: 'Batch & Expiry Dates', icon: Layers },
                 { id: 'stock_report', label: 'Stock Report', icon: FileText },
-                { id: 'expiry_tracking', label: 'Expiry Tracking', icon: CalendarX },
-                { id: 'movement_report', label: 'Movement Report', icon: FileSpreadsheet },
+                { id: 'expiry_tracking', label: 'Expiring Soon', icon: CalendarX },
+                { id: 'movement_report', label: 'Movement History', icon: FileSpreadsheet },
               ],
             },
-            { id: 'online_orders', label: 'Reservations', icon: Lock },
+            { id: 'online_orders', label: 'Customer Holds', icon: Lock },
             {
               id: 'procurement',
-              label: 'Procurement',
+              label: 'Supplier Orders',
               icon: Truck,
               hasSubmenu: true,
               subItems: [
                 { id: 'suppliers', label: 'Suppliers', icon: Truck },
-                { id: 'purchase_orders', label: 'Purchase Orders', icon: FileText },
-                { id: 'goods_receipts', label: 'Goods Receipts', icon: FileCheck },
-                { id: 'purchase_invoices', label: 'Purchase Invoices', icon: Receipt },
-                { id: 'supplier_payments', label: 'Supplier Payments', icon: Banknote },
-                { id: 'purchase_returns', label: 'Purchase Returns', icon: RotateCcw },
-                { id: 'ap_dashboard', label: 'AP Dashboard', icon: PieChart },
+                { id: 'purchase_orders', label: 'Orders Sent to Suppliers', icon: FileText },
+                { id: 'goods_receipts', label: 'Received Deliveries', icon: FileCheck },
+                { id: 'purchase_invoices', label: 'Supplier Bills', icon: Receipt },
+                { id: 'supplier_payments', label: 'Payments Made', icon: Banknote },
+                { id: 'purchase_returns', label: 'Returned to Supplier', icon: RotateCcw },
+                { id: 'ap_dashboard', label: 'Bills to Pay', icon: PieChart },
               ],
             },
           ],
         },
         {
-          group: 'ACCOUNTING',
+          group: 'FINANCES & EXPENSES',
           items: [
             {
               id: 'accounting',
-              label: 'Accounting',
+              label: 'Store Finances',
               icon: Calculator,
               hasSubmenu: true,
               subItems: [
-                { id: 'acc_dashboard', label: 'Dashboard', icon: Gauge },
-                { id: 'journal_entries', label: 'Journal Entries', icon: BookOpen },
+                { id: 'acc_dashboard', label: 'Finance Overview', icon: Gauge },
+                { id: 'journal_entries', label: 'Bookkeeping Entries', icon: BookOpen },
                 { id: 'branch_reports', label: 'Branch Reports', icon: BarChart3 },
                 {
                   id: 'store_accounting',
-                  label: 'Store Accounting',
+                  label: 'Store Accounts',
                   icon: Store,
                   hasSubmenu: true,
                   subItems: [
-                    { id: 'store_dashboard', label: 'Store Dashboard', icon: Gauge },
-                    { id: 'chart_of_accounts', label: 'Chart of Accounts', icon: List },
-                    { id: 'all_journal_entries', label: 'All Journal Entries', icon: BookOpen },
+                    { id: 'store_dashboard', label: 'Accounts Summary', icon: Gauge },
+                    { id: 'chart_of_accounts', label: 'List of Accounts', icon: List },
+                    { id: 'all_journal_entries', label: 'All Entries', icon: BookOpen },
                     { id: 'trial_balance', label: 'Trial Balance', icon: Scale },
-                    { id: 'profit_loss', label: 'Profit & Loss', icon: TrendingUp },
+                    { id: 'profit_loss', label: 'Income & Expenses (P&L)', icon: TrendingUp },
                     { id: 'balance_sheet', label: 'Balance Sheet', icon: FileText },
-                    { id: 'accounting_periods', label: 'Accounting Periods', icon: Calendar },
-                    { id: 'account_mapping', label: 'Account Mapping', icon: GitFork },
+                    { id: 'accounting_periods', label: 'Monthly Periods', icon: Calendar },
+                    { id: 'account_mapping', label: 'Account Linking', icon: GitFork },
                   ],
                 },
                 {
                   id: 'expense_mgmt',
-                  label: 'Expense Management',
+                  label: 'Store Expenses',
                   icon: Receipt,
                   hasSubmenu: true,
                   subItems: [
                     { id: 'all_expenses', label: 'All Expenses', icon: List },
-                    { id: 'create_expense', label: 'Create Expense', icon: PlusCircle },
-                    { id: 'expense_categories', label: 'Expense Categories', icon: Tag },
+                    { id: 'create_expense', label: 'Record New Expense', icon: PlusCircle },
+                    { id: 'expense_categories', label: 'Expense Types', icon: Tag },
                     { id: 'expense_reports', label: 'Expense Reports', icon: BarChart3 },
                   ],
                 },
@@ -589,36 +622,36 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           ],
         },
         {
-          group: 'CUSTOMER MANAGEMENT',
+          group: 'CUSTOMERS',
           items: [
-            { id: 'customers', label: 'Customers', icon: Users },
+            { id: 'customers', label: 'Customer Directory', icon: Users },
           ],
         },
         {
-          group: 'HUMAN RESOURCES',
+          group: 'STAFF & ATTENDANCE',
           items: [
             {
               id: 'human_resources',
-              label: 'Employees & HR',
+              label: 'Staff Team',
               icon: UserCheck,
               hasSubmenu: true,
               subItems: [
-                { id: 'hr_dashboard', label: 'Dashboard', icon: Gauge },
-                { id: 'employees', label: 'Employees', icon: Users },
-                { id: 'role_manager', label: 'Role & Access Matrix', icon: ShieldCheck },
+                { id: 'hr_dashboard', label: 'Staff Overview', icon: Gauge },
+                { id: 'employees', label: 'Team Members', icon: Users },
+                { id: 'role_manager', label: 'Staff Permissions', icon: ShieldCheck },
                 {
                   id: 'attendance_schedules',
-                  label: 'Attendance & Schedules',
+                  label: 'Attendance & Shifts',
                   icon: Clock,
                   hasSubmenu: true,
                   subItems: [
-                    { id: 'attendance', label: 'Attendance', icon: Clock },
-                    { id: 'schedules', label: 'Schedules', icon: Calendar },
+                    { id: 'attendance', label: 'Daily Check-in', icon: Clock },
+                    { id: 'schedules', label: 'Work Shifts', icon: Calendar },
                   ],
                 },
                 {
                   id: 'leave_mgmt',
-                  label: 'Leave Management',
+                  label: 'Time Off & Leave',
                   icon: Calendar,
                   hasSubmenu: true,
                   subItems: [
@@ -628,27 +661,27 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 },
                 {
                   id: 'payroll_comp',
-                  label: 'Payroll & Compensation',
+                  label: 'Salaries & Pay',
                   icon: Banknote,
                   hasSubmenu: true,
                   subItems: [
-                    { id: 'payroll', label: 'Payroll', icon: FileText },
-                    { id: 'loans', label: 'Loans', icon: Banknote },
+                    { id: 'payroll', label: 'Monthly Salaries', icon: FileText },
+                    { id: 'loans', label: 'Staff Advances', icon: Banknote },
                   ],
                 },
                 {
                   id: 'performance_eval',
-                  label: 'Performance & Evaluation',
+                  label: 'Staff Activity & Reviews',
                   icon: TrendingUp,
                   hasSubmenu: true,
                   subItems: [
-                    { id: 'performance', label: 'Performance', icon: TrendingUp },
-                    { id: 'offboarding', label: 'Offboarding', icon: UserX },
+                    { id: 'performance', label: 'Activity Logs', icon: TrendingUp },
+                    { id: 'offboarding', label: 'Former Staff', icon: UserX },
                   ],
                 },
                 {
                   id: 'org_structure',
-                  label: 'Organization Structure',
+                  label: 'Job Roles & Teams',
                   icon: Building2,
                   hasSubmenu: true,
                   subItems: [
@@ -660,37 +693,37 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             },
             {
               id: 'notifications',
-              label: 'Notifications',
+              label: 'Store Alerts',
               icon: Bell,
               hasSubmenu: true,
               subItems: [
-                { id: 'all_notifications', label: 'All Notifications', icon: List },
-                { id: 'notif_settings', label: 'Settings', icon: Settings },
+                { id: 'all_notifications', label: 'All Alerts', icon: List },
+                { id: 'notif_settings', label: 'Alert Settings', icon: Settings },
               ],
             },
           ],
         },
         {
-          group: 'ANALYTICS & EXPORTS',
+          group: 'REPORTS & INSIGHTS',
           items: [
             {
               id: 'analytics',
-              label: 'Analytics & Reports',
+              label: 'Store Reports',
               icon: PieChart,
               hasSubmenu: true,
               subItems: [
-                { id: 'analytics_dashboard', label: 'Dashboard', icon: Gauge },
-                { id: 'sales_analysis', label: 'Sales Analysis', icon: ShoppingCart },
-                { id: 'inventory_health', label: 'Inventory Health', icon: Boxes },
-                { id: 'financial_trends', label: 'Financial Trends', icon: Banknote },
+                { id: 'analytics_dashboard', label: 'Reports Overview', icon: Gauge },
+                { id: 'sales_analysis', label: 'Sales Insights', icon: ShoppingCart },
+                { id: 'inventory_health', label: 'Stock Health Report', icon: Boxes },
+                { id: 'financial_trends', label: 'Revenue & Growth', icon: Banknote },
               ],
             },
           ],
         },
         {
-          group: 'SYSTEM SETTINGS',
+          group: 'SETTINGS',
           items: [
-            { id: 'store_settings', label: 'Store Settings', icon: Settings },
+            { id: 'store_settings', label: 'Store Details & Profile', icon: Settings },
             { id: 'payment_methods_grp', label: 'Payment Methods', icon: CreditCard },
           ],
         },
@@ -719,8 +752,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div className="h-screen w-full bg-[#f8fafc] flex flex-col font-sans text-slate-900 overflow-hidden">
-      {/* TOP HEADER BAR - RICH BLUE */}
-      <header className="h-14 bg-[#006cb7] text-white px-3 sm:px-6 flex items-center justify-between shadow-md z-40 shrink-0">
+      {/* TOP HEADER BAR - RICH BLUE #0070BA */}
+      <header className="h-14 bg-[#0070BA] text-white px-3 sm:px-6 flex items-center justify-between shadow-md z-40 shrink-0">
         {/* Left: Mobile Menu Toggle, Date Display & Back to Public Portal */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button
@@ -733,51 +766,67 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <div className="hidden lg:flex items-center gap-2 bg-[#005a9c] px-3.5 py-1.5 rounded-xl border border-sky-400/20 text-xs font-semibold text-white shadow-xs">
+          <div className="hidden lg:flex items-center gap-2 bg-[#005A96] px-3.5 py-1.5 rounded-xl border border-sky-400/20 text-xs font-semibold text-white shadow-xs">
             <Calendar className="h-3.5 w-3.5 text-sky-200" />
             <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
 
-          <button
-            onClick={onBackToPublicPortal}
-            className="flex items-center gap-1.5 sm:gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 sm:px-3.5 py-1.5 rounded-xl font-extrabold text-xs transition shadow-sm border border-emerald-400/40 group shrink-0"
-            title="Return to Public Customer Storefront & Portal"
-          >
-            <Globe className="h-4 w-4 text-emerald-100 group-hover:rotate-12 transition-transform shrink-0" />
-            <span className="hidden sm:inline">Back to Public Portal</span>
-            <span className="sm:hidden">Portal</span>
-          </button>
-
-          {/* Workstations Dropdown Switcher */}
-          <WorkstationDropdown
-            currentUser={currentUser}
-            currentWorkstation={
-              activeView === 'inventory_system' || activeView === 'inventory'
-                ? 'IMS'
-                : activeView === 'pos'
-                ? 'POS'
-                : activeView === 'master_admin'
-                ? 'MASTER_ADMIN'
-                : 'STORE_OPS'
-            }
-            onSelectWorkstation={(ws, subTab) => {
-              if (onSwitchWorkstation) {
-                onSwitchWorkstation(ws, subTab);
-              } else if (ws === 'IMS') {
-                setActiveView('inventory_system');
-              } else if (ws === 'POS') {
-                setActiveView('pos');
-              } else if (ws === 'MASTER_ADMIN') {
-                setActiveView('master_admin');
-              } else {
-                setActiveView('dashboard');
-              }
-            }}
-          />
+          {/* Quick 1-Click Role Switcher */}
+          <div className="flex items-center gap-1 bg-[#005A96] p-1 rounded-xl border border-sky-400/25">
+            <button
+              type="button"
+              onClick={() => onSelectRole('SUPER_ADMIN')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                currentUser?.role === 'SUPER_ADMIN' || currentUser?.isSuperAdmin
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-sky-100 hover:bg-white/10'
+              }`}
+              title="Super Admin Dashboard"
+            >
+              <span>🛡️ Admin</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectRole('STORE_OWNER')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                currentUser?.role === 'STORE_OWNER' && !currentUser?.isSuperAdmin
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-sky-100 hover:bg-white/10'
+              }`}
+              title="Store Owner Dashboard"
+            >
+              <span>🏪 Owner</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectRole('PHARMACIST')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                currentUser?.role === 'PHARMACIST'
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-sky-100 hover:bg-white/10'
+              }`}
+              title="Pharmacist Station & Dispensing"
+            >
+              <span>💊 Pharmacist</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onSelectRole('SUPPLIER')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                currentUser?.role === 'SUPPLIER'
+                  ? 'bg-white text-[#0070BA] shadow-xs'
+                  : 'text-sky-100 hover:bg-white/10'
+              }`}
+              title="Wholesale Supplier & Procurement Hub"
+            >
+              <span>🚚 Supplier</span>
+            </button>
+          </div>
         </div>
 
         {/* Right Controls: Network Status, Notifications, Shift Handover, User Profile */}
         <div className="flex items-center gap-3">
+
           {/* Network / Service Worker Status Indicator */}
           <div
             className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
@@ -807,7 +856,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               className="relative p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition"
             >
               <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-bold flex items-center justify-center text-white border border-[#006cb7]">
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-bold flex items-center justify-center text-white border border-[#0070BA]">
                 11
               </span>
             </button>
@@ -862,100 +911,143 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
             {/* User Dropdown Menu */}
             {showUserProfileMenu && (
-              <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-white py-2 shadow-2xl border border-slate-200 z-50 text-slate-800 text-xs font-medium space-y-1">
-                {/* Account Details Header */}
-                <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-slate-900 text-xs truncate">
-                      {currentUser?.name}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
-                      isSuperAdmin
-                        ? 'bg-indigo-100 text-indigo-900 border-indigo-300'
-                        : currentUser?.isOwner || effectiveRole === 'STORE_OWNER'
-                        ? 'bg-rose-100 text-rose-900 border-rose-300'
-                        : 'bg-teal-100 text-teal-800 border-teal-300'
-                    }`}>
-                      {roleConfig?.title || effectiveRole.replace('_', ' ')}
-                    </span>
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowUserProfileMenu(false)}
+                />
+                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl bg-white p-2.5 shadow-2xl border border-slate-200/80 z-50 text-slate-800 text-xs animate-in fade-in zoom-in-95 duration-150">
+                  {/* Account Details Header */}
+                  <div className="p-3 bg-[#F8FAFC] rounded-xl border border-slate-200/70 mb-2">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#0070BA] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                        {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-extrabold text-slate-900 text-xs sm:text-sm tracking-tight truncate">
+                          {currentUser?.name || 'Authorized User'}
+                        </div>
+                        <div className="text-[11px] text-slate-500 font-mono truncate mt-0.5">
+                          {currentUser?.email}
+                        </div>
+                        <div className="mt-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0070BA]" />
+                            {roleConfig?.title || effectiveRole.replace('_', ' ')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-[11px] text-slate-500 font-mono truncate">{currentUser?.email}</p>
+
+                  {/* Quick Actions / System Tools */}
+                  <div className="space-y-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserProfileMenu(false);
+                        setIsRoleManagerOpen(true);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
+                    >
+                      <ShieldCheck className="h-4 w-4 text-[#0070BA] group-hover:scale-110 transition-transform shrink-0" />
+                      <span className="flex-1 truncate">Role Manager & RBAC Matrix</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserProfileMenu(false);
+                        if (onBackToPublicPortal) onBackToPublicPortal();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
+                    >
+                      <Globe className="h-4 w-4 text-[#0070BA] group-hover:scale-110 transition-transform shrink-0" />
+                      <span className="flex-1 truncate">Back to Public Portal</span>
+                    </button>
+
+                    {onOpenDocumentation && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowUserProfileMenu(false);
+                          onOpenDocumentation();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
+                      >
+                        <FileText className="h-4 w-4 text-[#0070BA] group-hover:scale-110 transition-transform shrink-0" />
+                        <span className="flex-1 truncate">Academic Report & Docs (.docx)</span>
+                      </button>
+                    )}
+
+                    {onOpenShiftHandover && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowUserProfileMenu(false);
+                          onOpenShiftHandover();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
+                      >
+                        <RotateCcw className="h-4 w-4 text-[#0070BA] group-hover:scale-110 transition-transform shrink-0" />
+                        <span className="flex-1 truncate">Shift Handover & Till Count</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="my-1.5 border-t border-slate-100" />
+
+                  {/* Account Settings */}
+                  <div className="space-y-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setShowUserProfileMenu(false)}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
+                    >
+                      <UserIcon className="h-4 w-4 text-slate-400 group-hover:text-[#0070BA] transition-colors shrink-0" />
+                      <span className="flex-1 truncate">Profile ({effectiveRole.replace('_', ' ')})</span>
+                    </button>
+
+                    {!isPharmacist && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveView('settings');
+                          setShowUserProfileMenu(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
+                      >
+                        <Settings className="h-4 w-4 text-slate-400 group-hover:text-[#0070BA] transition-colors shrink-0" />
+                        <span className="flex-1 truncate">Store Settings</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setShowUserProfileMenu(false)}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
+                    >
+                      <Key className="h-4 w-4 text-slate-400 group-hover:text-[#0070BA] transition-colors shrink-0" />
+                      <span className="flex-1 truncate">Change Password</span>
+                    </button>
+                  </div>
+
+                  <div className="my-1.5 border-t border-slate-100" />
+
+                  {/* Logout */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserProfileMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold transition text-left cursor-pointer group"
+                  >
+                    <LogOut className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform shrink-0" />
+                    <span>Logout</span>
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => {
-                    setShowUserProfileMenu(false);
-                    setIsRoleManagerOpen(true);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 bg-indigo-50 text-indigo-900 font-bold hover:bg-indigo-100 transition"
-                >
-                  <ShieldCheck className="h-4 w-4 text-indigo-600" />
-                  <span>Role Manager & RBAC Matrix</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setShowUserProfileMenu(false);
-                    if (onBackToPublicPortal) onBackToPublicPortal();
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 bg-emerald-50 text-emerald-800 font-bold hover:bg-emerald-100 transition"
-                >
-                  <Globe className="h-4 w-4 text-emerald-600" />
-                  <span>Back to Public Portal</span>
-                </button>
-                
-                {onOpenShiftHandover && (
-                  <button
-                    onClick={() => {
-                      setShowUserProfileMenu(false);
-                      onOpenShiftHandover();
-                    }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2 bg-amber-50 text-amber-800 font-bold hover:bg-amber-100 transition"
-                  >
-                    <RotateCcw className="h-4 w-4 text-amber-600" />
-                    <span>Shift Handover & Till Count</span>
-                  </button>
-                )}
-
-                <div className="border-t border-slate-100 my-1"></div>
-                <button
-                  onClick={() => setShowUserProfileMenu(false)}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-sky-50 text-slate-700 hover:text-sky-700 transition"
-                >
-                  <UserIcon className="h-4 w-4 text-slate-400" />
-                  <span>Profile ({currentUser?.role})</span>
-                </button>
-                {!isPharmacist && (
-                  <button
-                    onClick={() => {
-                      setActiveView('settings');
-                      setShowUserProfileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-sky-50 text-slate-700 hover:text-sky-700 transition"
-                  >
-                    <Settings className="h-4 w-4 text-slate-400" />
-                    <span>Store Setting</span>
-                  </button>
-                )}
-                <button
-                  onClick={() => setShowUserProfileMenu(false)}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-sky-50 text-slate-700 hover:text-sky-700 transition"
-                >
-                  <Key className="h-4 w-4 text-slate-400" />
-                  <span>Change Password</span>
-                </button>
-                <div className="border-t border-slate-100 my-1"></div>
-                <button
-                  onClick={() => {
-                    setShowUserProfileMenu(false);
-                    onLogout();
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-rose-50 text-rose-600 font-semibold transition"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </button>
-              </div>
+              </>
             )}
           </div>
         </div>
@@ -992,7 +1084,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     </div>
                     <div className="min-w-0">
                       <h2 className="font-bold text-sm tracking-tight text-white leading-tight truncate">
-                        {isSuperAdmin ? 'National Health Fleet' : 'Kaziniya Drug store'}
+                        {isSuperAdmin ? 'Digital Drug Store' : 'Kaziniya Drug Store'}
                       </h2>
                       <span className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider block">
                         {isSuperAdmin ? 'Super Admin Portal' : 'Licensed Drug Store'}
@@ -1099,7 +1191,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     </div>
                     <div className="min-w-0">
                       <h2 className="font-bold text-sm tracking-tight text-white leading-tight truncate">
-                        {isSuperAdmin ? 'National Health Fleet' : 'Kaziniya Drug store'}
+                        {isSuperAdmin ? 'Digital Drug Store' : 'Kaziniya Drug Store'}
                       </h2>
                       {isSuperAdmin ? (
                         <span className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider block">
@@ -1152,38 +1244,40 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               {/* Prominent Dashboard / Primary Workstation Card */}
               {isSidebarCollapsed ? (
                 <button
-                  onClick={() => handleItemClick(isSuperAdmin ? 'master_hub' : isPharmacist ? 'pos' : 'dashboard')}
+                  onClick={() => handleItemClick(isSuperAdmin ? 'master_hub' : isSupplier ? 'purchases' : 'dashboard')}
                   className={`w-full h-10 flex items-center justify-center rounded-xl text-xs font-semibold transition ${
                     (isSuperAdmin && activeView === 'master_admin') ||
-                    (isPharmacist && activeView === 'pos') ||
-                    (!isSuperAdmin && !isPharmacist && activeView === 'dashboard')
+                    (isPharmacist && (activeView === 'dashboard' || activeView === 'pos')) ||
+                    (isSupplier && (activeView === 'purchases' || activeView === 'dashboard')) ||
+                    (!isSuperAdmin && !isPharmacist && !isSupplier && activeView === 'dashboard')
                       ? 'bg-white/25 text-white shadow-xs font-bold border border-white/30'
                       : 'text-white/90 hover:bg-white/10 hover:text-white'
                   }`}
-                  title={isSuperAdmin ? 'Fleet Command Center' : isPharmacist ? 'Clinical POS & Dispensary' : 'Store Executive Dashboard'}
+                  title={isSuperAdmin ? 'All Stores Overview' : isPharmacist ? 'Pharmacist Station' : isSupplier ? 'Wholesale Supplier Hub' : 'Store Dashboard'}
                 >
-                  {isSuperAdmin ? <Shield className="h-5 w-5" /> : isPharmacist ? <Receipt className="h-5 w-5" /> : <Gauge className="h-5 w-5" />}
+                  {isSuperAdmin ? <Shield className="h-5 w-5" /> : isSupplier ? <Truck className="h-5 w-5" /> : <Gauge className="h-5 w-5" />}
                 </button>
               ) : (
                 <button
-                  onClick={() => handleItemClick(isSuperAdmin ? 'master_hub' : isPharmacist ? 'pos' : 'dashboard')}
+                  onClick={() => handleItemClick(isSuperAdmin ? 'master_hub' : isSupplier ? 'purchases' : 'dashboard')}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-xs font-bold transition border cursor-pointer ${
                     (isSuperAdmin && activeView === 'master_admin') ||
-                    (isPharmacist && activeView === 'pos') ||
-                    (!isSuperAdmin && !isPharmacist && activeView === 'dashboard')
+                    (isPharmacist && (activeView === 'pos' || activeView === 'dashboard')) ||
+                    (isSupplier && (activeView === 'purchases' || activeView === 'dashboard')) ||
+                    (!isSuperAdmin && !isPharmacist && !isSupplier && activeView === 'dashboard')
                       ? 'bg-white/20 text-white shadow-xs border-white/25'
                       : 'bg-white/10 text-white/95 border-transparent hover:bg-white/15 hover:text-white'
                   }`}
                 >
                   <div className="w-8 h-8 rounded-xl bg-white text-[#0070ba] flex items-center justify-center shadow-xs shrink-0">
-                    {isSuperAdmin ? <Shield className="h-4.5 w-4.5" /> : isPharmacist ? <Receipt className="h-4.5 w-4.5" /> : <Gauge className="h-4.5 w-4.5" />}
+                    {isSuperAdmin ? <Shield className="h-4.5 w-4.5" /> : isSupplier ? <Truck className="h-4.5 w-4.5" /> : <Gauge className="h-4.5 w-4.5" />}
                   </div>
                   <div className="text-left min-w-0 flex-1">
                     <span className="text-[13px] font-bold tracking-tight text-white block truncate leading-tight">
-                      {isSuperAdmin ? 'Fleet Command' : isPharmacist ? 'Dispensary & POS' : 'Store Dashboard'}
+                      {isSuperAdmin ? 'All Stores Overview' : isPharmacist ? 'Pharmacist Station' : isSupplier ? 'Wholesale Supplier Hub' : 'Store Dashboard'}
                     </span>
                     <span className="text-[10px] text-sky-200/90 block font-normal leading-tight mt-0.5">
-                      {isSuperAdmin ? 'National Governance' : isPharmacist ? 'Clinical Counter' : 'Executive Management'}
+                      {isSuperAdmin ? 'Main Overview' : isPharmacist ? 'Clinical & Dispensing' : isSupplier ? 'B2B Wholesale Procurement' : 'Main Overview'}
                     </span>
                   </div>
                 </button>

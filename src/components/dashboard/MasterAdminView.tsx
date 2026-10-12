@@ -352,8 +352,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       storeType: 'COMMUNITY_DRUG_STORE',
       tinNumber: '0098234123',
       efdaLicense: 'EFDA/DISP/AA/2024/8492',
-      ownerName: 'Dr. Alemu Tadesse',
-      ownerEmail: 'admin@kaziniya.com',
+      ownerName: 'Kaziniya Ahmed',
+      ownerEmail: 'kaziniya@kaziniya.com',
       ownerPhone: '+251 911 234 567',
       city: 'Addis Ababa',
       subcity: 'Bole Subcity',
@@ -591,9 +591,21 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
   // Global Staff Roster
   const [globalStaff, setGlobalStaff] = useState<GlobalStaffMember[]>([
     {
+      id: 'st-00',
+      name: 'Beka Girma',
+      email: 'beka.girma@gmail.com',
+      phone: '+251 911 000 002',
+      role: 'SUPER_ADMIN',
+      storeName: 'National Fleet Governance Cockpit',
+      storeId: 'node-fleet-01',
+      efdaLicenseNumber: 'EFDA-GOV-SYS-002',
+      status: 'ACTIVE',
+      lastSeen: 'Active Now',
+    },
+    {
       id: 'st-01',
-      name: 'Dr. Alemu Tadesse',
-      email: 'admin@kaziniya.com',
+      name: 'Kaziniya Ahmed',
+      email: 'kaziniya@kaziniya.com',
       phone: '+251 911 234 567',
       role: 'STORE_OWNER',
       storeName: 'Kaziniya Flagship Store',
@@ -616,9 +628,9 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
     },
     {
       id: 'st-03',
-      name: 'Pharm. Solomon Bekele',
-      email: 'pharmacist@kaziniya.com',
-      phone: '+251 933 456 789',
+      name: 'Monet Alemayehu',
+      email: 'monet@kaziniya.com',
+      phone: '+251 912 345 678',
       role: 'PHARMACIST',
       storeName: 'Kaziniya Flagship Store',
       storeId: 'node-01',
@@ -661,6 +673,18 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       efdaLicenseNumber: 'EFDA-PH-SNNPR-3310',
       status: 'PENDING',
       lastSeen: '1 hour ago',
+    },
+    {
+      id: 'st-07',
+      name: 'Supplier',
+      email: 'supplier@medtech.com',
+      phone: '+251 911 334 455',
+      role: 'SUPPLIER',
+      storeName: 'MedTech Wholesale Distribution Hub',
+      storeId: 'node-sup-01',
+      efdaLicenseNumber: 'EFDA-DIST-AA-5501',
+      status: 'ACTIVE',
+      lastSeen: 'Active Now',
     },
   ]);
 
@@ -993,42 +1017,42 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {/* ========================================================================= */}
       {/* 👑 EXECUTIVE MINIMALIST SUPER ADMIN COMMAND BAR */}
       {/* ========================================================================= */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-3.5 sm:p-4 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         {/* Left: Brand / Network Identity & Threat Posture */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-slate-800 text-amber-400 flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#0070BA] text-white flex items-center justify-center shadow-xs shrink-0">
               <Shield className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
-                  National Pharmacy Network
+                <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900">
+                  Digital Drug Store Network
                 </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300/40">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  6 Nodes Live
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0070BA] animate-pulse" />
+                  6 Stores Online
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                EFDA Tier-4 Governance Mesh • Addis Ababa & Federal Regions
+              <p className="text-xs text-slate-500 font-medium">
+                Unified management for licensed pharmacies across Ethiopia
               </p>
             </div>
           </div>
 
-          {/* Threat Posture Selector */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700">
-            <span className="text-[10px] font-extrabold uppercase text-slate-400 px-1.5">Posture:</span>
+          {/* System Status Selector */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+            <span className="text-[10px] font-extrabold uppercase text-slate-400 px-1.5">System Status:</span>
             <button
               type="button"
               onClick={() => {
                 setSystemAlertLevel('NORMAL');
-                showToast('System Alert Level set to Normal (Standard EFDA regulatory protocols active).', 'info', 'Threat Posture: Normal');
+                showToast('System status set to Normal (All stores operating smoothly).', 'info', 'Status: Normal');
               }}
               className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition cursor-pointer ${
                 systemAlertLevel === 'NORMAL'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-[#0070BA] text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               Normal
@@ -1037,26 +1061,26 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               type="button"
               onClick={() => {
                 setSystemAlertLevel('ELEVATED');
-                showToast('System Alert Level set to Elevated (Mandatory narcotic check & hourly sync enforced).', 'warning', 'Threat Posture: Elevated');
+                showToast('System status set to High Alert (Extra inventory checks active).', 'warning', 'Status: High Alert');
               }}
               className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition cursor-pointer ${
                 systemAlertLevel === 'ELEVATED'
                   ? 'bg-amber-600 text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              Elevated
+              High Alert
             </button>
             <button
               type="button"
               onClick={() => {
                 setSystemAlertLevel('CRITICAL');
-                showToast('System Alert Level set to Lockdown (National batch quarantine enforcement).', 'error', 'Threat Posture: Lockdown');
+                showToast('System status set to Emergency Lockdown.', 'error', 'Status: Lockdown');
               }}
               className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition cursor-pointer ${
                 systemAlertLevel === 'CRITICAL'
                   ? 'bg-rose-600 text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               Lockdown
@@ -1064,31 +1088,31 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           </div>
         </div>
 
-        {/* Right: Directives Dropdown Menu & Quick Action */}
+        {/* Right: Quick Actions Dropdown Menu & Add Store Button */}
         <div className="flex items-center gap-2 self-stretch md:self-auto justify-between md:justify-end">
-          {/* Directives & Actions Dropdown Menu */}
+          {/* Quick Actions Dropdown Menu */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsDirectivesMenuOpen((prev) => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-xs cursor-pointer shrink-0"
-              title="Super Admin Directives & Operations Menu"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005A96] text-white text-xs font-bold transition shadow-xs cursor-pointer shrink-0"
+              title="Quick Store Actions Menu"
             >
               <Zap className="h-3.5 w-3.5 text-amber-300 shrink-0" />
-              <span>Directives & Actions</span>
+              <span>Quick Actions</span>
               <ChevronDown className="h-3.5 w-3.5 text-white/70" />
             </button>
 
-            {/* Directives Dropdown Menu */}
+            {/* Quick Actions Dropdown Menu Content */}
             {isDirectivesMenuOpen && (
               <>
                 <div
                   className="fixed inset-0 z-40"
                   onClick={() => setIsDirectivesMenuOpen(false)}
                 />
-                <div className="absolute right-0 top-full mt-1.5 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 text-xs text-slate-700 dark:text-slate-200 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                    Regulatory & Fleet Directives
+                <div className="absolute right-0 top-full mt-1.5 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-50 text-xs text-slate-700 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                    Quick Store Actions
                   </div>
 
                   <button
@@ -1101,12 +1125,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                         setActiveTab('NODES');
                       }
                     }}
-                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-left font-semibold text-slate-900 dark:text-white transition cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#F0F7FC] text-left font-semibold text-slate-900 hover:text-[#0070BA] transition cursor-pointer"
                   >
-                    <PlusCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <PlusCircle className="h-4 w-4 text-[#0070BA] shrink-0" />
                     <div>
-                      <div className="font-bold leading-tight">Onboard Pharmacy</div>
-                      <div className="text-[10px] text-slate-500">Register licensed retail node</div>
+                      <div className="font-bold leading-tight">Add New Pharmacy</div>
+                      <div className="text-[10px] text-slate-500">Register a licensed branch store</div>
                     </div>
                   </button>
 
@@ -1116,12 +1140,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       setIsDirectivesMenuOpen(false);
                       setIsNewRecallModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-left font-semibold text-slate-900 dark:text-white transition cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-amber-50 text-left font-semibold text-slate-900 hover:text-amber-700 transition cursor-pointer"
                   >
                     <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
                     <div>
-                      <div className="font-bold leading-tight">Issue EFDA Recall</div>
-                      <div className="text-[10px] text-slate-500">Lock defective batch nationwide</div>
+                      <div className="font-bold leading-tight">Issue Medicine Recall</div>
+                      <div className="text-[10px] text-slate-500">Pause recalled medicine across stores</div>
                     </div>
                   </button>
 
@@ -1132,12 +1156,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       setLockdownTargetNode(pharmacyFleet[0] || null);
                       setIsEmergencyLockdownModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left font-semibold text-rose-600 dark:text-rose-400 transition cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-rose-50 text-left font-semibold text-rose-600 transition cursor-pointer"
                   >
                     <Lock className="h-4 w-4 text-rose-600 shrink-0" />
                     <div>
-                      <div className="font-bold leading-tight">Emergency POS Lockdown</div>
-                      <div className="text-[10px] text-rose-500">Quarantine compromised terminal</div>
+                      <div className="font-bold leading-tight">Pause Store Cashier POS</div>
+                      <div className="text-[10px] text-rose-500">Temporarily disable store cashier</div>
                     </div>
                   </button>
 
@@ -1148,12 +1172,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       setActiveTab('SYSTEM_HEALTH');
                       setSystemHealthSubTab('BROADCAST');
                     }}
-                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-left font-semibold text-slate-900 dark:text-white transition cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#F0F7FC] text-left font-semibold text-slate-900 hover:text-[#0070BA] transition cursor-pointer"
                   >
-                    <Radio className="h-4 w-4 text-indigo-600 shrink-0" />
+                    <Radio className="h-4 w-4 text-[#0070BA] shrink-0" />
                     <div>
-                      <div className="font-bold leading-tight">Broadcast Advisory</div>
-                      <div className="text-[10px] text-slate-500">Transmit banner to counter POS</div>
+                      <div className="font-bold leading-tight">Send Urgent Announcement</div>
+                      <div className="text-[10px] text-slate-500">Show announcement on cashier screens</div>
                     </div>
                   </button>
 
@@ -1163,12 +1187,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       setIsDirectivesMenuOpen(false);
                       setIsExportDossierModalOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-left font-semibold text-slate-900 dark:text-white transition cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#F0F7FC] text-left font-semibold text-slate-900 hover:text-[#0070BA] transition cursor-pointer"
                   >
-                    <FileText className="h-4 w-4 text-purple-600 shrink-0" />
+                    <FileText className="h-4 w-4 text-[#0070BA] shrink-0" />
                     <div>
-                      <div className="font-bold leading-tight">Export Compliance Dossier</div>
-                      <div className="text-[10px] text-slate-500">Download EFDA audit dossier</div>
+                      <div className="font-bold leading-tight">Download Inspection Report</div>
+                      <div className="text-[10px] text-slate-500">Download official compliance report</div>
                     </div>
                   </button>
                 </div>
@@ -1180,10 +1204,10 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             <button
               type="button"
               onClick={onOpenOwnerRegistration}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-xs cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005A96] text-white font-bold text-xs transition shadow-xs cursor-pointer whitespace-nowrap"
             >
               <PlusCircle className="h-3.5 w-3.5 shrink-0" />
-              <span className="hidden sm:inline">Onboard</span>
+              <span className="hidden sm:inline">Add Store</span>
             </button>
           )}
         </div>
@@ -1192,18 +1216,18 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {/* ========================================================================= */}
       {/* 🧭 SUPER ADMIN MAIN MENU & NAVIGATION BAR */}
       {/* ========================================================================= */}
-      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2.5 pt-0.5 border-b border-slate-200 dark:border-slate-800 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2.5 pt-0.5 border-b border-slate-200/80 scrollbar-thin">
         <button
           type="button"
           onClick={() => setActiveTab('HUB')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'HUB'
-              ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950 shadow-md'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <Shield className="h-4 w-4 text-amber-400 shrink-0" />
-          <span>Command Hub</span>
+          <Shield className={`h-4 w-4 shrink-0 ${activeTab === 'HUB' ? 'text-amber-300' : 'text-[#0070BA]'}`} />
+          <span>Overview</span>
         </button>
 
         <button
@@ -1211,12 +1235,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           onClick={() => setActiveTab('NODES')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'NODES'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <Building2 className="h-4 w-4 shrink-0" />
-          <span>Pharmacy Nodes & Fleets ({pharmacyFleet.length})</span>
+          <Building2 className={`h-4 w-4 shrink-0 ${activeTab === 'NODES' ? 'text-white' : 'text-[#0070BA]'}`} />
+          <span>Stores & Branches ({pharmacyFleet.length})</span>
         </button>
 
         <button
@@ -1224,13 +1248,15 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           onClick={() => setActiveTab('ANALYTICS')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'ANALYTICS'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <BarChart3 className="h-4 w-4 shrink-0" />
-          <span>Pharmacy & Drug Store Analytics</span>
-          <span className="bg-emerald-500 text-white px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 whitespace-nowrap">
+          <BarChart3 className={`h-4 w-4 shrink-0 ${activeTab === 'ANALYTICS' ? 'text-white' : 'text-[#0070BA]'}`} />
+          <span>Sales & Charts</span>
+          <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 whitespace-nowrap ${
+            activeTab === 'ANALYTICS' ? 'bg-white/20 text-white' : 'bg-[#E0EFF9] text-[#0070BA]'
+          }`}>
             Live Charts
           </span>
         </button>
@@ -1240,14 +1266,14 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           onClick={() => setActiveTab('COMPLIANCE')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'COMPLIANCE'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <FileCheck className="h-4 w-4 shrink-0" />
-          <span>EFDA Approvals & Recalls</span>
+          <FileCheck className={`h-4 w-4 shrink-0 ${activeTab === 'COMPLIANCE' ? 'text-white' : 'text-[#0070BA]'}`} />
+          <span>Licenses & Recalls</span>
           {(pendingNodesCount > 0 || criticalRecallsCount > 0) && (
-            <span className="bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 whitespace-nowrap">
+            <span className="bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 whitespace-nowrap">
               {pendingNodesCount + criticalRecallsCount}
             </span>
           )}
@@ -1258,14 +1284,14 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           onClick={() => setActiveTab('GLOBAL_CATALOG')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'GLOBAL_CATALOG'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <Pill className="h-4 w-4 shrink-0" />
-          <span>National Medicine Index</span>
+          <Pill className={`h-4 w-4 shrink-0 ${activeTab === 'GLOBAL_CATALOG' ? 'text-white' : 'text-[#0070BA]'}`} />
+          <span>Medicine Catalog</span>
           {criticalShortagesCount > 0 && (
-            <span className="bg-rose-500 text-white px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 whitespace-nowrap">
+            <span className="bg-rose-100 text-rose-800 border border-rose-300 px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 whitespace-nowrap">
               {criticalShortagesCount} Short
             </span>
           )}
@@ -1276,12 +1302,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           onClick={() => setActiveTab('FINANCIALS')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'FINANCIALS'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <DollarSign className="h-4 w-4 shrink-0" />
-          <span>Multi-Store Financials</span>
+          <DollarSign className={`h-4 w-4 shrink-0 ${activeTab === 'FINANCIALS' ? 'text-white' : 'text-[#0070BA]'}`} />
+          <span>Sales & Revenue</span>
         </button>
 
         <button
@@ -1289,12 +1315,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           onClick={() => setActiveTab('STAFF')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'STAFF'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <Users className="h-4 w-4 shrink-0" />
-          <span>National Staff Directory</span>
+          <Users className={`h-4 w-4 shrink-0 ${activeTab === 'STAFF' ? 'text-white' : 'text-[#0070BA]'}`} />
+          <span>Staff Directory</span>
         </button>
 
         <button
@@ -1302,12 +1328,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           onClick={() => setActiveTab('SYSTEM_HEALTH')}
           className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'SYSTEM_HEALTH'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-[#0070BA] text-white shadow-xs'
+              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
           }`}
         >
-          <Server className="h-4 w-4 shrink-0" />
-          <span>Platform & Broadcasts</span>
+          <Server className={`h-4 w-4 shrink-0 ${activeTab === 'SYSTEM_HEALTH' ? 'text-white' : 'text-[#0070BA]'}`} />
+          <span>System & Announcements</span>
         </button>
       </div>
 
@@ -1316,22 +1342,22 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {/* ========================================================================= */}
       {activeTab === 'HUB' && (
         <div className="space-y-6">
-          {/* Section 1: Super Admin National Regulatory & Threat Matrix */}
+          {/* Section 1: Overview Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Card 1: EFDA Active Recalls & POS Locks */}
-            <div className="p-5 rounded-3xl bg-slate-900 border border-rose-500/40 text-white space-y-3 shadow-md relative overflow-hidden">
+            {/* Card 1: Medicine Recalls */}
+            <div className="p-5 rounded-3xl bg-white border-2 border-rose-100 hover:border-rose-300 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-rose-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertOctagon className="h-4 w-4 text-rose-400" />
-                  <span>EFDA Batch Recalls</span>
+                <span className="text-xs font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <AlertOctagon className="h-4 w-4 text-rose-600" />
+                  <span>Medicine Recalls</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500/30 text-rose-300 border border-rose-400/30">
-                  CRITICAL
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200">
+                  ACTION NEEDED
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-rose-200">{criticalRecallsCount} Batches Quarantined</div>
-                <p className="text-xs text-rose-200/80 mt-1">1,240 units locked across 6 store POS counters nationwide.</p>
+                <div className="text-2xl font-black font-mono text-slate-900">{criticalRecallsCount} Batches Paused</div>
+                <p className="text-xs text-slate-500 mt-1">1,240 units paused at cashier counters across 6 stores.</p>
               </div>
               <button
                 type="button"
@@ -1339,27 +1365,27 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   setActiveTab('COMPLIANCE');
                   setComplianceSubTab('RECALLS');
                 }}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 hover:text-white transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
               >
-                <span>Inspect recall enforcement</span>
+                <span>View recalled medicines</span>
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 
-            {/* Card 2: Price Ceiling Surveillance */}
-            <div className="p-5 rounded-3xl bg-slate-900 border border-amber-500/40 text-white space-y-3 shadow-md relative overflow-hidden">
+            {/* Card 2: Price Limit Alerts */}
+            <div className="p-5 rounded-3xl bg-white border-2 border-amber-100 hover:border-amber-300 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldAlert className="h-4 w-4 text-amber-400" />
-                  <span>EFDA Price Ceilings</span>
+                <span className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldAlert className="h-4 w-4 text-amber-600" />
+                  <span>Price Limit Alerts</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/30 text-amber-300 border border-amber-400/30">
-                  SURVEILLANCE
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                  REVIEW
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-amber-200">3 SKUs Exceeding Cap</div>
-                <p className="text-xs text-amber-200/80 mt-1">Automated price variance audit active across 1,420 SKUs.</p>
+                <div className="text-2xl font-black font-mono text-slate-900">3 Medicines Above Price Cap</div>
+                <p className="text-xs text-slate-500 mt-1">Automated price checks active across all 1,420 medicines.</p>
               </div>
               <button
                 type="button"
@@ -1367,106 +1393,106 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   setActiveTab('GLOBAL_CATALOG');
                   setCatalogSubTab('PRICE_CEILINGS');
                 }}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 hover:text-white transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
               >
-                <span>Audit ceiling violations</span>
+                <span>Review price alerts</span>
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 
-            {/* Card 3: FEFO Expiry Risk Pipeline */}
-            <div className="p-5 rounded-3xl bg-slate-900 border border-indigo-500/40 text-white space-y-3 shadow-md relative overflow-hidden">
+            {/* Card 3: Expiring Soon */}
+            <div className="p-5 rounded-3xl bg-white border-2 border-sky-100 hover:border-[#0070BA]/40 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-indigo-400" />
-                  <span>FEFO Expiry Risk</span>
+                <span className="text-xs font-bold text-[#0070BA] uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="h-4 w-4 text-[#0070BA]" />
+                  <span>Expiring Soon (FEFO)</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]">
                   MONITORED
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-indigo-200">ETB 14,200 At Risk</div>
-                <p className="text-xs text-indigo-200/80 mt-1">Near-expiry stock tagged for inter-branch replenishment.</p>
+                <div className="text-2xl font-black font-mono text-slate-900">ETB 14,200 Expiring Soon</div>
+                <p className="text-xs text-slate-500 mt-1">Medicines expiring soon tagged to sell or transfer first.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveTab('ANALYTICS')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 hover:text-white transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
               >
-                <span>Review FEFO risk pipeline</span>
+                <span>View expiring medicines</span>
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 
-            {/* Card 4: Cold-Chain Stability */}
-            <div className="p-5 rounded-3xl bg-slate-900 border border-emerald-500/40 text-white space-y-3 shadow-md relative overflow-hidden">
+            {/* Card 4: Medicine Fridges & Temperatures */}
+            <div className="p-5 rounded-3xl bg-white border-2 border-emerald-100 hover:border-emerald-300 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                  <span>Cold-Chain Stability</span>
+                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <span>Medicine Fridges</span>
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/30 text-emerald-300 border border-emerald-400/30">
-                  OPTIMAL
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  ALL SAFE
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-emerald-200">6 / 6 Safe (2°C - 8°C)</div>
-                <p className="text-xs text-emerald-200/80 mt-1">Zero thermal breaches in insulin & vaccine storage.</p>
+                <div className="text-2xl font-black font-mono text-slate-900">6 / 6 Safe (2°C - 8°C)</div>
+                <p className="text-xs text-slate-500 mt-1">All insulins and vaccines kept at safe temperatures.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveTab('ANALYTICS')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 hover:text-white transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
               >
-                <span>View sensor telemetry</span>
+                <span>Check fridge temperatures</span>
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          {/* Section 2: Executive Pharmacy Fleet Dispensing & GMV Trends Overview */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-xs">
+          {/* Section 2: Pharmacy Network Sales & Prescriptions Overview */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-indigo-600" />
-                  <span>National Pharmacy Network Dispensing Pulse</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                    Live Telemetry
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-[#0070BA]" />
+                  <span>Pharmacy Network Sales & Prescriptions</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]">
+                    Live Updates
                   </span>
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Consolidated 14-day gross dispensing revenues (ETB) and verified prescription orders across all operating stores.
+                  14-day sales (ETB) and filled prescriptions across all operating stores.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('ANALYTICS')}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-xs transition cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#E0EFF9] hover:bg-[#BAE0F4] text-[#0070BA] font-bold text-xs transition cursor-pointer self-start sm:self-auto"
               >
-                <span>Open Full Analytics Suite</span>
+                <span>View Full Analytics Report</span>
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Avg Daily Turnover</span>
-                <div className="text-lg font-black font-mono text-slate-900 dark:text-white">ETB 242.8k</div>
+              <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Average Daily Sales</span>
+                <div className="text-lg font-black font-mono text-slate-900">ETB 242.8k</div>
               </div>
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+              <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Daily Prescriptions</span>
-                <div className="text-lg font-black font-mono text-slate-900 dark:text-white">1,280 Rx/day</div>
+                <div className="text-lg font-black font-mono text-slate-900">1,280 Rx/day</div>
               </div>
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Digital Settlement</span>
-                <div className="text-lg font-black font-mono text-emerald-600">90.0% Cashless</div>
+              <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Cashless Payments</span>
+                <div className="text-lg font-black font-mono text-[#0070BA]">90.0% Cashless</div>
               </div>
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Cold-Chain Excursions</span>
-                <div className="text-lg font-black font-mono text-indigo-600">0 Reported</div>
+              <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Fridge Temperature Alerts</span>
+                <div className="text-lg font-black font-mono text-slate-900">0 Reported</div>
               </div>
             </div>
 
@@ -1493,11 +1519,11 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 >
                   <defs>
                     <linearGradient id="hubGmvGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.0} />
+                      <stop offset="5%" stopColor="#0070BA" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#0070BA" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.6} />
                   <XAxis dataKey="day" stroke="#94a3b8" fontSize={10} tickLine={false} />
                   <YAxis
                     stroke="#94a3b8"
@@ -1507,64 +1533,64 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     tickFormatter={(v) => `ETB ${(v / 1000).toFixed(0)}k`}
                   />
                   <Tooltip
-                    formatter={(v: any) => [formatCurrency(Number(v)), 'GMV']}
-                    contentStyle={{ borderRadius: '12px', backgroundColor: '#0f172a', color: '#fff', border: 'none' }}
+                    formatter={(v: any) => [formatCurrency(Number(v)), 'Sales']}
+                    contentStyle={{ borderRadius: '12px', backgroundColor: '#ffffff', color: '#0A2A52', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08)' }}
                   />
-                  <Area type="monotone" dataKey="gmv" stroke="#4f46e5" strokeWidth={2.5} fill="url(#hubGmvGrad)" />
+                  <Area type="monotone" dataKey="gmv" stroke="#0070BA" strokeWidth={2.5} fill="url(#hubGmvGrad)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Section 3: Live Real-Time Multi-Store Audit Trail & Governance Event Stream */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-xs">
+          {/* Section 3: Live Activity & Security Log */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Terminal className="h-5 w-5 text-indigo-600" />
-                  <span>Immutable Multi-Tenant Governance Audit Stream</span>
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <Terminal className="h-5 w-5 text-[#0070BA]" />
+                  <span>Live Activity & Security Log</span>
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Cryptographically verified real-time stream of regulatory, narcotic, cold-chain, and financial clearinghouse events across all connected pharmacy nodes.
+                  Real-time activity log of prescriptions, inventory updates, and cashier sales across connected pharmacies.
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Sync
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0070BA] bg-[#E0EFF9] px-2.5 py-1 rounded-full border border-[#BAE0F4]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0070BA] animate-pulse" />
+                  Live Updates
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsExportDossierModalOpen(true)}
-                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                  className="text-xs font-bold text-[#0070BA] hover:underline flex items-center gap-1"
                 >
                   <Download className="h-3.5 w-3.5" />
-                  <span>Export Log</span>
+                  <span>Download Log</span>
                 </button>
               </div>
             </div>
 
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="divide-y divide-slate-100">
               {adminAuditTrail.map((ev) => (
                 <div key={ev.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                   <div className="flex items-start sm:items-center gap-3">
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-black shrink-0 ${
                       ev.severity === 'CRITICAL'
-                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
                         : ev.severity === 'WARNING'
-                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
-                        : 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300'
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : 'bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]'
                     }`}>
                       {ev.category.replace('_', ' ')}
                     </span>
 
                     <div>
-                      <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      <div className="font-semibold text-slate-900 flex items-center gap-2">
                         <span>{ev.action}</span>
                       </div>
                       <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
-                        <span className="font-bold text-slate-700 dark:text-slate-300">{ev.facility}</span>
+                        <span className="font-bold text-slate-700">{ev.facility}</span>
                         <span>•</span>
                         <span>{ev.actor}</span>
                         <span>•</span>
@@ -1581,45 +1607,45 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             </div>
           </div>
 
-          {/* Section 4: Connected Pharmacy Fleet Quick Surveillance Board & Quick Broadcast */}
+          {/* Section 4: Connected Pharmacies & Status */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Pharmacy Fleet Nodes List */}
-            <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-xs">
+            {/* Connected Pharmacies List */}
+            <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Store className="h-5 w-5 text-indigo-600" />
-                    <span>Pharmacy Fleet Operations & Remote Governance</span>
+                  <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    <Store className="h-5 w-5 text-[#0070BA]" />
+                    <span>Connected Pharmacies & Status</span>
                   </h3>
-                  <p className="text-xs text-slate-500">Live operational status, licensing verification, and emergency quarantine controls</p>
+                  <p className="text-xs text-slate-500">Live operational status, licensing verification, and store cashier controls</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveTab('NODES')}
-                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-bold text-[#0070BA] hover:underline flex items-center gap-1 cursor-pointer"
                 >
-                  <span>View All ({pharmacyFleet.length})</span>
+                  <span>View All Stores ({pharmacyFleet.length})</span>
                   <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               </div>
 
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="divide-y divide-slate-100">
                 {pharmacyFleet.slice(0, 4).map((node) => (
                   <div key={node.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center font-black text-xs shrink-0">
+                      <div className="w-10 h-10 rounded-2xl bg-[#E0EFF9] text-[#0070BA] flex items-center justify-center font-black text-xs shrink-0">
                         <Store className="h-5 w-5" />
                       </div>
                       <div>
-                        <div className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                        <div className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
                           <span>{node.storeName}</span>
                           {node.status === 'ACTIVE' ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                               <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                              LIVE
+                              ACTIVE
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                               {node.status}
                             </span>
                           )}
@@ -1627,27 +1653,27 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                         <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
                           <span>{node.city}, {node.subcity}</span>
                           <span>•</span>
-                          <span className="font-mono text-indigo-600 dark:text-indigo-400 font-bold">{node.efdaLicense}</span>
+                          <span className="font-mono text-[#0070BA] font-bold">{node.efdaLicense}</span>
                           <span>•</span>
                           <span>{node.activeStaffCount} Staff</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                       <div className="text-left sm:text-right">
-                        <div className="text-xs font-mono font-bold text-slate-900 dark:text-white">
+                        <div className="text-xs font-mono font-bold text-slate-900">
                           {formatCurrency(node.monthlyGmv)}
                         </div>
-                        <div className="text-[10px] text-slate-400">{node.skuCount} Catalog SKUs</div>
+                        <div className="text-[10px] text-slate-400">{node.skuCount} Medicines</div>
                       </div>
 
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => setInspectNode(node)}
-                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer"
-                          title="Inspect Pharmacy Facility"
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                          title="View Store Details"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
@@ -1658,8 +1684,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                             setLockdownTargetNode(node);
                             setIsEmergencyLockdownModalOpen(true);
                           }}
-                          className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 transition cursor-pointer"
-                          title="Remote POS Lockdown / Quarantine"
+                          className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition cursor-pointer"
+                          title="Pause Store Cashier POS"
                         >
                           <Lock className="h-4 w-4" />
                         </button>
@@ -1668,8 +1694,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onSwitchToStoreWorkstation(node.id, 'pos')}
-                            className="p-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 transition cursor-pointer"
-                            title="Inspect Live Cashier Terminal"
+                            className="p-2 rounded-xl bg-[#E0EFF9] hover:bg-[#BAE0F4] text-[#0070BA] transition cursor-pointer"
+                            title="Open Cashier Counter"
                           >
                             <ExternalLink className="h-4 w-4" />
                           </button>
@@ -1681,30 +1707,30 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               </div>
             </div>
 
-            {/* Quick Broadcast Widget */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-xs flex flex-col justify-between">
+            {/* Quick Announcement Widget */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2.5 text-indigo-600 mb-2">
+                <div className="flex items-center gap-2.5 text-[#0070BA] mb-2">
                   <Radio className="h-5 w-5 animate-pulse" />
-                  <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Emergency Network Broadcast</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Send Store Announcement</h3>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                  Transmit urgent regulatory directives and emergency bulletins directly to all active POS counters and cashier workstations nationwide.
+                  Send announcements, urgent reminders, or updates directly to all cashier counters across all branches.
                 </p>
 
                 {/* Preset Chips */}
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {[
-                    'EFDA Urgent Recall Alert',
-                    'Price Ceiling Audit Notice',
-                    'Cold-Chain Temperature Check',
-                    'Monthly VAT Settlement Due',
+                    'Medicine Recall Notice',
+                    'Price Limit Check',
+                    'Fridge Temperature Check',
+                    'Monthly Tax Report Due',
                   ].map((preset) => (
                     <button
                       key={preset}
                       type="button"
-                      onClick={() => setBroadcastMessage(`[SUPER ADMIN DIRECTIVE] ${preset}: Immediate verification required at all dispensing stations.`)}
-                      className="text-[10px] px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium transition cursor-pointer"
+                      onClick={() => setBroadcastMessage(`[ALERT] ${preset}: Please review at your cashier counter.`)}
+                      className="text-[10px] px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium transition cursor-pointer"
                     >
                       {preset}
                     </button>
@@ -1718,8 +1744,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       onClick={() => setBroadcastPriority('STANDARD')}
                       className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold transition cursor-pointer ${
                         broadcastPriority === 'STANDARD'
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                          ? 'bg-[#0070BA] text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       Standard
@@ -1729,8 +1755,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       onClick={() => setBroadcastPriority('URGENT')}
                       className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold transition cursor-pointer ${
                         broadcastPriority === 'URGENT'
-                          ? 'bg-amber-600 text-white'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                          ? 'bg-amber-600 text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       Urgent
@@ -1740,8 +1766,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       onClick={() => setBroadcastPriority('EMERGENCY')}
                       className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold transition cursor-pointer ${
                         broadcastPriority === 'EMERGENCY'
-                          ? 'bg-rose-600 text-white'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                          ? 'bg-rose-600 text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       Emergency
@@ -1754,13 +1780,13 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     value={broadcastMessage}
                     onChange={(e) => setBroadcastMessage(e.target.value)}
                     placeholder="Enter national advisory message..."
-                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600"
+                    className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-900 focus:outline-none focus:border-[#0070BA]"
                   />
 
                   <button
                     type="submit"
                     disabled={isBroadcasting || !broadcastMessage.trim()}
-                    className="w-full py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                    className="w-full py-2.5 rounded-2xl bg-[#0070BA] hover:bg-[#005A96] text-white font-bold text-xs transition shadow-xs flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
                     <Send className="h-3.5 w-3.5" />
                     <span>{isBroadcasting ? 'Broadcasting...' : 'Broadcast to All Nodes'}</span>
@@ -1768,7 +1794,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 </form>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+              <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
                 <span>Total Reach: 6 Connected Stores</span>
                 <span className="text-emerald-600 font-bold">100% Mesh Synced</span>
               </div>
@@ -1778,12 +1804,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 1: PHARMACY NODES & FLEETS DIRECTORY */}
+      {/* TAB 1: STORES & BRANCHES DIRECTORY */}
       {/* ========================================================================= */}
       {activeTab === 'NODES' && (
         <div className="space-y-4">
           {/* Sub-tab bar & action toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
             {/* Sub Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               <button
@@ -1794,12 +1820,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   nodesSubTab === 'ALL'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Building2 className="h-3.5 w-3.5" />
-                <span>All Connected Pharmacies ({pharmacyFleet.length})</span>
+                <span>All Pharmacies ({pharmacyFleet.length})</span>
               </button>
 
               <button
@@ -1811,7 +1837,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   nodesSubTab === 'PENDING'
                     ? 'bg-amber-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Clock className="h-3.5 w-3.5" />
@@ -1832,11 +1858,11 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   nodesSubTab === 'ACTIVE'
                     ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Active Nodes ({activeNodesCount})</span>
+                <span>Active Stores ({activeNodesCount})</span>
               </button>
             </div>
 
@@ -1846,25 +1872,25 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 <button
                   type="button"
                   onClick={onOpenOwnerRegistration}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005A96] text-white font-bold text-xs transition shadow-xs cursor-pointer"
                 >
                   <PlusCircle className="h-3.5 w-3.5" />
-                  <span>Onboard New Pharmacy</span>
+                  <span>Add New Pharmacy</span>
                 </button>
               )}
             </div>
           </div>
 
           {/* Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200 shadow-2xs">
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search by store name, TIN, EFDA license, or owner..."
+                placeholder="Search by store name, TIN, license, or owner..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600"
+                className="w-full pl-10 pr-4 py-2 rounded-2xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-[#0070BA]"
               />
             </div>
 
@@ -1872,7 +1898,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 text-xs px-3 py-2 font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-indigo-600"
+                className="rounded-2xl border border-slate-200 text-xs px-3 py-2 font-bold text-slate-700 focus:outline-none focus:border-[#0070BA]"
               >
                 <option value="ALL">All Regions / Cities</option>
                 <option value="Addis Ababa">Addis Ababa</option>
@@ -1887,41 +1913,41 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   setIsRefreshing(true);
                   setTimeout(() => {
                     setIsRefreshing(false);
-                    showToast('Pharmacy fleet telemetry synced successfully.', 'success', 'Fleet Synced');
+                    showToast('Store data refreshed successfully.', 'success', 'Stores Refreshed');
                   }, 400);
                 }}
-                className="p-2 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-600 transition cursor-pointer"
-                title="Refresh Fleet Status"
+                className="p-2 rounded-2xl border border-slate-200 text-slate-500 hover:text-[#0070BA] transition cursor-pointer"
+                title="Refresh Stores"
               >
                 <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>
 
-          {/* Nodes Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+          {/* Stores Table */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 dark:bg-slate-950 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead className="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
                   <tr>
-                    <th className="py-3.5 px-4">Pharmacy Node & License</th>
+                    <th className="py-3.5 px-4">Pharmacy & License</th>
                     <th className="py-3.5 px-4">Owner & Contact</th>
                     <th className="py-3.5 px-4">Location</th>
-                    <th className="py-3.5 px-4">Catalog & Staff</th>
-                    <th className="py-3.5 px-4">Monthly GMV</th>
+                    <th className="py-3.5 px-4">Medicines & Staff</th>
+                    <th className="py-3.5 px-4">Monthly Sales</th>
                     <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 px-4 text-right">Master Actions</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-100">
                   {filteredNodes.map((node) => (
-                    <tr key={node.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+                    <tr key={node.id} className="hover:bg-slate-50/70 transition">
                       {/* Node name & license */}
                       <td className="py-3.5 px-4">
-                        <div className="font-extrabold text-slate-900 dark:text-white text-xs">
+                        <div className="font-extrabold text-slate-900 text-xs">
                           {node.storeName}
                         </div>
-                        <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-bold flex items-center gap-1 mt-0.5">
+                        <div className="text-[10px] text-[#0070BA] font-mono font-bold flex items-center gap-1 mt-0.5">
                           <BadgeCheck className="h-3 w-3" />
                           <span>{node.efdaLicense}</span>
                         </div>
@@ -1930,60 +1956,60 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
 
                       {/* Owner */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-800 dark:text-slate-200">{node.ownerName}</div>
+                        <div className="font-bold text-slate-800">{node.ownerName}</div>
                         <div className="text-[10px] text-slate-400">{node.ownerEmail}</div>
                         <div className="text-[10px] text-slate-400 font-mono">{node.ownerPhone}</div>
                       </td>
 
                       {/* Location */}
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-slate-700 dark:text-slate-300">{node.city}</div>
+                        <div className="font-semibold text-slate-700">{node.city}</div>
                         <div className="text-[10px] text-slate-400">{node.subcity}</div>
                       </td>
 
                       {/* Catalog & Staff */}
                       <td className="py-3.5 px-4">
-                        <div className="font-mono font-bold text-slate-800 dark:text-slate-200">
-                          {node.skuCount} SKUs
+                        <div className="font-mono font-bold text-slate-800">
+                          {node.skuCount} Medicines
                         </div>
-                        <div className="text-[10px] text-slate-400">{node.activeStaffCount} Staff members</div>
+                        <div className="text-[10px] text-slate-400">{node.activeStaffCount} Staff</div>
                         <div className="flex items-center gap-1 mt-1">
                           {node.coldChainReady && (
-                            <span className="bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 text-[9px] font-bold px-1.5 py-0.2 rounded">
-                              Cold Chain
+                            <span className="bg-sky-100 text-sky-800 text-[9px] font-bold px-1.5 py-0.2 rounded">
+                              Fridge Ready
                             </span>
                           )}
                           {node.is24Hours && (
-                            <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[9px] font-bold px-1.5 py-0.2 rounded">
+                            <span className="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.2 rounded">
                               24/7
                             </span>
                           )}
                         </div>
                       </td>
 
-                      {/* GMV */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                      {/* Sales */}
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                         {formatCurrency(node.monthlyGmv)}
                       </td>
 
                       {/* Status */}
                       <td className="py-3.5 px-4">
                         {node.status === 'ACTIVE' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 whitespace-nowrap shrink-0">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 whitespace-nowrap shrink-0">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Operational
+                            Active
                           </span>
                         )}
                         {node.status === 'PENDING_REVIEW' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800 whitespace-nowrap shrink-0">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 whitespace-nowrap shrink-0">
                             <Clock className="h-3 w-3 text-amber-600" />
                             Pending Review
                           </span>
                         )}
                         {node.status === 'MAINTENANCE' && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 whitespace-nowrap shrink-0">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 whitespace-nowrap shrink-0">
                             <AlertTriangle className="h-3 w-3 text-rose-600" />
-                            Suspended
+                            Paused
                           </span>
                         )}
                       </td>
@@ -2004,18 +2030,18 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                             <button
                               type="button"
                               onClick={() => setInspectNode(node)}
-                              className="px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 dark:text-indigo-200 font-bold text-[10px] transition flex items-center gap-1 cursor-pointer"
-                              title="Inspect this store node profile"
+                              className="px-2.5 py-1 rounded-xl bg-[#E0EFF9] hover:bg-[#E0EFF9] text-[#005A96] font-bold text-[10px] transition flex items-center gap-1 cursor-pointer"
+                              title="View store profile"
                             >
                               <Eye className="h-3 w-3" />
-                              <span>Inspect</span>
+                              <span>View Store</span>
                             </button>
                           )}
 
                           <button
                             type="button"
                             onClick={() => handleStartEditNode(node)}
-                            className="p-1 rounded-xl text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                            className="p-1 rounded-xl text-slate-400 hover:text-[#0070BA] hover:bg-slate-100 transition cursor-pointer"
                             title="Edit Store Profile"
                           >
                             <Edit className="h-3.5 w-3.5" />
@@ -2024,8 +2050,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleToggleNodeStatus(node.id)}
-                            className="p-1 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                            title="Toggle Maintenance Mode"
+                            className="p-1 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                            title="Pause / Activate Store"
                           >
                             <Sliders className="h-3.5 w-3.5" />
                           </button>
@@ -2053,24 +2079,24 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: EFDA REGULATORY COMPLIANCE & BATCH RECALLS */}
+      {/* TAB 2: LICENSES & MEDICINE RECALLS */}
       {/* ========================================================================= */}
       {activeTab === 'COMPLIANCE' && (
         <div className="space-y-4">
           {/* Sub-tab bar & action toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               <button
                 type="button"
                 onClick={() => setComplianceSubTab('LICENSES')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   complianceSubTab === 'LICENSES'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <FileCheck className="h-3.5 w-3.5" />
-                <span>EFDA Facility Licenses & Verification</span>
+                <span>Store Licenses & Verification</span>
               </button>
 
               <button
@@ -2079,14 +2105,14 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   complianceSubTab === 'RECALLS'
                     ? 'bg-rose-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <AlertOctagon className="h-3.5 w-3.5" />
-                <span>National Batch Recalls ({criticalRecallsCount} Active)</span>
+                <span>Medicine Recalls ({criticalRecallsCount} Active)</span>
                 {criticalRecallsCount > 0 && (
                   <span className="bg-rose-200 text-rose-950 px-1.5 rounded-full text-[9px] font-black">
-                    LOCKED
+                    PAUSED
                   </span>
                 )}
               </button>
@@ -2098,26 +2124,26 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition cursor-pointer self-start sm:self-auto"
             >
               <PlusCircle className="h-3.5 w-3.5" />
-              <span>Publish New Recall Notice</span>
+              <span>Add New Recall Notice</span>
             </button>
           </div>
 
           {/* Sub-view 1: RECALLS */}
           {complianceSubTab === 'RECALLS' && (
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                     <AlertOctagon className="h-5 w-5 text-rose-600" />
-                    <span>National Medicine Batch Recall Notices (Active Locks)</span>
+                    <span>Medicine Batch Recalls</span>
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Mandatory nationwide dispensing blocks for contaminated, sub-potent, or unregistered medicine lots.
+                    Paused medicine batches that cannot be sold at store cashiers.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 pt-2 border-b border-slate-100 pb-3">
                 <span className="text-xs font-bold text-slate-500">Filter:</span>
                 {(['ALL', 'ACTIVE', 'RESOLVED'] as const).map((filter) => (
                   <button
@@ -2126,12 +2152,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     onClick={() => setRecallsFilter(filter)}
                     className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${
                       recallsFilter === filter
-                        ? 'bg-indigo-600 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                        ? 'bg-[#0070BA] text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600'
                     }`}
                   >
                     {filter === 'ALL' && `All Recalls (${recalls.length})`}
-                    {filter === 'ACTIVE' && `Active Locks (${recalls.filter((r) => r.status === 'ACTIVE_LOCK').length})`}
+                    {filter === 'ACTIVE' && `Paused Batches (${recalls.filter((r) => r.status === 'ACTIVE_LOCK').length})`}
                     {filter === 'RESOLVED' && `Resolved (${recalls.filter((r) => r.status === 'RESOLVED').length})`}
                   </button>
                 ))}
@@ -2149,19 +2175,19 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       key={recall.id}
                       className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition ${
                         recall.status === 'ACTIVE_LOCK'
-                          ? 'border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/20'
-                          : 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/10'
+                          ? 'border-rose-200 bg-rose-50/50'
+                          : 'border-emerald-200 bg-emerald-50/30'
                       }`}
                     >
                       <div className="space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-extrabold text-slate-900 dark:text-white text-xs">
+                          <span className="font-extrabold text-slate-900 text-xs">
                             {recall.drugName}
                           </span>
                           <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-black ${
                             recall.status === 'ACTIVE_LOCK'
-                              ? 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200'
-                              : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-emerald-100 text-emerald-800'
                           }`}>
                             {recall.batchNumber}
                           </span>
@@ -2173,7 +2199,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                             {recall.status === 'ACTIVE_LOCK' ? `${recall.severity} SEVERITY` : 'RESOLVED'}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-600 dark:text-slate-300">{recall.issueReason}</p>
+                        <p className="text-xs text-slate-600">{recall.issueReason}</p>
                         <div className="text-[11px] text-slate-400">
                           Manufacturer: {recall.manufacturer} • Issued on: {recall.recalledAt} • Affected: {recall.affectedStoresCount} stores
                         </div>
@@ -2182,30 +2208,30 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       <div className="flex items-center gap-2 shrink-0">
                         {recall.status === 'ACTIVE_LOCK' ? (
                           <>
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 whitespace-nowrap shrink-0">
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 whitespace-nowrap shrink-0">
                               <Lock className="h-3.5 w-3.5 shrink-0" />
-                              POS Terminal Locked
+                              Cashier Sale Blocked
                             </span>
                             <button
                               type="button"
                               onClick={() => handleToggleRecallStatus(recall.id)}
-                              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition cursor-pointer whitespace-nowrap shrink-0"
+                              className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer whitespace-nowrap shrink-0"
                             >
-                              Resolve & Lift Lock
+                              Resolve & Unblock Sale
                             </button>
                           </>
                         ) : (
                           <>
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 whitespace-nowrap shrink-0">
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap shrink-0">
                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                              Resolved & Quarantine Cleared
+                              Resolved & Safe to Sell
                             </span>
                             <button
                               type="button"
                               onClick={() => handleToggleRecallStatus(recall.id)}
-                              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-50 transition cursor-pointer whitespace-nowrap shrink-0"
+                              className="px-3 py-1.5 rounded-xl bg-white border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-50 transition cursor-pointer whitespace-nowrap shrink-0"
                             >
-                              Re-lock Batch
+                              Pause Batch Again
                             </button>
                           </>
                         )}
@@ -2218,18 +2244,18 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
 
           {/* Sub-view 2: LICENSES */}
           {complianceSubTab === 'LICENSES' && (
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                    EFDA Facility Licensing & Verification Queue
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    Store Licenses & Verification
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Verify TIN authenticity, pharmacist licenses, and cold-chain compliance before activating public sales.
+                    Review licenses, tax details, and storage readiness for each pharmacy branch.
                   </p>
                 </div>
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded-full text-xs font-bold font-mono">
-                  100% Platform Verified
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold font-mono">
+                  All Stores Verified
                 </span>
               </div>
 
@@ -2237,14 +2263,14 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 {pharmacyFleet.map((node) => (
                   <div
                     key={node.id}
-                    className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-900 dark:text-white text-xs">
+                        <span className="font-extrabold text-slate-900 text-xs">
                           {node.storeName}
                         </span>
-                        <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 font-bold">
+                        <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-[#E0EFF9] text-indigo-800 font-bold">
                           {node.efdaLicense}
                         </span>
                       </div>
@@ -2284,7 +2310,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {activeTab === 'GLOBAL_CATALOG' && (
         <div className="space-y-4">
           {/* Sub-tab bar & action toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               <button
                 type="button"
@@ -2294,8 +2320,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   catalogSubTab === 'ALL'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Pill className="h-3.5 w-3.5" />
@@ -2311,11 +2337,11 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   catalogSubTab === 'SHORTAGES'
                     ? 'bg-rose-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <AlertTriangle className="h-3.5 w-3.5" />
-                <span>Critical Shortage Alerts</span>
+                <span>Low Stock Alerts</span>
                 {criticalShortagesCount > 0 && (
                   <span className="bg-rose-200 text-rose-950 px-1.5 rounded-full text-[9px] font-black">
                     {criticalShortagesCount}
@@ -2331,12 +2357,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   catalogSubTab === 'PRICE_CEILINGS'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <DollarSign className="h-3.5 w-3.5" />
-                <span>EFDA Price Ceilings</span>
+                <span>Price Limits Check</span>
               </button>
             </div>
 
@@ -2344,21 +2370,21 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsAddCatalogModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0070BA] hover:bg-[#005A96] text-white font-bold text-xs transition shadow-xs cursor-pointer"
               >
                 <PlusCircle className="h-3.5 w-3.5" />
-                <span>Add Drug to National Index</span>
+                <span>Add Medicine to Catalog</span>
               </button>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200 shadow-xs">
             <div>
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
-                National Essential Drug List (EDL) & Price Ceiling Master
+              <h3 className="text-sm font-extrabold text-slate-900">
+                Medicine Catalog & Official Price Limits
               </h3>
               <p className="text-[11px] text-slate-500">
-                Master pharmaceutical catalog synchronized across all {pharmacyFleet.length} connected Ethiopian pharmacies.
+                All medicines and price caps synced across connected pharmacies.
               </p>
             </div>
 
@@ -2366,30 +2392,30 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Filter drug, EFDA code..."
+                placeholder="Search medicine or code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600"
+                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-[#0070BA]"
               />
             </div>
           </div>
 
           {/* Master Catalog Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 dark:bg-slate-950 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead className="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
                   <tr>
-                    <th className="py-3.5 px-4">Brand / Generic Formulation</th>
-                    <th className="py-3.5 px-4">EFDA Registry Code</th>
-                    <th className="py-3.5 px-4">Therapeutic Class</th>
+                    <th className="py-3.5 px-4">Medicine Name</th>
+                    <th className="py-3.5 px-4">License Code</th>
+                    <th className="py-3.5 px-4">Category / Type</th>
                     <th className="py-3.5 px-4">Dosage & Strength</th>
-                    <th className="py-3.5 px-4">Price Ceiling (ETB)</th>
-                    <th className="py-3.5 px-4">Special Flags</th>
-                    <th className="py-3.5 px-4 text-right">Shortage Status</th>
+                    <th className="py-3.5 px-4">Max Allowed Price (ETB)</th>
+                    <th className="py-3.5 px-4">Storage & Care</th>
+                    <th className="py-3.5 px-4 text-right">Availability</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-100">
                   {masterCatalog
                     .filter((item) => {
                       if (catalogSubTab === 'SHORTAGES') {
@@ -2406,41 +2432,41 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       );
                     })
                     .map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+                    <tr key={item.id} className="hover:bg-slate-50/70 transition">
                       <td className="py-3.5 px-4">
-                        <div className="font-extrabold text-slate-900 dark:text-white text-xs">
+                        <div className="font-extrabold text-slate-900 text-xs">
                           {item.brandName}
                         </div>
                         <div className="text-[11px] text-slate-500 italic">{item.genericName}</div>
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#0070BA]">
                         {item.efdaCode}
                       </td>
 
-                      <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-medium">
+                      <td className="py-3.5 px-4 text-slate-700 font-medium">
                         {item.therapeuticClass}
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-slate-800 dark:text-slate-200">{item.dosageForm}</div>
+                        <div className="font-semibold text-slate-800">{item.dosageForm}</div>
                         <div className="text-[10px] text-slate-400 font-mono">{item.strength}</div>
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                         {formatCurrency(item.maxRetailPrice)}
                       </td>
 
                       <td className="py-3.5 px-4">
                         <div className="flex flex-wrap gap-1">
                           {item.isControlled && (
-                            <span className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                              Schedule II (Narcotic)
+                            <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                              Prescription Required
                             </span>
                           )}
                           {item.requiresColdChain && (
-                            <span className="bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                              Cold Chain (2-8°C)
+                            <span className="bg-sky-100 text-sky-800 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                              Keep Cold (Fridge 2-8°C)
                             </span>
                           )}
                         </div>
@@ -2448,19 +2474,19 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
 
                       <td className="py-3.5 px-4 text-right">
                         {item.nationalShortageRisk === 'CRITICAL' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 whitespace-nowrap shrink-0">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 whitespace-nowrap shrink-0">
                             <AlertTriangle className="h-3 w-3 text-rose-600 shrink-0" />
-                            National Shortage
+                            Low Stock Alert
                           </span>
                         )}
                         {item.nationalShortageRisk === 'LOW' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 whitespace-nowrap shrink-0">
-                            Supply Alert
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 whitespace-nowrap shrink-0">
+                            Limited Stock
                           </span>
                         )}
                         {item.nationalShortageRisk === 'NONE' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 whitespace-nowrap shrink-0">
-                            Adequate
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap shrink-0">
+                            In Stock
                           </span>
                         )}
                       </td>
@@ -2479,19 +2505,19 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {activeTab === 'FINANCIALS' && (
         <div className="space-y-4">
           {/* Sub-tab bar & action toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               <button
                 type="button"
                 onClick={() => setFinancialsSubTab('GMV')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   financialsSubTab === 'GMV'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <DollarSign className="h-3.5 w-3.5" />
-                <span>Multi-Store GMV Analytics</span>
+                <span>Branch Sales & Revenue</span>
               </button>
 
               <button
@@ -2500,11 +2526,11 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   financialsSubTab === 'SETTLEMENTS'
                     ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Smartphone className="h-3.5 w-3.5" />
-                <span>Telebirr / CBE Settlements (VAT 15%)</span>
+                <span>Mobile & Bank Payments (VAT 15%)</span>
               </button>
             </div>
 
@@ -2515,7 +2541,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   onClick={() => {
                     showToast('Initiated batch digital settlement synchronization with Telebirr & CBE Gateway.', 'info', 'Sync Started');
                   }}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition cursor-pointer"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition cursor-pointer"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                   <span>Sync Gateways</span>
@@ -2527,7 +2553,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition cursor-pointer self-start sm:self-auto shadow-xs"
               >
                 <Download className="h-4 w-4" />
-                <span>Export Tax & GMV Audit</span>
+                <span>Download Sales & Tax Report</span>
               </button>
             </div>
           </div>
@@ -2535,19 +2561,19 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           {/* GMV VIEW */}
           {financialsSubTab === 'GMV' && (
             <>
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                      Consolidated Multi-Store GMV & National Turnover
+                    <h3 className="text-base font-extrabold text-slate-900">
+                      Total Sales Across All Stores
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Real-time roll-up across all active branches, regional warehouses, and dispensary nodes in Ethiopia.
+                      Live sales from all connected pharmacy branches across Ethiopia.
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-400">Total Monthly GMV:</span>
-                    <span className="text-lg font-black font-mono text-indigo-600 dark:text-indigo-400">
+                    <span className="text-xs font-bold text-slate-400">Total Monthly Sales:</span>
+                    <span className="text-lg font-black font-mono text-[#0070BA]">
                       {formatCurrency(totalNetworkGmv)}
                     </span>
                   </div>
@@ -2555,67 +2581,67 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
 
                 {/* Channels Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
-                  <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-1">
-                    <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-200">Total Network Revenue</span>
-                    <div className="text-xl font-black text-indigo-950 dark:text-indigo-100 font-mono">
+                  <div className="p-4 rounded-2xl bg-[#E0EFF9] border border-[#BAE0F4] space-y-1">
+                    <span className="text-[11px] font-bold text-slate-900">Total Sales Revenue</span>
+                    <div className="text-xl font-black text-slate-950 font-mono">
                       {formatCurrency(totalNetworkGmv)}
                     </div>
-                    <p className="text-[10px] text-indigo-700 dark:text-indigo-300">Across 6 connected pharmacy nodes</p>
+                    <p className="text-[10px] text-[#005A96]">Across 6 connected pharmacy branches</p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-1">
-                    <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200">Digital Payments (Telebirr/CBE)</span>
-                    <div className="text-xl font-black text-emerald-950 dark:text-emerald-100 font-mono">
+                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
+                    <span className="text-[11px] font-bold text-emerald-900">Digital Payments (Telebirr/CBE)</span>
+                    <div className="text-xl font-black text-emerald-950 font-mono">
                       {formatCurrency(totalNetworkGmv * 0.90)}
                     </div>
-                    <p className="text-[10px] text-emerald-700 dark:text-emerald-300">90% cashless transactions</p>
+                    <p className="text-[10px] text-emerald-700">90% cashless transactions</p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1">
-                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Over-the-Counter Cash Float</span>
-                    <div className="text-xl font-black text-slate-900 dark:text-white font-mono">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                    <span className="text-[11px] font-bold text-slate-700">Cash at Store Registers</span>
+                    <div className="text-xl font-black text-slate-900 font-mono">
                       {formatCurrency(totalNetworkGmv * 0.10)}
                     </div>
                     <p className="text-[10px] text-slate-500">10% manual cash at registers</p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-1">
-                    <span className="text-[11px] font-bold text-amber-900 dark:text-amber-200">National VAT (15%) Liability</span>
-                    <div className="text-xl font-black text-amber-950 dark:text-amber-100 font-mono">
+                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
+                    <span className="text-[11px] font-bold text-amber-900">National VAT (15%) Liability</span>
+                    <div className="text-xl font-black text-amber-950 font-mono">
                       {formatCurrency(totalNetworkGmv * 0.15)}
                     </div>
-                    <p className="text-[10px] text-amber-700 dark:text-amber-300">Ministry of Revenue (ERCA) compliant</p>
+                    <p className="text-[10px] text-amber-700">Ministry of Revenue (ERCA) compliant</p>
                   </div>
                 </div>
               </div>
 
               {/* Store-by-Store Financial Leaderboard */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-                <div className="p-4 border-b border-slate-100 dark:border-slate-800 font-extrabold text-sm text-slate-900 dark:text-white flex items-center justify-between">
-                  <span>Branch Dispensing Volume & GMV Leaderboard</span>
-                  <span className="text-xs font-semibold text-slate-400">6 Operating Facilities</span>
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 font-extrabold text-sm text-slate-900 flex items-center justify-between">
+                  <span>Branch Sales Leaderboard</span>
+                  <span className="text-xs font-semibold text-slate-400">6 Active Stores</span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead className="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
                       <tr>
                         <th className="py-3 px-4">Pharmacy Store</th>
                         <th className="py-3 px-4">City / Region</th>
-                        <th className="py-3 px-4">Monthly GMV</th>
+                        <th className="py-3 px-4">Monthly Sales</th>
                         <th className="py-3 px-4">Telebirr (62%)</th>
                         <th className="py-3 px-4">CBE (28%)</th>
                         <th className="py-3 px-4">Tax (VAT 15%)</th>
                         <th className="py-3 px-4 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100">
                       {pharmacyFleet.map((node) => (
-                        <tr key={node.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
-                          <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">
+                        <tr key={node.id} className="hover:bg-slate-50/70">
+                          <td className="py-3 px-4 font-bold text-slate-900">
                             {node.storeName}
                           </td>
                           <td className="py-3 px-4 text-slate-500">{node.city}</td>
-                          <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                          <td className="py-3 px-4 font-mono font-bold text-slate-900">
                             {formatCurrency(node.monthlyGmv)}
                           </td>
                           <td className="py-3 px-4 font-mono text-emerald-600 font-bold">
@@ -2624,7 +2650,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                           <td className="py-3 px-4 font-mono text-purple-600 font-bold">
                             {formatCurrency(node.monthlyGmv * 0.28)}
                           </td>
-                          <td className="py-3 px-4 font-mono text-indigo-600">
+                          <td className="py-3 px-4 font-mono text-[#0070BA]">
                             {formatCurrency(node.monthlyGmv * 0.15)}
                           </td>
                           <td className="py-3 px-4 text-right">
@@ -2633,9 +2659,9 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                               onClick={() => {
                                 setInspectNode(node);
                               }}
-                              className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-[11px] transition cursor-pointer"
+                              className="px-2.5 py-1 rounded-lg bg-[#E0EFF9] hover:bg-[#E0EFF9] text-[#005A96] font-bold text-[11px] transition cursor-pointer"
                             >
-                              Inspect Node
+                              View Store
                             </button>
                           </td>
                         </tr>
@@ -2650,9 +2676,9 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           {/* SETTLEMENTS VIEW */}
           {financialsSubTab === 'SETTLEMENTS' && (
             <div className="space-y-4">
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                     <Smartphone className="h-5 w-5 text-emerald-600" />
                     <span>Telebirr & CBE Mobile Settlements & VAT Reconciliation</span>
                   </h3>
@@ -2662,41 +2688,41 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                  <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-1">
+                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200">Telebirr SuperApp Wallet</span>
+                      <span className="text-[11px] font-bold text-emerald-900">Telebirr SuperApp Wallet</span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-200 text-emerald-900">Auto-Clearing Active</span>
                     </div>
-                    <div className="text-xl font-black text-emerald-950 dark:text-emerald-100 font-mono">
+                    <div className="text-xl font-black text-emerald-950 font-mono">
                       {formatCurrency(totalNetworkGmv * 0.62)}
                     </div>
-                    <p className="text-[10px] text-emerald-700 dark:text-emerald-300">
+                    <p className="text-[10px] text-emerald-700">
                       Settled to Commercial Bank Account ending in ••••8492
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 space-y-1">
+                  <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-purple-900 dark:text-purple-200">CBE Birr & CBE Mobile</span>
+                      <span className="text-[11px] font-bold text-purple-900">CBE Birr & CBE Mobile</span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-200 text-purple-900">Real-time RTGS</span>
                     </div>
-                    <div className="text-xl font-black text-purple-950 dark:text-purple-100 font-mono">
+                    <div className="text-xl font-black text-purple-950 font-mono">
                       {formatCurrency(totalNetworkGmv * 0.28)}
                     </div>
-                    <p className="text-[10px] text-purple-700 dark:text-purple-300">
+                    <p className="text-[10px] text-purple-700">
                       Direct C2B corporate till deposit
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-1">
+                  <div className="p-4 rounded-2xl bg-[#E0EFF9] border border-[#BAE0F4] space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-200">Total VAT 15% Remitted</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-200 text-indigo-900">ERCA Verified</span>
+                      <span className="text-[11px] font-bold text-slate-900">Total VAT 15% Remitted</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#BAE0F4] text-slate-900">ERCA Verified</span>
                     </div>
-                    <div className="text-xl font-black text-indigo-950 dark:text-indigo-100 font-mono">
+                    <div className="text-xl font-black text-slate-950 font-mono">
                       {formatCurrency(totalNetworkGmv * 0.15)}
                     </div>
-                    <p className="text-[10px] text-indigo-700 dark:text-indigo-300">
+                    <p className="text-[10px] text-[#005A96]">
                       Automated E-Filing voucher #ETH-VAT-2026-08
                     </p>
                   </div>
@@ -2704,8 +2730,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               </div>
 
               {/* Settlement Batches Table */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-                <div className="p-4 border-b border-slate-100 dark:border-slate-800 font-extrabold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 font-extrabold text-sm text-slate-900 flex items-center justify-between">
                   <span>Recent Gateway Settlement & Clearing Batches</span>
                   <button
                     type="button"
@@ -2720,7 +2746,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead className="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
                       <tr>
                         <th className="py-3 px-4">Batch Reference</th>
                         <th className="py-3 px-4">Gateway Channel</th>
@@ -2732,26 +2758,26 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                         <th className="py-3 px-4 text-right">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100">
                       {pharmacyFleet.map((node, idx) => (
-                        <tr key={node.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
-                          <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                        <tr key={node.id} className="hover:bg-slate-50/70">
+                          <td className="py-3 px-4 font-mono font-bold text-slate-900">
                             SETTLE-ETH-{202600 + idx}
                           </td>
                           <td className="py-3 px-4">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                               idx % 2 === 0
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-purple-100 text-purple-800'
                             }`}>
                               <Smartphone className="h-3 w-3" />
                               {idx % 2 === 0 ? 'Telebirr Merchant' : 'CBE Birr API'}
                             </span>
                           </td>
-                          <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">
+                          <td className="py-3 px-4 font-bold text-slate-900">
                             {node.storeName}
                           </td>
-                          <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-white">
+                          <td className="py-3 px-4 font-mono font-bold text-slate-900">
                             {formatCurrency(node.monthlyGmv * 0.62)}
                           </td>
                           <td className="py-3 px-4 font-mono text-slate-500">
@@ -2760,11 +2786,11 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                           <td className="py-3 px-4 font-mono text-emerald-600 font-bold">
                             {formatCurrency(node.monthlyGmv * 0.62 * 0.995)}
                           </td>
-                          <td className="py-3 px-4 font-mono text-indigo-600">
+                          <td className="py-3 px-4 font-mono text-[#0070BA]">
                             {formatCurrency(node.monthlyGmv * 0.15)}
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                               <CheckCircle2 className="h-3 w-3" /> Settled & Cleared
                             </span>
                           </td>
@@ -2785,19 +2811,19 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {activeTab === 'STAFF' && (
         <div className="space-y-4">
           {/* Sub-tab bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               <button
                 type="button"
                 onClick={() => setStaffSubTab('DIRECTORY')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   staffSubTab === 'DIRECTORY'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Users className="h-3.5 w-3.5" />
-                <span>Licensed Staff Directory ({globalStaff.length})</span>
+                <span>Staff Directory ({globalStaff.length})</span>
               </button>
 
               <button
@@ -2805,17 +2831,17 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 onClick={() => setStaffSubTab('RBAC')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   staffSubTab === 'RBAC'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Lock className="h-3.5 w-3.5" />
-                <span>Multi-Tenant RBAC Governance</span>
+                <span>Roles & Permissions</span>
               </button>
             </div>
 
-            <div className="text-xs font-mono font-bold px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-              {globalStaff.length} Accounts Synchronized
+            <div className="text-xs font-mono font-bold px-3 py-1.5 rounded-full bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]">
+              {globalStaff.length} Accounts Active
             </div>
           </div>
 
@@ -2823,7 +2849,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           {staffSubTab === 'DIRECTORY' && (
             <div className="space-y-4">
               {/* Search & Role Filter Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200 shadow-xs">
                 <div className="relative w-full sm:w-80">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                   <input
@@ -2831,20 +2857,20 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     placeholder="Search staff by name, email, pharmacy..."
                     value={staffSearchQuery}
                     onChange={(e) => setStaffSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600"
+                    className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-[#0070BA]"
                   />
                 </div>
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                   <span className="text-xs font-bold text-slate-500 whitespace-nowrap">Filter:</span>
-                  {(['ALL', 'SUPER_ADMIN', 'STORE_OWNER', 'PHARMACIST'] as const).map((r) => (
+                  {(['ALL', 'SUPER_ADMIN', 'STORE_OWNER', 'PHARMACIST', 'SUPPLIER'] as const).map((r) => (
                     <button
                       key={r}
                       type="button"
                       onClick={() => setStaffRoleFilter(r)}
                       className={`px-3 py-1 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                         staffRoleFilter === r
-                          ? 'bg-indigo-600 text-white shadow-xs'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                          ? 'bg-[#0070BA] text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       {r === 'ALL' ? 'All Roles' : r.replace('_', ' ')}
@@ -2853,20 +2879,20 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 dark:bg-slate-950 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead className="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
                       <tr>
                         <th className="py-3.5 px-4">Staff Member</th>
-                        <th className="py-3.5 px-4">System Role</th>
-                        <th className="py-3.5 px-4">Store Affiliation</th>
-                        <th className="py-3.5 px-4">EFDA Pharmacist License</th>
+                        <th className="py-3.5 px-4">Role</th>
+                        <th className="py-3.5 px-4">Assigned Store</th>
+                        <th className="py-3.5 px-4">Pharmacist License</th>
                         <th className="py-3.5 px-4">Status</th>
-                        <th className="py-3.5 px-4 text-right">Master Actions</th>
+                        <th className="py-3.5 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100">
                       {globalStaff
                         .filter((staff) => {
                           if (staffRoleFilter !== 'ALL' && staff.role !== staffRoleFilter) return false;
@@ -2880,45 +2906,47 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                           );
                         })
                         .map((staff) => (
-                          <tr key={staff.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+                          <tr key={staff.id} className="hover:bg-slate-50/70 transition">
                             <td className="py-3.5 px-4">
-                              <div className="font-extrabold text-slate-900 dark:text-white text-xs">{staff.name}</div>
+                              <div className="font-extrabold text-slate-900 text-xs">{staff.name}</div>
                               <div className="text-[10px] text-slate-400">{staff.email} • {staff.phone}</div>
                             </td>
 
                             <td className="py-3.5 px-4">
                               <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
                                 staff.role === 'SUPER_ADMIN'
-                                  ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-300'
+                                  ? 'bg-[#E0EFF9] text-slate-900'
                                   : staff.role === 'STORE_OWNER'
-                                  ? 'bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300'
-                                  : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
+                                  ? 'bg-blue-100 text-blue-900'
+                                  : staff.role === 'SUPPLIER'
+                                  ? 'bg-teal-100 text-teal-900'
+                                  : 'bg-emerald-100 text-emerald-900'
                               }`}>
-                                {staff.role}
+                                {staff.role.replace('_', ' ')}
                               </span>
                             </td>
 
-                            <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-300">
+                            <td className="py-3.5 px-4 font-semibold text-slate-700">
                               {staff.storeName}
                             </td>
 
-                            <td className="py-3.5 px-4 font-mono text-[11px] text-indigo-600 dark:text-indigo-400 font-bold">
+                            <td className="py-3.5 px-4 font-mono text-[11px] text-[#0070BA] font-bold">
                               {staff.efdaLicenseNumber || '—'}
                             </td>
 
                             <td className="py-3.5 px-4">
                               {staff.status === 'ACTIVE' && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                                   <CheckCircle2 className="h-3 w-3" /> Active
                                 </span>
                               )}
                               {staff.status === 'LOCKED' && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950 px-2 py-0.5 rounded-full">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
                                   <Lock className="h-3 w-3" /> Account Locked
                                 </span>
                               )}
                               {staff.status === 'PENDING' && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-950 px-2 py-0.5 rounded-full">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
                                   <Clock className="h-3 w-3" /> Pending Approval
                                 </span>
                               )}
@@ -2929,22 +2957,22 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    showToast(`Password reset link dispatched to ${staff.email}`, 'info', 'Security Action');
+                                    showToast(`Password reset link sent to ${staff.email}`, 'info', 'Password Reset');
                                   }}
-                                  className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-bold transition cursor-pointer"
+                                  className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold transition cursor-pointer"
                                 >
-                                  Reset Credentials
+                                  Reset Password
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleToggleStaffStatus(staff.id)}
                                   className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition cursor-pointer ${
                                     staff.status === 'ACTIVE'
-                                      ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/60 dark:text-rose-300'
-                                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                      ? 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                                   }`}
                                 >
-                                  {staff.status === 'ACTIVE' ? 'Lock' : 'Unlock'}
+                                  {staff.status === 'ACTIVE' ? 'Lock Account' : 'Unlock Account'}
                                 </button>
                               </div>
                             </td>
@@ -2957,48 +2985,48 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             </div>
           )}
 
-          {/* RBAC GOVERNANCE VIEW (STRICT 3 CHARACTERS) */}
+          {/* RBAC GOVERNANCE VIEW */}
           {staffSubTab === 'RBAC' && (
             <div className="space-y-4">
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                      3-Character Role-Based Access Control (RBAC) Matrix
+                    <h3 className="text-base font-extrabold text-slate-900">
+                      User Roles & Permissions
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Standardized institutional hierarchy: Super Admin, Drug Store Owner, and Pharmacist.
+                      Our system has 3 clear roles: Super Admin, Store Owner, and Pharmacist.
                     </p>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                    3 Core Characters Active
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#E0EFF9] text-[#005A96] border border-[#BAE0F4]">
+                    3 User Roles
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                   {/* Super Admin */}
-                  <div className="p-5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/80 space-y-3">
+                  <div className="p-5 rounded-2xl bg-[#E0EFF9]/70 border border-[#BAE0F4] space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#0070BA] text-white uppercase tracking-wider">
                         Tier 1
                       </span>
-                      <Shield className="h-5 w-5 text-indigo-600" />
+                      <Shield className="h-5 w-5 text-[#0070BA]" />
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-indigo-950 dark:text-indigo-200 text-sm">Super Admin</h4>
-                      <p className="text-xs text-indigo-700 dark:text-indigo-400">Master Platform & Governance</p>
+                      <h4 className="font-extrabold text-slate-950 text-sm">Super Admin</h4>
+                      <p className="text-xs text-[#005A96]">System Administrator</p>
                     </div>
-                    <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 pt-1">
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> Full National Fleet Oversight</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> EFDA Compliance & Batch Recalls</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> Platform Financial Settlements & GMV</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> Emergency System Broadcasts</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> Global Staff & License Auditing</li>
+                    <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#0070BA] shrink-0" /> Manage All Stores & Branches</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#0070BA] shrink-0" /> Regulatory Approvals & Medicine Recalls</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#0070BA] shrink-0" /> System Sales & Revenue Overview</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#0070BA] shrink-0" /> Send System Announcements</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#0070BA] shrink-0" /> Manage All Staff & User Accounts</li>
                     </ul>
                   </div>
 
                   {/* Drug Store Owner */}
-                  <div className="p-5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/80 space-y-3">
+                  <div className="p-5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-600 text-white uppercase tracking-wider">
                         Tier 2
@@ -3006,20 +3034,20 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       <Store className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-blue-950 dark:text-blue-200 text-sm">Drug Store Owner</h4>
-                      <p className="text-xs text-blue-700 dark:text-blue-400">Business & Store Operations</p>
+                      <h4 className="font-extrabold text-blue-950 text-sm">Drug Store Owner</h4>
+                      <p className="text-xs text-blue-700">Store Manager & Owner</p>
                     </div>
-                    <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 pt-1">
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Store Profile & TIN / EFDA Settings</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Inventory & FEFO Batch Management</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Purchase Orders & Supplier AP</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Financial Reports, P&L, & Z-Reports</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Staff Credentials & Onboarding</li>
+                    <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Store Details & Business License</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Manage Medicine Stock & Expiry Dates</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Order from Suppliers & Pay Bills</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Daily Sales Reports & Profits</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-blue-600 shrink-0" /> Invite & Manage Store Employees</li>
                     </ul>
                   </div>
 
                   {/* Pharmacist */}
-                  <div className="p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 space-y-3">
+                  <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white uppercase tracking-wider">
                         Tier 3
@@ -3027,15 +3055,15 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       <Pill className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-emerald-950 dark:text-emerald-200 text-sm">Pharmacist</h4>
-                      <p className="text-xs text-emerald-700 dark:text-emerald-400">Clinical Dispensing & POS</p>
+                      <h4 className="font-extrabold text-emerald-950 text-sm">Pharmacist</h4>
+                      <p className="text-xs text-emerald-700">Front-Desk Cashier & Pharmacist</p>
                     </div>
-                    <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 pt-1">
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> 3-Sec Touch POS & Thermal Receipts</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Prescription Verification & Patient Rx</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Telebirr & CBE Birr Instant QR Sales</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Shift Cash Handover & X-Reading</li>
-                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Stock Search & Expiry Validation</li>
+                    <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Fast Cashier Checkout & Receipts</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Check Prescriptions & Dispense Medicines</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Accept Telebirr & CBE Birr QR Payments</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Cash Drawer Handover & Shift Reports</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" /> Quick Medicine Search & Stock Check</li>
                     </ul>
                   </div>
                 </div>
@@ -3046,24 +3074,24 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 6: PLATFORM INFRASTRUCTURE & BROADCASTS */}
+      {/* TAB 7: PLATFORM ANNOUNCEMENTS & SYSTEM HEALTH */}
       {/* ========================================================================= */}
       {activeTab === 'SYSTEM_HEALTH' && (
         <div className="space-y-4">
           {/* Sub-tab bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               <button
                 type="button"
                 onClick={() => setSystemHealthSubTab('BROADCAST')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   systemHealthSubTab === 'BROADCAST'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Radio className="h-3.5 w-3.5" />
-                <span>Global Multi-Tenant Broadcaster</span>
+                <span>Send Store Announcement</span>
               </button>
 
               <button
@@ -3071,37 +3099,37 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 onClick={() => setSystemHealthSubTab('TELEMETRY')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   systemHealthSubTab === 'TELEMETRY'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-[#0070BA] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Server className="h-3.5 w-3.5" />
-                <span>PostgreSQL Sync & Telemetry</span>
+                <span>System & Database Health</span>
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Broadcaster */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-[#0070BA] text-white flex items-center justify-center">
                   <Send className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
-                    Global Multi-Tenant Broadcaster
+                  <h3 className="text-sm font-extrabold text-slate-900">
+                    Send Store Announcement
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Transmit high-priority alert or EFDA regulatory notice to all POS counters in real-time.
+                    Send an urgent alert or important notice to all store cashiers immediately.
                   </p>
                 </div>
               </div>
 
               <form onSubmit={handleSendBroadcast} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
-                    Broadcast Priority
+                  <label className="block text-xs font-bold text-slate-600 mb-1">
+                    Urgency Level
                   </label>
                   <div className="flex items-center gap-2">
                     {(['STANDARD', 'URGENT', 'EMERGENCY'] as const).map((p) => (
@@ -3115,18 +3143,18 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                               ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
                               : p === 'URGENT'
                               ? 'bg-amber-600 text-white shadow-md shadow-amber-600/30'
-                              : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                              : 'bg-[#0070BA] text-white shadow-md shadow-[#0070BA]/30'
+                            : 'bg-slate-100 text-slate-600'
                         }`}
                       >
-                        {p}
+                        {p === 'STANDARD' ? 'Normal' : p === 'URGENT' ? 'Urgent' : 'Critical'}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  <label className="block text-xs font-bold text-slate-600 mb-1">
                     Announcement Message Content
                   </label>
                   <textarea
@@ -3134,33 +3162,33 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     required
                     value={broadcastMessage}
                     onChange={(e) => setBroadcastMessage(e.target.value)}
-                    placeholder="Type regulatory announcement, batch recall alert, or platform update..."
-                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 dark:bg-slate-950 p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600"
+                    placeholder="Type announcement, medicine recall alert, or system update here..."
+                    className="w-full rounded-2xl border border-slate-200 p-3 text-xs text-slate-900 focus:outline-none focus:border-[#0070BA]"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isBroadcasting || !broadcastMessage.trim()}
-                  className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3 rounded-2xl bg-[#0070BA] hover:bg-[#0070BA] text-white font-bold text-xs transition shadow-md shadow-[#0070BA]/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   <Zap className="h-4 w-4 text-amber-300" />
-                  <span>{isBroadcasting ? 'Broadcasting...' : `Broadcast [${broadcastPriority}] to All ${pharmacyFleet.length} Nodes`}</span>
+                  <span>{isBroadcasting ? 'Sending...' : `Send Announcement to All ${pharmacyFleet.length} Stores`}</span>
                 </button>
               </form>
 
               {/* Live Banner Preview */}
               {broadcastMessage.trim() && (
-                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Workstation Banner Preview
+                    How Stores Will See This Notice
                   </span>
                   <div className={`p-2.5 rounded-xl text-xs font-semibold flex items-start gap-2 ${
                     broadcastPriority === 'EMERGENCY'
-                      ? 'bg-rose-50 text-rose-800 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-200 dark:border-rose-800'
+                      ? 'bg-rose-50 text-rose-800 border border-rose-200'
                       : broadcastPriority === 'URGENT'
-                      ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/80 dark:text-amber-200 border border-amber-200 dark:border-amber-800'
-                      : 'bg-indigo-50 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800'
+                      ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                      : 'bg-[#E0EFF9] text-[#005A96] border border-[#BAE0F4]'
                   }`}>
                     <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                     <div>
@@ -3173,22 +3201,22 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
 
               {/* Dispatched Broadcasts History */}
               {broadcastLogs.length > 0 && (
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                    Recent Transmitted Broadcasts ({broadcastLogs.length})
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <span className="text-[11px] font-bold text-slate-500">
+                    Recent Announcements ({broadcastLogs.length})
                   </span>
                   <div className="space-y-1.5 max-h-40 overflow-y-auto">
                     {broadcastLogs.map((log) => (
-                      <div key={log.id} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-[11px] flex items-center justify-between gap-2">
+                      <div key={log.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] flex items-center justify-between gap-2">
                         <div className="truncate flex-1">
                           <span className={`px-1.5 py-0.5 rounded text-[9px] font-black mr-1.5 ${
-                            log.priority === 'EMERGENCY' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300' :
-                            log.priority === 'URGENT' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' :
-                            'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+                            log.priority === 'EMERGENCY' ? 'bg-rose-100 text-rose-700' :
+                            log.priority === 'URGENT' ? 'bg-amber-100 text-amber-700' :
+                            'bg-[#E0EFF9] text-[#005A96]'
                           }`}>
                             {log.priority}
                           </span>
-                          <span className="text-slate-700 dark:text-slate-300">{log.message}</span>
+                          <span className="text-slate-700">{log.message}</span>
                         </div>
                         <span className="text-[10px] text-slate-400 shrink-0">{log.timestamp}</span>
                       </div>
@@ -3199,68 +3227,68 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             </div>
 
             {/* Infrastructure Health */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center">
                     <Server className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
-                      Platform Cloud Infrastructure
+                    <h3 className="text-sm font-extrabold text-slate-900">
+                      System & Server Health
                     </h3>
-                    <p className="text-xs text-slate-500">Live container cluster and database replication status.</p>
+                    <p className="text-xs text-slate-500">Live server status and database sync health.</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleRunDiagnostics}
                   disabled={isDiagnosticsRunning}
-                  className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-xl bg-[#E0EFF9] hover:bg-[#E0EFF9] text-[#005A96] font-bold text-xs transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isDiagnosticsRunning ? 'animate-spin' : ''}`} />
-                  <span>{isDiagnosticsRunning ? 'Testing...' : 'Run Diagnostics'}</span>
+                  <span>{isDiagnosticsRunning ? 'Checking...' : 'Check System Health'}</span>
                 </button>
               </div>
 
               <div className="space-y-2.5 text-xs">
-                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 flex items-center justify-between border border-slate-100 dark:border-slate-800">
+                <div className="p-3.5 rounded-2xl bg-slate-50 flex items-center justify-between border border-slate-100">
                   <div>
-                    <div className="font-bold text-slate-800 dark:text-slate-200">Database Replication</div>
-                    <div className="text-[10px] text-slate-400">PostgreSQL Primary & Read-Replicas</div>
+                    <div className="font-bold text-slate-800">Database Sync (PostgreSQL)</div>
+                    <div className="text-[10px] text-slate-400">Main Database & Automated Backups</div>
                   </div>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> 0ms Sync Lag
+                    <CheckCircle2 className="h-3.5 w-3.5" /> All In Sync
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 flex items-center justify-between border border-slate-100 dark:border-slate-800">
+                <div className="p-3.5 rounded-2xl bg-slate-50 flex items-center justify-between border border-slate-100">
                   <div>
-                    <div className="font-bold text-slate-800 dark:text-slate-200">Offline POS Service Worker Cache</div>
-                    <div className="text-[10px] text-slate-400">PWA Offline Mode & IndexedDB Transaction Queue</div>
+                    <div className="font-bold text-slate-800">Offline Cashier Mode (PWA)</div>
+                    <div className="text-[10px] text-slate-400">Works even if store internet disconnects</div>
                   </div>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> Active (100% Ready)
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Ready & Active
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 flex items-center justify-between border border-slate-100 dark:border-slate-800">
+                <div className="p-3.5 rounded-2xl bg-slate-50 flex items-center justify-between border border-slate-100">
                   <div>
-                    <div className="font-bold text-slate-800 dark:text-slate-200">EFDA Regulatory API Gateway</div>
-                    <div className="text-[10px] text-slate-400">TIN & Pharmacist License Verification Hook</div>
+                    <div className="font-bold text-slate-800">Regulatory License Check (EFDA)</div>
+                    <div className="text-[10px] text-slate-400">Verifies store licenses and tax ID automatically</div>
                   </div>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> Connected (200 OK)
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Connected & Working
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 flex items-center justify-between border border-slate-100 dark:border-slate-800">
+                <div className="p-3.5 rounded-2xl bg-slate-50 flex items-center justify-between border border-slate-100">
                   <div>
-                    <div className="font-bold text-slate-800 dark:text-slate-200">Telebirr & CBE Payment Webhooks</div>
-                    <div className="text-[10px] text-slate-400">Instant QR Confirmation Dispatcher</div>
+                    <div className="font-bold text-slate-800">Telebirr & CBE Birr Payments</div>
+                    <div className="text-[10px] text-slate-400">Instant QR payment confirmations</div>
                   </div>
                   <span className="text-emerald-600 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> 99.98% Success Rate
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Working Smoothly (99.98%)
                   </span>
                 </div>
               </div>
@@ -3274,7 +3302,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {/* ========================================================================= */}
       {inspectNode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 overflow-hidden my-auto animate-in fade-in zoom-in-95">
+          <div className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95">
             {/* Header */}
             <div className="bg-[#0060df] text-white p-6 relative">
               <button
@@ -3303,19 +3331,19 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             {/* Content Details */}
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto text-xs">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <span className="text-slate-400 font-bold uppercase text-[10px]">TIN Number</span>
-                  <div className="text-sm font-black text-slate-900 dark:text-white font-mono">{inspectNode.tinNumber}</div>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                  <span className="text-slate-400 font-bold uppercase text-[10px]">TIN Number (Tax ID)</span>
+                  <div className="text-sm font-black text-slate-900 font-mono">{inspectNode.tinNumber}</div>
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
-                  <span className="text-slate-400 font-bold uppercase text-[10px]">Monthly Dispensing GMV</span>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                  <span className="text-slate-400 font-bold uppercase text-[10px]">Monthly Sales</span>
                   <div className="text-sm font-black text-emerald-600 font-mono">{formatCurrency(inspectNode.monthlyGmv)}</div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
-                <span className="text-slate-400 font-bold uppercase text-[10px] block">Owner & Managing Pharmacist</span>
-                <div className="font-extrabold text-slate-900 dark:text-white text-sm">{inspectNode.ownerName}</div>
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-slate-400 font-bold uppercase text-[10px] block">Store Owner / Manager</span>
+                <div className="font-extrabold text-slate-900 text-sm">{inspectNode.ownerName}</div>
                 <div className="text-slate-500 flex flex-wrap gap-4">
                   <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> {inspectNode.ownerEmail}</span>
                   <span className="flex items-center gap-1 font-mono"><Phone className="h-3.5 w-3.5" /> {inspectNode.ownerPhone}</span>
@@ -3323,30 +3351,30 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
               </div>
 
               <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 text-[10px] block">Catalog Size</span>
-                  <span className="font-black text-sm text-slate-900 dark:text-white font-mono">{inspectNode.skuCount} SKUs</span>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 text-[10px] block">Medicines in Stock</span>
+                  <span className="font-black text-sm text-slate-900 font-mono">{inspectNode.skuCount} Medicines</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
                   <span className="text-slate-400 text-[10px] block">Active Staff</span>
-                  <span className="font-black text-sm text-slate-900 dark:text-white font-mono">{inspectNode.activeStaffCount} Licensed</span>
+                  <span className="font-black text-sm text-slate-900 font-mono">{inspectNode.activeStaffCount} Staff</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-400 text-[10px] block">Cold Vault</span>
-                  <span className="font-black text-sm text-sky-600">{inspectNode.coldChainReady ? 'Equipped (2-8°C)' : 'None'}</span>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 text-[10px] block">Medicine Fridge</span>
+                  <span className="font-black text-sm text-sky-600">{inspectNode.coldChainReady ? 'Yes (2-8°C)' : 'None'}</span>
                 </div>
               </div>
 
               {/* Super Admin Audit & Inspection Launchpad */}
               {onSwitchToStoreWorkstation && (
-                <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 space-y-2.5">
+                <div className="p-4 rounded-2xl bg-[#E0EFF9]/70 border border-[#BAE0F4] space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
-                      <ShieldCheck className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                      Direct Workstation Audit & Inspection
+                    <span className="font-bold text-xs text-slate-950 flex items-center gap-1.5">
+                      <ShieldCheck className="h-4 w-4 text-[#0070BA]" />
+                      Visit Store Sections
                     </span>
-                    <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold">
-                      Super Admin Read-Write Mode
+                    <span className="text-[10px] text-[#0070BA] font-semibold">
+                      Admin View & Edit Mode
                     </span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -3357,10 +3385,10 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                         setInspectNode(null);
                         onSwitchToStoreWorkstation(targetId, 'pos');
                       }}
-                      className="py-2 px-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 border border-indigo-200 dark:border-indigo-800 text-slate-800 dark:text-slate-200 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                      className="py-2 px-2.5 rounded-xl bg-white hover:bg-[#0070BA] hover:text-white border border-[#BAE0F4] text-slate-800 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <Store className="h-3.5 w-3.5" />
-                      <span>POS Counter</span>
+                      <span>Cashier POS</span>
                     </button>
 
                     <button
@@ -3370,10 +3398,10 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                         setInspectNode(null);
                         onSwitchToStoreWorkstation(targetId, 'inventory');
                       }}
-                      className="py-2 px-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 border border-indigo-200 dark:border-indigo-800 text-slate-800 dark:text-slate-200 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                      className="py-2 px-2.5 rounded-xl bg-white hover:bg-[#0070BA] hover:text-white border border-[#BAE0F4] text-slate-800 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <Pill className="h-3.5 w-3.5" />
-                      <span>Shelf Stock</span>
+                      <span>Medicine Stock</span>
                     </button>
 
                     <button
@@ -3383,10 +3411,10 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                         setInspectNode(null);
                         onSwitchToStoreWorkstation(targetId, 'sales');
                       }}
-                      className="py-2 px-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 border border-indigo-200 dark:border-indigo-800 text-slate-800 dark:text-slate-200 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                      className="py-2 px-2.5 rounded-xl bg-white hover:bg-[#0070BA] hover:text-white border border-[#BAE0F4] text-slate-800 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <FileText className="h-3.5 w-3.5" />
-                      <span>Invoices</span>
+                      <span>Sales & Invoices</span>
                     </button>
 
                     <button
@@ -3396,23 +3424,23 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                         setInspectNode(null);
                         onSwitchToStoreWorkstation(targetId, 'reports');
                       }}
-                      className="py-2 px-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 border border-indigo-200 dark:border-indigo-800 text-slate-800 dark:text-slate-200 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                      className="py-2 px-2.5 rounded-xl bg-white hover:bg-[#0070BA] hover:text-white border border-[#BAE0F4] text-slate-800 font-bold text-[11px] transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <TrendingUp className="h-3.5 w-3.5" />
-                      <span>Z-Report</span>
+                      <span>Daily Z-Report</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+              <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => handleToggleNodeStatus(inspectNode.id)}
-                    className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-100 transition cursor-pointer"
                   >
-                    {inspectNode.status === 'ACTIVE' ? 'Set to Maintenance' : 'Activate Node'}
+                    {inspectNode.status === 'ACTIVE' ? 'Pause Store' : 'Activate Store'}
                   </button>
 
                   <button
@@ -3422,10 +3450,10 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       setInspectNode(null);
                       handleStartEditNode(target);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <Edit className="h-3.5 w-3.5" />
-                    <span>Edit Profile</span>
+                    <span>Edit Store Details</span>
                   </button>
                 </div>
 
@@ -3437,10 +3465,10 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                       setInspectNode(null);
                       onSwitchToStoreWorkstation(targetId, 'dashboard');
                     }}
-                    className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-md shadow-indigo-600/20 cursor-pointer"
+                    className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0070BA] hover:bg-[#0070BA] text-white font-bold transition shadow-md shadow-[#0070BA]/20 cursor-pointer"
                   >
                     <Store className="h-4 w-4" />
-                    <span>Full Store Dashboard</span>
+                    <span>Open Store Dashboard</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 )}
@@ -3455,7 +3483,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       {/* ========================================================================= */}
       {editingNode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-xl rounded-3xl bg-white shadow-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 overflow-hidden my-auto animate-in fade-in zoom-in-95">
+          <div className="relative w-full max-w-xl rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95">
             <div className="bg-[#0060df] text-white p-6 relative">
               <button
                 type="button"
@@ -3469,89 +3497,89 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   <Edit className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">Edit Store Node Profile</h3>
-                  <p className="text-xs text-sky-100">Update TIN, EFDA License, or contact info for {editingNode.storeName}</p>
+                  <h3 className="text-base font-black text-white">Edit Store Information</h3>
+                  <p className="text-xs text-sky-100">Update license, tax ID, or contact details for {editingNode.storeName}</p>
                 </div>
               </div>
             </div>
 
             <form onSubmit={handleSaveEditNode} className="p-6 space-y-4 text-xs">
               <div className="space-y-1">
-                <label className="block text-slate-700 dark:text-slate-300 font-bold">Store / Pharmacy Name</label>
+                <label className="block text-slate-700 font-bold">Store / Pharmacy Name</label>
                 <input
                   type="text"
                   required
                   value={nodeEditForm.storeName}
                   onChange={(e) => setNodeEditForm({ ...nodeEditForm, storeName: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold">City</label>
+                  <label className="block text-slate-700 font-bold">City</label>
                   <input
                     type="text"
                     required
                     value={nodeEditForm.city}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, city: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold">Subcity / District</label>
+                  <label className="block text-slate-700 font-bold">Subcity / Area</label>
                   <input
                     type="text"
                     required
                     value={nodeEditForm.subcity}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, subcity: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold">TIN Number (Tax ID)</label>
+                  <label className="block text-slate-700 font-bold">TIN Number (Tax ID)</label>
                   <input
                     type="text"
                     required
                     value={nodeEditForm.tinNumber}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, tinNumber: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none font-mono"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold">EFDA Facility License</label>
+                  <label className="block text-slate-700 font-bold">EFDA Pharmacy License</label>
                   <input
                     type="text"
                     required
                     value={nodeEditForm.efdaLicense}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, efdaLicense: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold">Contact Email</label>
+                  <label className="block text-slate-700 font-bold">Contact Email</label>
                   <input
                     type="email"
                     required
                     value={nodeEditForm.ownerEmail}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, ownerEmail: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold">Contact Phone</label>
+                  <label className="block text-slate-700 font-bold">Contact Phone</label>
                   <input
                     type="text"
                     required
                     value={nodeEditForm.ownerPhone}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, ownerPhone: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
                   />
                 </div>
               </div>
@@ -3562,9 +3590,9 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     type="checkbox"
                     checked={nodeEditForm.coldChainReady}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, coldChainReady: e.target.checked })}
-                    className="rounded text-indigo-600"
+                    className="rounded text-[#0070BA]"
                   />
-                  <span className="font-bold text-slate-700 dark:text-slate-300">Cold Chain Vault (2°C - 8°C)</span>
+                  <span className="font-bold text-slate-700">Medicine Fridge (2°C - 8°C)</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -3572,23 +3600,23 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     type="checkbox"
                     checked={nodeEditForm.is24Hours}
                     onChange={(e) => setNodeEditForm({ ...nodeEditForm, is24Hours: e.target.checked })}
-                    className="rounded text-indigo-600"
+                    className="rounded text-[#0070BA]"
                   />
-                  <span className="font-bold text-slate-700 dark:text-slate-300">24/7 Emergency Service</span>
+                  <span className="font-bold text-slate-700">Open 24/7 (Emergency Service)</span>
                 </label>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setEditingNode(null)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-md shadow-indigo-600/30 flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#0070BA] hover:bg-[#0070BA] text-white font-bold transition shadow-md shadow-[#0070BA]/30 flex items-center gap-1.5 cursor-pointer"
                 >
                   <CheckCircle2 className="h-4 w-4" />
                   <span>Save Changes</span>
@@ -3600,11 +3628,11 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* ⚠️ MODAL 2: ISSUE EMERGENCY RECALL NOTICE */}
+      {/* ⚠️ MODAL 2: ISSUE MEDICINE RECALL NOTICE */}
       {/* ========================================================================= */}
       {isNewRecallModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 overflow-hidden my-auto animate-in fade-in zoom-in-95">
+          <div className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95">
             <div className="bg-rose-600 text-white p-6 relative">
               <button
                 type="button"
@@ -3619,16 +3647,16 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   <AlertOctagon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">Issue Emergency Batch Recall</h3>
-                  <p className="text-xs text-rose-100">Instantly locks the batch from dispensing across all stores.</p>
+                  <h3 className="text-base font-black text-white">Issue Medicine Recall Notice</h3>
+                  <p className="text-xs text-rose-100">Immediately stops cashiers at all stores from selling this medicine batch.</p>
                 </div>
               </div>
             </div>
 
             <form onSubmit={handleCreateRecall} className="p-6 space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Medicine Name / Formulation <span className="text-red-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Medicine Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -3636,14 +3664,14 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   placeholder="e.g. Paracetamol Pediatric Syrup 120mg/5ml"
                   value={newRecallForm.drugName}
                   onChange={(e) => setNewRecallForm({ ...newRecallForm, drugName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-rose-500 font-semibold"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-rose-500 font-semibold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Batch / Lot Number <span className="text-red-500">*</span>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Batch Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -3651,43 +3679,43 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     placeholder="BATCH-2026-ETH-991"
                     value={newRecallForm.batchNumber}
                     onChange={(e) => setNewRecallForm({ ...newRecallForm, batchNumber: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-rose-500 font-mono font-bold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-rose-500 font-mono font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Manufacturer Name
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Manufacturer
                   </label>
                   <input
                     type="text"
                     placeholder="e.g. Local Pharma Corp Ltd"
                     value={newRecallForm.manufacturer}
                     onChange={(e) => setNewRecallForm({ ...newRecallForm, manufacturer: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-rose-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-rose-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Reason for Regulatory Recall <span className="text-red-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Reason for Recall <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   rows={3}
                   required
-                  placeholder="Describe failure reason, impurities, packaging flaw, or EFDA lab report..."
+                  placeholder="Describe why this medicine is being recalled (e.g. quality issue, damaged packaging)..."
                   value={newRecallForm.issueReason}
                   onChange={(e) => setNewRecallForm({ ...newRecallForm, issueReason: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-rose-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-rose-500"
                 />
               </div>
 
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setIsNewRecallModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -3696,7 +3724,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition shadow-md shadow-rose-600/30 flex items-center gap-2 cursor-pointer"
                 >
                   <AlertOctagon className="h-4 w-4" />
-                  <span>Publish Immediate Lock</span>
+                  <span>Pause Medicine Sale at All Stores</span>
                 </button>
               </div>
             </form>
@@ -3705,12 +3733,12 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 💊 MODAL 3: ADD MASTER MEDICINE SKU */}
+      {/* 💊 MODAL 3: ADD MEDICINE TO CATALOG */}
       {/* ========================================================================= */}
       {isAddCatalogModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 overflow-hidden my-auto animate-in fade-in zoom-in-95">
-            <div className="bg-indigo-600 text-white p-6 relative">
+          <div className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95">
+            <div className="bg-[#0070BA] text-white p-6 relative">
               <button
                 type="button"
                 onClick={() => setIsAddCatalogModalOpen(false)}
@@ -3724,8 +3752,8 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   <Pill className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">Register National Drug SKU</h3>
-                  <p className="text-xs text-indigo-100">Add to National Essential Drug Index & Price Registry.</p>
+                  <h3 className="text-base font-black text-white">Add Medicine to Catalog</h3>
+                  <p className="text-xs text-[#E0EFF9]">Add to the medicine catalog and set maximum allowed price.</p>
                 </div>
               </div>
             </div>
@@ -3733,7 +3761,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             <form onSubmit={handleCreateMasterSku} className="p-6 space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
                     Brand Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -3742,13 +3770,13 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     placeholder="e.g. Amoxil 500mg"
                     value={newSkuForm.brandName}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, brandName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0070BA] font-semibold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Generic Chemical Name <span className="text-red-500">*</span>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Generic / Chemical Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -3756,48 +3784,48 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     placeholder="Amoxicillin Trihydrate"
                     value={newSkuForm.genericName}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, genericName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0070BA]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    EFDA Registry Code
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    License / Registry Code
                   </label>
                   <input
                     type="text"
                     placeholder="EFDA-MED-00291"
                     value={newSkuForm.efdaCode}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, efdaCode: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0070BA] font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Therapeutic Class
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Medicine Category
                   </label>
                   <input
                     type="text"
                     placeholder="Antibiotic / Penicillin"
                     value={newSkuForm.therapeuticClass}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, therapeuticClass: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0070BA]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Dosage Form
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Form
                   </label>
                   <select
                     value={newSkuForm.dosageForm}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, dosageForm: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
                   >
                     <option value="Tablet">Tablet</option>
                     <option value="Capsule">Capsule</option>
@@ -3808,7 +3836,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
                     Strength
                   </label>
                   <input
@@ -3816,19 +3844,19 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     placeholder="500 mg"
                     value={newSkuForm.strength}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, strength: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Max Price (ETB)
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Max Allowed Price (ETB)
                   </label>
                   <input
                     type="number"
                     value={newSkuForm.maxRetailPrice}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, maxRetailPrice: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none font-mono"
                   />
                 </div>
               </div>
@@ -3839,9 +3867,9 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     type="checkbox"
                     checked={newSkuForm.isControlled}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, isControlled: e.target.checked })}
-                    className="rounded text-indigo-600"
+                    className="rounded text-[#0070BA]"
                   />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Schedule II Controlled</span>
+                  <span className="text-xs font-bold text-slate-700">Prescription Only (Controlled)</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -3849,26 +3877,26 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                     type="checkbox"
                     checked={newSkuForm.requiresColdChain}
                     onChange={(e) => setNewSkuForm({ ...newSkuForm, requiresColdChain: e.target.checked })}
-                    className="rounded text-indigo-600"
+                    className="rounded text-[#0070BA]"
                   />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Cold Chain (2°C - 8°C)</span>
+                  <span className="text-xs font-bold text-slate-700">Requires Fridge (2°C - 8°C)</span>
                 </label>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setIsAddCatalogModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#0070BA] hover:bg-[#0070BA] text-white font-bold transition shadow-md shadow-[#0070BA]/30 flex items-center gap-2 cursor-pointer"
                 >
                   <PlusCircle className="h-4 w-4" />
-                  <span>Register Master SKU</span>
+                  <span>Save Medicine to Catalog</span>
                 </button>
               </div>
             </form>

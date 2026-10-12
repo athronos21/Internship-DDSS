@@ -54,7 +54,7 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
   initialSubTab = 'employees',
   currentUser,
 }) => {
-  const isSuperAdmin = !!(currentUser?.isSuperAdmin || currentUser?.role === 'SUPER_ADMIN' || currentUser?.email === 'athronos21@gmail.com');
+  const isSuperAdmin = !!(currentUser?.isSuperAdmin || currentUser?.role === 'SUPER_ADMIN' || currentUser?.email === 'athronos21@gmail.com' || currentUser?.email === 'beka.girma@gmail.com');
   const [activeSubTab, setActiveSubTab] = useState<
     | 'dashboard'
     | 'employees'
@@ -515,9 +515,13 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
                       ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-200 border-indigo-400' 
                       : u.isOwner 
                       ? 'bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-200 border-rose-300'
-                      : 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border-teal-300'
+                      : u.role === 'SUPPLIER'
+                      ? 'bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-200 border-teal-400'
+                      : u.role === 'PHARMACIST'
+                      ? 'bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-200 border-blue-400'
+                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300'
                   }`}>
-                    {u.isSuperAdmin ? 'SUPER ADMIN' : u.isOwner ? 'STORE ADMIN (OWNER)' : u.role.replace('_', ' ')}
+                    {u.isSuperAdmin ? 'SUPER ADMIN' : u.isOwner ? 'STORE ADMIN (OWNER)' : u.role === 'SUPPLIER' ? 'WHOLESALE SUPPLIER' : u.role.replace('_', ' ')}
                   </span>
                 </div>
 
@@ -1008,6 +1012,7 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
                         SUPER_ADMIN: 'Whole System Administration & Governance',
                         STORE_OWNER: 'Drug Store Ownership & Business Operations',
                         PHARMACIST: 'Prescription Dispensary & Clinical POS',
+                        SUPPLIER: 'Wholesale Procurement & B2B Distribution Hub',
                       };
                       setUserForm({
                         ...userForm,
@@ -1019,6 +1024,7 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
                   >
                     <option value="PHARMACIST">Pharmacist (Clinical Dispensing & POS Counter)</option>
                     <option value="STORE_OWNER">Drug Store Owner (Store Management & Inventory)</option>
+                    <option value="SUPPLIER">Wholesale Supplier (B2B Bulk Procurement & Distribution)</option>
                     {isSuperAdmin && (
                       <option value="SUPER_ADMIN">Super Admin (Whole System Governance)</option>
                     )}

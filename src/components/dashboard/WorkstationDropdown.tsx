@@ -85,7 +85,7 @@ export const IMS_QUICK_JUMPS: ImsQuickJump[] = [
 
 export function getAvailableWorkstations(user?: User | null): WorkstationItem[] {
   if (!user) return WORKSTATION_ITEMS.filter((w) => !w.isSuperAdminOnly);
-  const isSuperAdmin = !!(user.isSuperAdmin || user.role === 'SUPER_ADMIN' || user.email === 'athronos21@gmail.com');
+  const isSuperAdmin = !!(user.isSuperAdmin || user.role === 'SUPER_ADMIN' || user.email === 'athronos21@gmail.com' || user.email === 'beka.girma@gmail.com');
   if (isSuperAdmin) {
     return WORKSTATION_ITEMS;
   }
