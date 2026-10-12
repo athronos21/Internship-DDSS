@@ -37,10 +37,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     res.end(
       JSON.stringify({
         success: false,
-        error: err?.message || String(err),
-        name: err?.name,
-        stack: err?.stack,
+        message: 'Internal server error',
       })
     );
   }
 }
+

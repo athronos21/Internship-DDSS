@@ -16,7 +16,6 @@ class ApiService {
                 : (baseUrl ?? defaultBaseUrl),
             headers: {
               'Content-Type': 'application/json',
-              'x-user-id': 'u-2', // Default Pharmacist fallback
             },
             connectTimeout: const Duration(seconds: 15),
             receiveTimeout: const Duration(seconds: 20),
@@ -25,19 +24,17 @@ class ApiService {
 
   /// Dynamically update authenticated user session headers
   void setAuthHeaders(String userId, {String? token}) {
-    _dio.options.headers['x-user-id'] = userId;
     if (token != null && token.isNotEmpty) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
-    } else {
-      _dio.options.headers['Authorization'] = 'Bearer $userId';
     }
   }
 
   /// Reset headers upon logout
   void clearAuthHeaders() {
     _dio.options.headers.remove('Authorization');
-    _dio.options.headers['x-user-id'] = 'u-2';
+    _dio.options.headers.remove('x-user-id');
   }
+
 
   /// Staff Login Verification (Email/Employee ID + Password or PIN)
   Future<Map<String, dynamic>> login({
