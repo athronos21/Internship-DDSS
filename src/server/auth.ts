@@ -92,63 +92,128 @@ export const auth = betterAuth({
   },
 });
 
+let seedingPromise: Promise<void> | null = null;
+
 /**
  * Seed initial administrative users into Better Auth if they do not exist
  */
 export async function seedInitialBetterAuthUsers() {
-  const defaultUsers = [
-    {
-      email: 'athronos21@gmail.com',
-      password: 'Password123!',
-      name: 'Atronos Sisay (Super Admin)',
-      role: 'SUPER_ADMIN',
-    },
-    {
-      email: 'admin@kaziniya.et',
-      password: 'Password123!',
-      name: 'Dr. Alemu Tadesse (Store Owner)',
-      role: 'STORE_OWNER',
-    },
-    {
-      email: 'admin@kaziniya.com',
-      password: 'Password123!',
-      name: 'Dr. Alemu Tadesse (Store Owner)',
-      role: 'STORE_OWNER',
-    },
-    {
-      email: 'munaa7536@gmail.com',
-      password: 'Password123!',
-      name: 'Muna Ahmed (Chief Pharmacist)',
-      role: 'PHARMACIST',
-    },
-  ];
+  if (seedingPromise) {
+    return seedingPromise;
+  }
 
-  for (const u of defaultUsers) {
-    try {
-      if (authDb) {
-        const existing = authDb.query('SELECT id FROM user WHERE email = ?').get(u.email);
-        if (!existing) {
+  seedingPromise = (async () => {
+    const defaultUsers = [
+      {
+        email: 'athronos21@gmail.com',
+        password: 'Password123!',
+        name: 'Atronos Sisay (Super Admin)',
+        role: 'SUPER_ADMIN',
+      },
+      {
+        email: 'beka.girma@gmail.com',
+        password: 'Password123!',
+        name: 'Beka Girma (Super Admin)',
+        role: 'SUPER_ADMIN',
+      },
+      {
+        email: 'admin@kaziniya.et',
+        password: 'Password123!',
+        name: 'Kaziniya Ahmed (Drug Store Owner)',
+        role: 'STORE_OWNER',
+      },
+      {
+        email: 'kaziniya@kaziniya.com',
+        password: 'Password123!',
+        name: 'Kaziniya Ahmed (Drug Store Owner)',
+        role: 'STORE_OWNER',
+      },
+      {
+        email: 'admin@kaziniya.com',
+        password: 'Password123!',
+        name: 'Kaziniya Ahmed (Drug Store Owner)',
+        role: 'STORE_OWNER',
+      },
+      {
+        email: 'monet@kaziniya.com',
+        password: 'Password123!',
+        name: 'Monet Alemayehu (Pharmacist)',
+        role: 'PHARMACIST',
+      },
+      {
+        email: 'munaa7536@gmail.com',
+        password: 'Password123!',
+        name: 'Monet Alemayehu (Pharmacist)',
+        role: 'PHARMACIST',
+      },
+      {
+        email: 'supplier@medtech.com',
+        password: 'Password123!',
+        name: 'Supplier (Wholesale Supplier)',
+        role: 'SUPPLIER',
+      },
+    ];
+
+    for (const u of defaultUsers) {
+      try {
+        if (authDb) {
+          const existing = authDb.query('SELECT id FROM user WHERE email = ?').get(u.email);
+          if (!existing) {
+            await auth.api.signUpEmail({
+              body: {
+                email: u.email,
+                password: u.password,
+                name: u.name,
+                role: u.role,
+              } as any,
+            });
+          }
+          // Ensure user role matches configured default role
+          authDb.run('UPDATE user SET role = ? WHERE email = ?', [u.role, u.email]);
+        } else {
           await auth.api.signUpEmail({
             body: {
               email: u.email,
               password: u.password,
               name: u.name,
-            },
+              role: u.role,
+            } as any,
           });
         }
-        // Ensure user role matches configured default role
-        authDb.run('UPDATE user SET role = ? WHERE email = ?', [u.role, u.email]);
-      } else {
-        await auth.api.signUpEmail({
-          body: {
-            email: u.email,
-            password: u.password,
-            name: u.name,
-          },
-        });
+      } catch {
+        // Ignore if user already seeded
       }
-    } catch {
-      // Ignore if user already seeded
     }
+  })();
+
+  return seedingPromise;
+}
+
+import crypto from 'crypto';
+
+/**
+ * Hash a password using scrypt with a unique random salt
+ */
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derivedKey = crypto.scryptSync(password, salt, 64);
+  return `${salt}:${derivedKey.toString('hex')}`;
+}
+
+/**
+ * Verify a candidate password against a stored scrypt hash or legacy plaintext
+ */
+export function verifyPassword(password: string, combinedHash: string): boolean {
+  if (!combinedHash) return false;
+  if (!combinedHash.includes(':')) {
+    // Legacy plaintext support for initial transition
+    return password === combinedHash;
+  }
+  const [salt, key] = combinedHash.split(':');
+  try {
+    const derivedKey = crypto.scryptSync(password, salt, 64);
+    return crypto.timingSafeEqual(Buffer.from(key, 'hex'), derivedKey);
+  } catch {
+    return false;
   }
 }

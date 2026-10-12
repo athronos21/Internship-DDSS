@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import { User } from '../../types.js';
-import { getAuthenticatedUser, requireRole, AuthenticatedRequest } from '../roleGuard.js';
+import { getAuthenticatedUser, requireRole, requireAuth, AuthenticatedRequest } from '../roleGuard.js';
 import { ROLE_CONFIGS, PERMISSION_DOMAINS, getEffectiveRole } from '../../utils/roleManager.js';
 import { toNodeHandler } from 'better-auth/node';
-import { auth, seedInitialBetterAuthUsers } from '../auth.js';
+import { auth, authDb, seedInitialBetterAuthUsers, hashPassword, verifyPassword } from '../auth.js';
 
 export const authRouter = Router();
 
@@ -210,60 +210,89 @@ authRouter.post('/auth/logout', (req, res) => {
   res.json({ success: true, message: 'Successfully logged out' });
 });
 
-// Staff First-Time Login / Self-Service Change Password Endpoint
-authRouter.post('/auth/change-password', (req, res) => {
+// Staff First-Time Login / Self-Service Change Password Endpoint (Guarded with requireAuth)
+authRouter.post('/auth/change-password', requireAuth, async (req: AuthenticatedRequest, res) => {
   try {
-    const { userId, currentPassword, newPassword, newPin } = req.body;
+    const { currentPassword, newPassword, newPin } = req.body;
+    const user = req.user;
 
-    if (!userId || !newPassword) {
-      return res.status(400).json({ success: false, message: 'User ID and New Password are required' });
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Authentication required to change password.' });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters long' });
+    if (!currentPassword) {
+      return res.status(400).json({ success: false, message: 'Current password is required.' });
     }
 
-    const userIndex = db.users.findIndex((u) => u.id === userId);
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 8 characters long.' });
+    }
+
+    const userIndex = db.users.findIndex((u) => u.id === user.id || (user.email && u.email.toLowerCase() === user.email.toLowerCase()));
     if (userIndex === -1) {
-      return res.status(404).json({ success: false, message: 'Staff user not found' });
+      return res.status(404).json({ success: false, message: 'Staff user account not found.' });
     }
 
-    const user = db.users[userIndex];
+    const existingUser = db.users[userIndex];
 
-    // If current password provided, verify it
-    if (currentPassword && user.password && user.password !== currentPassword && user.temporaryPassword !== currentPassword) {
-      return res.status(400).json({ success: false, message: 'Current/Temporary password does not match.' });
+    // Verify current password against existing user password or temporaryPassword
+    const isCurrentValid =
+      (existingUser.password && verifyPassword(currentPassword, existingUser.password)) ||
+      (existingUser.temporaryPassword && verifyPassword(currentPassword, existingUser.temporaryPassword));
+
+    if (!isCurrentValid) {
+      return res.status(400).json({ success: false, message: 'Current password does not match.' });
     }
 
+    const hashedPassword = hashPassword(newPassword);
     const now = new Date().toISOString();
+
     const updatedUser = {
-      ...user,
-      password: newPassword,
+      ...existingUser,
+      password: hashedPassword,
       temporaryPassword: undefined,
       mustChangePassword: false,
       status: 'ACTIVE' as const,
       lastPasswordChange: now,
-      pin: newPin || user.pin || '1234',
+      pin: newPin || existingUser.pin || '1234',
     };
 
     db.users[userIndex] = updatedUser;
 
+    // Also update Better Auth account password if applicable in authDb
+    if (authDb && existingUser.email) {
+      try {
+        const authUser = authDb.query('SELECT id FROM user WHERE email = ?').get(existingUser.email);
+        if (authUser) {
+          authDb.run('UPDATE account SET password = ? WHERE userId = ?', [hashedPassword, authUser.id]);
+        }
+      } catch {
+        // Ignore DB update errors
+      }
+    }
+
     // Audit log entry
     db.auditLogs.unshift({
       id: `log-${Date.now()}`,
-      userId: user.id,
-      userName: user.name,
+      userId: existingUser.id,
+      userName: existingUser.name,
       action: 'UPDATE',
       entityType: 'USER_PASSWORD',
-      entityId: user.id,
+      entityId: existingUser.id,
       createdAt: now,
-      details: `Staff member ${user.name} (${user.role}) changed password and activated workstation credentials.`,
+      details: `Staff member ${existingUser.name} (${existingUser.role}) securely changed password.`,
     });
 
     res.json({
       success: true,
-      message: 'Password successfully updated! Account is now fully active.',
-      data: updatedUser,
+      message: 'Password successfully updated and securely hashed! Account is active.',
+      data: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        status: updatedUser.status,
+      },
     });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
