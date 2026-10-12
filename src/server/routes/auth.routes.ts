@@ -350,7 +350,7 @@ authRouter.post('/auth/change-password', requireAuth, async (req: AuthenticatedR
 });
 
 // PHARMACY / DRUG STORE OWNER REGISTRATION ENDPOINT
-authRouter.post('/auth/register-owner', (req, res) => {
+authRouter.post('/auth/register-owner', async (req, res) => {
   try {
     const {
       ownerTitle,
@@ -406,8 +406,8 @@ authRouter.post('/auth/register-owner', (req, res) => {
     if (!ownerEmail || !ownerEmail.trim()) {
       return res.status(400).json({ success: false, message: 'Owner Email Address is required.' });
     }
-    if (!password || password.length < 6) {
-      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+    if (!password || password.length < 8) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long.' });
     }
     if (!storeName || !storeName.trim()) {
       return res.status(400).json({ success: false, message: 'Pharmacy / Drug Store Name is required.' });
@@ -419,11 +419,18 @@ authRouter.post('/auth/register-owner', (req, res) => {
       return res.status(400).json({ success: false, message: 'Pharmacy Physical Store Address / Location is required.' });
     }
 
-    // Check if email already exists
-    const existingUserIndex = db.users.findIndex((u) => u.email.toLowerCase() === ownerEmail.toLowerCase().trim());
-    
-    const ownerId = existingUserIndex !== -1 ? db.users[existingUserIndex].id : `owner-${Date.now()}`;
-    const employeeCode = existingUserIndex !== -1 ? (db.users[existingUserIndex].employeeId || `OWNER-${Math.floor(1000 + Math.random() * 9000)}`) : `OWNER-${Math.floor(1000 + Math.random() * 9000)}`;
+    // Check if email already exists (Zero Overwrite Policy)
+    const emailClean = ownerEmail.toLowerCase().trim();
+    const existingUserIndex = db.users.findIndex((u) => u.email.toLowerCase() === emailClean);
+    if (existingUserIndex !== -1) {
+      return res.status(409).json({
+        success: false,
+        message: 'An account with this email address already exists. Please sign in or use another email.',
+      });
+    }
+
+    const ownerId = `owner-${Date.now()}`;
+    const employeeCode = `OWNER-${Math.floor(1000 + Math.random() * 9000)}`;
     const now = new Date().toISOString();
 
     const defaultLogo = logoUrl && logoUrl.trim()
@@ -432,61 +439,51 @@ authRouter.post('/auth/register-owner', (req, res) => {
 
     const fullStoreAddress = `${streetAddress.trim()}${landmark ? `, ${landmark.trim()}` : ''}${subcity ? `, ${subcity}` : ''}${city ? `, ${city}` : ''}, Ethiopia`;
 
-    let ownerUser: User;
+    const hashedPassword = hashPassword(password);
 
-    if (existingUserIndex !== -1) {
-      // Upgrade / associate the existing account (e.g. system administrator or existing owner)
-      const prev = db.users[existingUserIndex];
-      ownerUser = {
-        ...prev,
-        name: ownerName.trim() ? (ownerTitle ? `${ownerTitle.trim()} ${ownerName.trim()}` : ownerName.trim()) : prev.name,
-        email: ownerEmail.toLowerCase().trim(),
-        role: 'STORE_OWNER',
-        phone: ownerPhone ? ownerPhone.trim() : prev.phone || storePhone || '+251 911 000 000',
-        employeeId: prev.employeeId || employeeCode,
-        department: prev.isSuperAdmin ? 'Whole System Administration & Governance' : 'Drug Store Ownership & Executive Management',
-        isActive: true,
-        isOwner: true,
-        isSuperAdmin: prev.isSuperAdmin || ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com' || ownerEmail.toLowerCase().trim() === 'beka.girma@gmail.com',
-        tinNumber: tinNumber.trim(),
-        nationalId: ownerNationalId ? ownerNationalId.trim() : prev.nationalId,
-        pharmacistLicense: ownerPharmacistLicense ? ownerPharmacistLicense.trim() : prev.pharmacistLicense,
-        pharmacyName: storeName.trim(),
-        pharmacyLogo: defaultLogo,
-        storeAddress: fullStoreAddress,
-        mustChangePassword: false,
-        password: password || prev.password || '12242144',
-        pin: pin && pin.trim() ? pin.trim() : prev.pin || '2144',
-        status: 'ACTIVE',
-      };
-      db.users[existingUserIndex] = ownerUser;
-    } else {
-      // 1. Create Owner User Record
-      ownerUser = {
-        id: ownerId,
-        name: ownerTitle ? `${ownerTitle.trim()} ${ownerName.trim()}` : ownerName.trim(),
-        email: ownerEmail.toLowerCase().trim(),
-        role: 'STORE_OWNER',
-        phone: ownerPhone ? ownerPhone.trim() : storePhone || '+251 911 000 000',
-        employeeId: employeeCode,
-        department: (ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com' || ownerEmail.toLowerCase().trim() === 'beka.girma@gmail.com') ? 'Whole System Administration & Governance' : 'Drug Store Ownership & Executive Management',
-        isActive: true,
-        isOwner: true,
-        isSuperAdmin: ownerEmail.toLowerCase().trim() === 'athronos21@gmail.com' || ownerEmail.toLowerCase().trim() === 'beka.girma@gmail.com',
-        tinNumber: tinNumber.trim(),
-        nationalId: ownerNationalId ? ownerNationalId.trim() : undefined,
-        pharmacistLicense: ownerPharmacistLicense ? ownerPharmacistLicense.trim() : undefined,
-        pharmacyName: storeName.trim(),
-        pharmacyLogo: defaultLogo,
-        storeAddress: fullStoreAddress,
-        mustChangePassword: false,
-        password: password,
-        pin: pin && pin.trim() ? pin.trim() : '1234',
-        status: 'ACTIVE',
-        createdAt: now,
-      };
-      db.users.unshift(ownerUser);
+    // Register owner account with Better Auth
+    try {
+      if (authDb) {
+        const existingAuth = authDb.query('SELECT id FROM user WHERE email = ?').get(emailClean);
+        if (!existingAuth) {
+          await auth.api.signUpEmail({
+            body: {
+              email: emailClean,
+              password,
+              name: ownerTitle ? `${ownerTitle.trim()} ${ownerName.trim()}` : ownerName.trim(),
+              role: 'STORE_OWNER',
+            } as any,
+          });
+        }
+      }
+    } catch {
+      // Ignore if already registered
     }
+
+    const ownerUser: User = {
+      id: ownerId,
+      name: ownerTitle ? `${ownerTitle.trim()} ${ownerName.trim()}` : ownerName.trim(),
+      email: emailClean,
+      role: 'STORE_OWNER',
+      phone: ownerPhone ? ownerPhone.trim() : storePhone || '+251 911 000 000',
+      employeeId: employeeCode,
+      department: 'Drug Store Ownership & Executive Management',
+      isActive: true,
+      isOwner: true,
+      isSuperAdmin: false,
+      tinNumber: tinNumber.trim(),
+      nationalId: ownerNationalId ? ownerNationalId.trim() : undefined,
+      pharmacistLicense: ownerPharmacistLicense ? ownerPharmacistLicense.trim() : undefined,
+      pharmacyName: storeName.trim(),
+      pharmacyLogo: defaultLogo,
+      storeAddress: fullStoreAddress,
+      mustChangePassword: false,
+      password: hashedPassword,
+      status: 'ACTIVE',
+      createdAt: now,
+    };
+    db.users.unshift(ownerUser);
+
 
     // 2. Update Active Pharmacy Profile
     const updatedProfile = db.updatePharmacyProfile({
@@ -603,17 +600,23 @@ authRouter.post('/auth/register-owner', (req, res) => {
       createdAt: now,
     });
 
+    const sanitizedOwner: Partial<User> = { ...ownerUser };
+    delete sanitizedOwner.password;
+    delete sanitizedOwner.pin;
+    delete sanitizedOwner.temporaryPassword;
+
     res.status(201).json({
       success: true,
       message: `Congratulations! ${storeName.trim()} has been successfully registered and your owner account is ready.`,
       data: {
-        user: ownerUser,
-        owner: ownerUser,
+        user: sanitizedOwner,
+        owner: sanitizedOwner,
         pharmacy: updatedProfile,
         node: newPharmacyNode,
         token: `kaziniya-jwt-owner-${ownerId}-${Date.now()}`,
       },
     });
+
   } catch (err: any) {
     console.error('Error in /api/auth/register-owner:', err);
     res.status(500).json({ success: false, message: err.message });
