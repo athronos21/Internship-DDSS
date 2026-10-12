@@ -40,7 +40,7 @@
 - Consumes: `auth.api.signInEmail` from `../auth.js`, `verifyPassword` from `../auth.js`, `getAuthenticatedUser` from `../roleGuard.js`
 - Produces: Hardened `/api/auth/login` route issuing verified Better Auth sessions and returning sanitized user objects
 
-- [ ] **Step 1: Write failing tests for login credential validation and session issuance in `tests/legacyLoginHardening.test.ts`**
+- [x] **Step 1: Write failing tests for login credential validation and session issuance in `tests/legacyLoginHardening.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
@@ -163,12 +163,12 @@ describe('Legacy Login Hardening (/api/auth/login)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `bun test tests/legacyLoginHardening.test.ts`
 Expected: FAIL because missing password currently returns 200, demo passwords pass, and returned user contains credentials.
 
-- [ ] **Step 3: Refactor `POST /api/auth/login` in `src/server/routes/auth.routes.ts`**
+- [x] **Step 3: Refactor `POST /api/auth/login` in `src/server/routes/auth.routes.ts`**
 
 Implement:
 - Reject empty password: `if (!password || !password.trim()) return res.status(400).json({ success: false, message: 'Password is required' });`
@@ -176,12 +176,12 @@ Implement:
 - Verify password against Better Auth `auth.api.signInEmail` or `verifyPassword(password, user.password)`. If authenticated via `verifyPassword`, issue a Better Auth session.
 - Strip `password`, `pin`, and `temporaryPassword` from user before returning.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `bun test tests/legacyLoginHardening.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/routes/auth.routes.ts tests/legacyLoginHardening.test.ts
@@ -200,7 +200,7 @@ git commit -m "feat(security): harden legacy login to require passwords, issue v
 - Consumes: `hashPassword` from `../auth.js`, `auth.api.signUpEmail` from `../auth.js`
 - Produces: Protected `/api/auth/register-owner` endpoint with zero-overwrite policy and hashed credentials
 
-- [ ] **Step 1: Write failing tests for registration security in `tests/ownerRegistrationSecurity.test.ts`**
+- [x] **Step 1: Write failing tests for registration security in `tests/ownerRegistrationSecurity.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
@@ -304,12 +304,12 @@ describe('Owner Registration Security (/api/auth/register-owner)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `bun test tests/ownerRegistrationSecurity.test.ts`
 Expected: FAIL because existing email currently updates and overwrites the account.
 
-- [ ] **Step 3: Update `POST /api/auth/register-owner` in `src/server/routes/auth.routes.ts`**
+- [x] **Step 3: Update `POST /api/auth/register-owner` in `src/server/routes/auth.routes.ts`**
 
 Implement:
 - Conflict check: if `db.users.some(u => u.email.toLowerCase() === ownerEmail.toLowerCase().trim())`, return `res.status(409).json({ success: false, message: 'An account with this email address already exists. Please sign in or use another email.' })`.
@@ -318,12 +318,12 @@ Implement:
 - Register in Better Auth (`auth.api.signUpEmail`).
 - Strip credentials from response.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `bun test tests/ownerRegistrationSecurity.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/routes/auth.routes.ts tests/ownerRegistrationSecurity.test.ts
@@ -342,7 +342,7 @@ git commit -m "feat(security): prevent account takeover on owner registration wi
 - Consumes: `getAuthenticatedUser` from `../roleGuard.js`
 - Produces: Sanitized `GET /api/pharmacy/profile` endpoint protecting banking and licensing data from public callers
 
-- [ ] **Step 1: Write failing tests for profile data sanitization in `tests/pharmacyProfileSecurity.test.ts`**
+- [x] **Step 1: Write failing tests for profile data sanitization in `tests/pharmacyProfileSecurity.test.ts`**
 
 ```typescript
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
@@ -407,12 +407,12 @@ describe('Pharmacy Profile Privacy (/api/pharmacy/profile)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `bun test tests/pharmacyProfileSecurity.test.ts`
 Expected: FAIL because anonymous requests currently receive bank account numbers and TINs.
 
-- [ ] **Step 3: Update `GET /api/pharmacy/profile` in `src/server/routes/auth.routes.ts`**
+- [x] **Step 3: Update `GET /api/pharmacy/profile` in `src/server/routes/auth.routes.ts`**
 
 Implement:
 - Resolve caller: `const caller = await getAuthenticatedUser(req);`
@@ -432,12 +432,12 @@ Implement:
   return res.json({ success: true, data: sanitized });
   ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `bun test tests/pharmacyProfileSecurity.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/routes/auth.routes.ts tests/pharmacyProfileSecurity.test.ts
@@ -456,7 +456,7 @@ git commit -m "feat(security): protect private pharmacy profile banking and lice
 **Interfaces:**
 - Produces: Sanitized Vercel serverless error output and clean Flutter API client options
 
-- [ ] **Step 1: Write test for serverless error sanitization in `tests/gatewaySanitization.test.ts`**
+- [x] **Step 1: Write test for serverless error sanitization in `tests/gatewaySanitization.test.ts`**
 
 ```typescript
 import { describe, it, expect } from 'bun:test';
@@ -481,12 +481,12 @@ describe('Serverless & Mobile Client Sanitization', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `bun test tests/gatewaySanitization.test.ts`
 Expected: FAIL because `api/index.ts` contains `stack: err?.stack` and `api_service.dart` contains `'x-user-id': 'u-2'`.
 
-- [ ] **Step 3: Sanitize `api/index.ts` and `mobile/lib/services/api_service.dart`**
+- [x] **Step 3: Sanitize `api/index.ts` and `mobile/lib/services/api_service.dart`**
 
 In `api/index.ts`:
 ```typescript
@@ -506,12 +506,12 @@ catch (err: any) {
 In `mobile/lib/services/api_service.dart`:
 Remove `'x-user-id': 'u-2'` from default headers and from `clearAuthHeaders()`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `bun test tests/gatewaySanitization.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add api/index.ts mobile/lib/services/api_service.dart tests/gatewaySanitization.test.ts
@@ -525,22 +525,22 @@ git commit -m "feat(security): sanitize serverless error responses and remove mo
 **Files:**
 - Test: All tests across `tests/`
 
-- [ ] **Step 1: Execute full test suite**
+- [x] **Step 1: Execute full test suite**
 
 Run: `bun test`
 Expected: 100% pass across all test files.
 
-- [ ] **Step 2: Execute TypeScript compilation check**
+- [x] **Step 2: Execute TypeScript compilation check**
 
 Run: `bun run lint`
 Expected: 0 errors.
 
-- [ ] **Step 3: Execute production build**
+- [x] **Step 3: Execute production build**
 
 Run: `bun run build`
 Expected: Client and server bundles build cleanly with exit code 0.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git commit --allow-empty -m "chore(security): verify full Phase 2A security hardening test suite and production build"

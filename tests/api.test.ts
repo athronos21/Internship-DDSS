@@ -103,13 +103,16 @@ describe('API Endpoints & Integration Suite', () => {
 
   describe('Pharmacy Fleet & Master Network', () => {
     it('GET /api/pharmacy/profile returns active store profile', async () => {
-      const res = await fetch(`${baseUrl}/api/pharmacy/profile`);
+      const res = await fetch(`${baseUrl}/api/pharmacy/profile`, {
+        headers: { Authorization: `Bearer ${ownerToken}` },
+      });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.success).toBe(true);
       expect(body.data.storeName).toBeDefined();
       expect(body.data.tinNumber).toBeDefined();
     });
+
 
     it('GET /api/fleet/pharmacies returns nationwide registered pharmacies', async () => {
       const res = await fetch(`${baseUrl}/api/fleet/pharmacies`);

@@ -50,7 +50,9 @@ describe('Pharmacy Profile Privacy (/api/pharmacy/profile)', () => {
     db.updatePharmacyProfile({
       cbeAccountNumber: '1000123456789',
       bankAccountNumber: '987654321',
+      ownerNationalId: 'ETH-ID-8829104',
     });
+
 
     const res = await fetch(`${baseUrl}/api/pharmacy/profile`, {
       headers: { Authorization: `Bearer ${ownerToken}` },
