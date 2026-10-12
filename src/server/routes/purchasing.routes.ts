@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import { PurchaseRepository } from '../db/repositories/purchase.repository.js';
+import { requireRole, AuthenticatedRequest } from '../roleGuard.js';
 
 export const purchasingRouter = Router();
 
@@ -9,7 +10,7 @@ purchasingRouter.get('/suppliers', (req, res) => {
   res.json({ success: true, data: PurchaseRepository.listSuppliers() });
 });
 
-purchasingRouter.post('/suppliers', (req, res) => {
+purchasingRouter.post('/suppliers', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const { name, contactPerson, phone, email, tinNumber, address, creditLimit, paymentTerms } = req.body;
     if (!name) return res.status(400).json({ success: false, message: 'Supplier name is required' });
@@ -32,14 +33,14 @@ purchasingRouter.post('/suppliers', (req, res) => {
 });
 
 // PURCHASES API
-purchasingRouter.get('/purchases', (req, res) => {
+purchasingRouter.get('/purchases', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'SUPPLIER']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: PurchaseRepository.listPurchases() });
 });
 
-purchasingRouter.post('/purchases', (req, res) => {
+purchasingRouter.post('/purchases', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const { supplierId, invoiceNumber, purchaseDate, items } = req.body;
-    const createdByUserId = (req.headers['x-user-id'] as string) || 'u-1';
+    const createdByUserId = req.user?.id || 'u-1';
 
     if (!supplierId || !items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Supplier and purchase items are required' });
@@ -63,11 +64,11 @@ purchasingRouter.post('/purchases', (req, res) => {
 const inMemoryPurchaseOrders: any[] = [];
 const inMemoryGoodsReceipts: any[] = [];
 
-purchasingRouter.get('/purchase-orders', (req, res) => {
+purchasingRouter.get('/purchase-orders', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'SUPPLIER']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: inMemoryPurchaseOrders });
 });
 
-purchasingRouter.post('/purchase-orders', (req, res) => {
+purchasingRouter.post('/purchase-orders', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const { supplierId, supplierName, expectedDeliveryDate, items, totalAmount, notes } = req.body;
     if (!supplierId || !items || !Array.isArray(items) || items.length === 0) {
@@ -95,11 +96,11 @@ purchasingRouter.post('/purchase-orders', (req, res) => {
   }
 });
 
-purchasingRouter.get('/goods-receipts', (req, res) => {
+purchasingRouter.get('/goods-receipts', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'PHARMACIST']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: inMemoryGoodsReceipts });
 });
 
-purchasingRouter.post('/goods-receipts', (req, res) => {
+purchasingRouter.post('/goods-receipts', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'PHARMACIST']), (req: AuthenticatedRequest, res) => {
   try {
     const { poId, poNumber, supplierName, itemsReceived, receivedBy, notes } = req.body;
     const newGrn = {
@@ -109,7 +110,7 @@ purchasingRouter.post('/goods-receipts', (req, res) => {
       poNumber: poNumber || '',
       supplierName: supplierName || '',
       receiptDate: new Date().toISOString().split('T')[0],
-      receivedBy: receivedBy || 'Inventory Officer',
+      receivedBy: receivedBy || req.user?.name || 'Inventory Officer',
       itemsReceived: itemsReceived || [],
       notes: notes || '',
       createdAt: new Date().toISOString(),

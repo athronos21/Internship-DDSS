@@ -3,6 +3,7 @@ import { db } from '../db.js';
 import { MedicineRepository } from '../db/repositories/medicine.repository.js';
 import { BatchRepository } from '../db/repositories/batch.repository.js';
 import { InventoryRepository } from '../db/repositories/inventory.repository.js';
+import { requireRole, AuthenticatedRequest } from '../roleGuard.js';
 
 export const inventoryRouter = Router();
 
@@ -11,7 +12,7 @@ inventoryRouter.get('/categories', (req, res) => {
   res.json({ success: true, data: db.categories });
 });
 
-inventoryRouter.post('/categories', (req, res) => {
+inventoryRouter.post('/categories', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const { name, description } = req.body;
   if (!name) return res.status(400).json({ success: false, message: 'Category Name is required' });
 
@@ -38,7 +39,7 @@ inventoryRouter.get('/medicines', (req, res) => {
   }
 });
 
-inventoryRouter.post('/medicines', (req, res) => {
+inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const {
       name,
@@ -200,7 +201,7 @@ inventoryRouter.get('/medicines/:id', (req, res) => {
   res.json({ success: true, data: { medicine: med, batches, transactions } });
 });
 
-inventoryRouter.put('/medicines/:id', (req, res) => {
+inventoryRouter.put('/medicines/:id', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const med = db.medicines.find((m) => m.id === req.params.id);
   if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });
 
@@ -208,7 +209,7 @@ inventoryRouter.put('/medicines/:id', (req, res) => {
   res.json({ success: true, message: 'Medicine updated successfully', data: med });
 });
 
-inventoryRouter.delete('/medicines/:id', (req, res) => {
+inventoryRouter.delete('/medicines/:id', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const medIndex = db.medicines.findIndex((m) => m.id === req.params.id);
   if (medIndex === -1) return res.status(404).json({ success: false, message: 'Medicine not found' });
 
@@ -229,7 +230,7 @@ inventoryRouter.delete('/medicines/:id', (req, res) => {
 
   db.auditLogs.unshift({
     id: `audit-${Date.now()}`,
-    userId: (req.headers['x-user-id'] as string) || 'u-1',
+    userId: req.user?.id || 'u-1',
     action: isPermanent ? 'MEDICINE_DELETED' : 'MEDICINE_ARCHIVED',
     entityType: 'MEDICINE',
     entityId: med.id,
@@ -244,7 +245,7 @@ inventoryRouter.delete('/medicines/:id', (req, res) => {
   });
 });
 
-inventoryRouter.post('/medicines/:id/restore', (req, res) => {
+inventoryRouter.post('/medicines/:id/restore', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const med = db.medicines.find((m) => m.id === req.params.id);
   if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });
 
@@ -253,7 +254,7 @@ inventoryRouter.post('/medicines/:id/restore', (req, res) => {
 
   db.auditLogs.unshift({
     id: `audit-${Date.now()}`,
-    userId: (req.headers['x-user-id'] as string) || 'u-1',
+    userId: req.user?.id || 'u-1',
     action: 'MEDICINE_RESTORED',
     entityType: 'MEDICINE',
     entityId: med.id,
@@ -265,7 +266,7 @@ inventoryRouter.post('/medicines/:id/restore', (req, res) => {
 });
 
 // BULK MEDICINES IMPORT API
-inventoryRouter.post('/medicines/bulk-import', (req, res) => {
+inventoryRouter.post('/medicines/bulk-import', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const { medicines: importList, autoCreateCategories = true, updateExistingMedicines = true } = req.body;
     if (!Array.isArray(importList) || importList.length === 0) {
@@ -436,7 +437,7 @@ inventoryRouter.get('/batches/low-stock', (req, res) => {
   res.json({ success: true, data: meds });
 });
 
-inventoryRouter.post('/batches', (req, res) => {
+inventoryRouter.post('/batches', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const {
       medicineId,
@@ -511,10 +512,10 @@ inventoryRouter.post('/batches', (req, res) => {
 });
 
 // INVENTORY ADJUSTMENT
-inventoryRouter.post('/inventory/adjust', (req, res) => {
+inventoryRouter.post('/inventory/adjust', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const { medicineId, batchId, transactionType, quantityDelta, notes } = req.body;
-    const performedByUserId = (req.headers['x-user-id'] as string) || 'u-1';
+    const performedByUserId = req.user?.id || 'u-1';
 
     const tx = db.adjustStock({
       medicineId,
@@ -532,7 +533,7 @@ inventoryRouter.post('/inventory/adjust', (req, res) => {
 });
 
 // INVENTORY TRANSACTIONS
-inventoryRouter.get('/inventory/transactions', (req, res) => {
+inventoryRouter.get('/inventory/transactions', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: InventoryRepository.getTransactions(200) });
 });
 
@@ -562,11 +563,11 @@ const inMemoryStockRequests = [
   },
 ];
 
-inventoryRouter.get('/inventory/requests', (req, res) => {
+inventoryRouter.get('/inventory/requests', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: inMemoryStockRequests });
 });
 
-inventoryRouter.post('/inventory/requests', (req, res) => {
+inventoryRouter.post('/inventory/requests', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const { toBranch, itemsRequested, urgency, notes } = req.body;
   if (!itemsRequested) {
     return res.status(400).json({ success: false, message: 'Requested items are required' });
@@ -580,7 +581,7 @@ inventoryRouter.post('/inventory/requests', (req, res) => {
     itemsRequested,
     urgency: urgency || 'NORMAL',
     status: 'PENDING_APPROVAL',
-    requestedBy: (req.headers['x-user-name'] as string) || 'Dispensary Pharmacist',
+    requestedBy: req.user?.name || 'Dispensary Pharmacist',
     notes: notes || '',
   };
 
@@ -588,7 +589,7 @@ inventoryRouter.post('/inventory/requests', (req, res) => {
   res.status(201).json({ success: true, message: 'Stock transfer request submitted successfully', data: newReq });
 });
 
-inventoryRouter.patch('/inventory/requests/:id', (req, res) => {
+inventoryRouter.patch('/inventory/requests/:id', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const reqItem = inMemoryStockRequests.find((r) => r.id === req.params.id);
   if (!reqItem) return res.status(404).json({ success: false, message: 'Request not found' });
 

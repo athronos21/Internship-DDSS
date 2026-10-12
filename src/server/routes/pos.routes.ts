@@ -2,11 +2,12 @@ import { Router } from 'express';
 import { db } from '../db.js';
 import { SalesRepository } from '../db/repositories/sales.repository.js';
 import { MedicineRepository } from '../db/repositories/medicine.repository.js';
+import { requireRole, AuthenticatedRequest } from '../roleGuard.js';
 
 export const posRouter = Router();
 
 // SALES & ATOMIC FEFO DISPENSING
-posRouter.get('/sales', (req, res) => {
+posRouter.get('/sales', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: SalesRepository.list(200) });
 });
 
@@ -18,16 +19,16 @@ posRouter.get('/sales/barcode/:code', (req, res) => {
   res.json({ success: true, data: medicine });
 });
 
-posRouter.get('/sales/:id', (req, res) => {
+posRouter.get('/sales/:id', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const sale = SalesRepository.findById(req.params.id);
   if (!sale) return res.status(404).json({ success: false, message: 'Sale not found' });
   res.json({ success: true, data: sale });
 });
 
-posRouter.post('/sales', (req, res) => {
+posRouter.post('/sales', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const { items, paymentMethod, customerName, discount } = req.body;
-    const soldByUserId = (req.headers['x-user-id'] as string) || 'u-1';
+    const soldByUserId = req.user?.id || 'u-1';
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Cart cannot be empty. Please add items to dispense.' });
@@ -54,7 +55,7 @@ posRouter.post('/sales', (req, res) => {
 // ORDERS MANAGEMENT (Online Customer Storefront Orders)
 const inMemoryOrders: any[] = [];
 
-posRouter.get('/orders', (req, res) => {
+posRouter.get('/orders', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: inMemoryOrders });
 });
 
@@ -86,7 +87,7 @@ posRouter.post('/orders', (req, res) => {
   }
 });
 
-posRouter.patch('/orders/:id', (req, res) => {
+posRouter.patch('/orders/:id', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const order = inMemoryOrders.find((o) => o.id === req.params.id);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
@@ -98,11 +99,11 @@ posRouter.patch('/orders/:id', (req, res) => {
 // SHIFT HANDOVER
 const shiftRecords: any[] = [];
 
-posRouter.get('/shifts', (req, res) => {
+posRouter.get('/shifts', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: shiftRecords });
 });
 
-posRouter.post('/shifts/handover', (req, res) => {
+posRouter.post('/shifts/handover', requireRole(['PHARMACIST', 'STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const {
       outgoingCashierId,
@@ -115,7 +116,7 @@ posRouter.post('/shifts/handover', (req, res) => {
 
     const record = {
       id: `shift-${Date.now()}`,
-      outgoingCashierId: outgoingCashierId || 'u-1',
+      outgoingCashierId: req.user?.id || outgoingCashierId || 'u-1',
       incomingCashierId: incomingCashierId || 'u-2',
       cashOnHand: Number(cashOnHand) || 0,
       telebirrRecorded: Number(telebirrRecorded) || 0,

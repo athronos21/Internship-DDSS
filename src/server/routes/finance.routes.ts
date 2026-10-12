@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import { SalesRepository } from '../db/repositories/sales.repository.js';
+import { requireRole, AuthenticatedRequest } from '../roleGuard.js';
 
 export const financeRouter = Router();
 
 // DASHBOARD KPIS & ANALYTICS
-financeRouter.get('/dashboard', (req, res) => {
+financeRouter.get('/dashboard', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const summary = SalesRepository.getDashboardSummary();
     res.json({ success: true, data: summary });
@@ -15,7 +16,7 @@ financeRouter.get('/dashboard', (req, res) => {
 });
 
 // PROFIT AND SALES REPORTS
-financeRouter.get('/reports/profit', (req, res) => {
+financeRouter.get('/reports/profit', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   try {
     const report = SalesRepository.getProfitReport();
     res.json({ success: true, data: report });
@@ -24,19 +25,37 @@ financeRouter.get('/reports/profit', (req, res) => {
   }
 });
 
-financeRouter.get('/reports/sales', (req, res) => {
+financeRouter.get('/reports/sales', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: db.sales });
 });
 
-financeRouter.get('/reports/stock-movement', (req, res) => {
+financeRouter.get('/reports/stock-movement', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: db.inventoryTransactions });
 });
 
 // ACADEMIC INTERNSHIP REPORT (.DOCX) DOWNLOAD ENDPOINT
 financeRouter.get('/reports/internship-docx', async (req, res) => {
   try {
-    const { generateInternshipDocx } = await import('../../../scripts/generate_docx_report.js');
-    const buffer = await generateInternshipDocx();
+    const fs = await import('fs');
+    const path = await import('path');
+    const primaryPath = path.join(process.cwd(), 'documentation', 'Internship Report – Digital Drug Store (DDS) Pharmaceutical Inventory Management Platform.docx');
+    const pimsPath = path.join(process.cwd(), 'public', 'Kaziniya_PIMS_Internship_Report.docx');
+    const targetPath = fs.existsSync(primaryPath) ? primaryPath : fs.existsSync(pimsPath) ? pimsPath : null;
+
+    if (targetPath) {
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename="Internship_Report_Digital_Drug_Store.docx"'
+      );
+      return res.send(fs.readFileSync(targetPath));
+    }
+
+    const { generatePimsDocx } = await import('../../../scripts/build_final_pims_docx.ts');
+    const buffer = await generatePimsDocx();
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -62,7 +81,7 @@ const inMemoryExpenses: any[] = [
     paidTo: 'Ethiopian Electric Power',
     paymentMethod: 'CBE_TRANSFER',
     date: '2026-08-01',
-    recordedBy: 'Dr. Alemu Tadesse',
+    recordedBy: 'Kaziniya Ahmed',
   },
   {
     id: 'exp-02',
@@ -72,15 +91,15 @@ const inMemoryExpenses: any[] = [
     paidTo: 'Bole Commercial Property LLC',
     paymentMethod: 'CBE_TRANSFER',
     date: '2026-08-01',
-    recordedBy: 'Dr. Alemu Tadesse',
+    recordedBy: 'Kaziniya Ahmed',
   },
 ];
 
-financeRouter.get('/expenses', (req, res) => {
+financeRouter.get('/expenses', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: inMemoryExpenses });
 });
 
-financeRouter.post('/expenses', (req, res) => {
+financeRouter.post('/expenses', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const { category, amount, description, paidTo, paymentMethod, date } = req.body;
   if (!amount || Number(amount) <= 0) {
     return res.status(400).json({ success: false, message: 'Valid expense amount is required' });
