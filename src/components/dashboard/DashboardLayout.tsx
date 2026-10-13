@@ -3,6 +3,7 @@ import { User, UserRole, StoreAlert, StoreAlertsResponse } from '../../types';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { safeFetchJson } from '../../utils/api';
 import { RoleManagerModal } from './RoleManagerModal';
+import { UserProfileModal } from './UserProfileModal';
 import {
   getEffectiveRole,
   getRoleConfig,
@@ -100,6 +101,7 @@ interface DashboardLayoutProps {
   onBackToPublicPortal?: () => void;
   onSwitchWorkstation?: (workstation: WorkstationId, subTab?: string) => void;
   onOpenDocumentation?: () => void;
+  onUpdateUser?: (updated: User) => void;
   children: React.ReactNode;
 }
 
@@ -116,6 +118,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onBackToPublicPortal,
   onSwitchWorkstation,
   onOpenDocumentation,
+  onUpdateUser,
   children,
 }) => {
   const [alertsData, setAlertsData] = useState<StoreAlertsResponse | null>(null);
@@ -124,6 +127,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [isRoleManagerOpen, setIsRoleManagerOpen] = useState(false);
+  const [isUserProfileModalOpen, setIsUserProfileModalOpen] = useState(false);
+  const [userProfileInitialTab, setUserProfileInitialTab] = useState<'general' | 'security' | 'permissions'>('general');
   const [shortcutToast, setShortcutToast] = useState<string | null>(null);
   const [sidebarSearch, setSidebarSearch] = useState('');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -337,6 +342,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const isSuperAdmin = effectiveRole === 'SUPER_ADMIN';
   const isPharmacist = effectiveRole === 'PHARMACIST';
   const isSupplier = effectiveRole === 'SUPPLIER';
+  const isOwner = effectiveRole === 'STORE_OWNER';
   const roleConfig = getRoleConfig(effectiveRole);
 
   // View Permission Guard: Ensure activeView is allowed for the user's effective role
@@ -1060,21 +1066,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                       <span className="flex-1 truncate">Back to Public Portal</span>
                     </button>
 
-                    {onOpenDocumentation && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowUserProfileMenu(false);
-                          onOpenDocumentation();
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
-                      >
-                        <FileText className="h-4 w-4 text-[#0070BA] group-hover:scale-110 transition-transform shrink-0" />
-                        <span className="flex-1 truncate">Academic Report & Docs (.docx)</span>
-                      </button>
-                    )}
-
-                    {onOpenShiftHandover && (
+                    {(isPharmacist || isOwner) && onOpenShiftHandover && (
                       <button
                         type="button"
                         onClick={() => {
@@ -1095,14 +1087,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   <div className="space-y-0.5">
                     <button
                       type="button"
-                      onClick={() => setShowUserProfileMenu(false)}
+                      onClick={() => {
+                        setShowUserProfileMenu(false);
+                        setUserProfileInitialTab('general');
+                        setIsUserProfileModalOpen(true);
+                      }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
                     >
                       <UserIcon className="h-4 w-4 text-slate-400 group-hover:text-[#0070BA] transition-colors shrink-0" />
                       <span className="flex-1 truncate">Profile ({effectiveRole.replace('_', ' ')})</span>
                     </button>
 
-                    {!isPharmacist && (
+                    {(isOwner || isSuperAdmin) && (
                       <button
                         type="button"
                         onClick={() => {
@@ -1118,7 +1114,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
                     <button
                       type="button"
-                      onClick={() => setShowUserProfileMenu(false)}
+                      onClick={() => {
+                        setShowUserProfileMenu(false);
+                        setUserProfileInitialTab('security');
+                        setIsUserProfileModalOpen(true);
+                      }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0070BA] hover:bg-[#F8FAFC] font-semibold transition text-left cursor-pointer group"
                     >
                       <Key className="h-4 w-4 text-slate-400 group-hover:text-[#0070BA] transition-colors shrink-0" />
@@ -1757,6 +1757,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         onClose={() => setIsRoleManagerOpen(false)}
         currentUser={currentUser}
         onSimulateRole={onSelectRole}
+      />
+
+      {/* USER PROFILE & CREDENTIALS MODAL */}
+      <UserProfileModal
+        isOpen={isUserProfileModalOpen}
+        onClose={() => setIsUserProfileModalOpen(false)}
+        currentUser={currentUser}
+        initialTab={userProfileInitialTab}
+        onUpdateUser={onUpdateUser}
       />
     </div>
   );

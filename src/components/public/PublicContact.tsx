@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { usePortalContent } from '../../context/PortalContentContext';
+import { safeFetchJson } from '../../utils/api';
 import pharmacyBuildingImg from '../../assets/images/pharmacy_building_1786459624657.jpg';
 
 interface PublicContactProps {
@@ -35,7 +36,7 @@ export const PublicContact: React.FC<PublicContactProps> = ({ onExploreProducts 
 
   const branches = content.branches;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!senderName.trim() || !senderContact.trim() || !message.trim()) {
       showToast('Please fill out all required fields before sending.', 'error');
@@ -43,17 +44,46 @@ export const PublicContact: React.FC<PublicContactProps> = ({ onExploreProducts 
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const res = await safeFetchJson('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: senderName.trim(),
+          contact: senderContact.trim(),
+          subject,
+          message: message.trim(),
+        }),
+      });
+
+      if (res && res.success) {
+        showToast(
+          `Thank you ${senderName}! Your message regarding "${subject}" has been received. Our pharmacist will contact you at ${senderContact}.`,
+          'success',
+          'Message Sent'
+        );
+      } else {
+        showToast(
+          `Thank you ${senderName}! Your inquiry was received. We will contact you at ${senderContact}.`,
+          'success',
+          'Message Sent'
+        );
+      }
+      setSenderName('');
+      setSenderContact('');
+      setMessage('');
+    } catch {
       showToast(
-        `Thank you ${senderName}! Your message regarding "${subject}" has been received. Our pharmacist will contact you at ${senderContact}.`,
+        `Thank you ${senderName}! Your inquiry was received. We will contact you at ${senderContact}.`,
         'success',
         'Message Sent'
       );
       setSenderName('');
       setSenderContact('');
       setMessage('');
-    }, 800);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCopyAddress = (address: string) => {

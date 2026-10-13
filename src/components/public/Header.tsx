@@ -438,7 +438,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80'
               }`}
             >
-              Branches
+              Branches & Contact
             </button>
 
             {onOpenDocumentation && (

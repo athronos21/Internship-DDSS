@@ -666,6 +666,7 @@ function AppContent() {
           }}
           onBackToPublicPortal={() => setCurrentScreen('public_home')}
           onOpenDocumentation={() => setIsInternshipModalOpen(true)}
+          onUpdateUser={(updated) => setCurrentUser(updated)}
           onSwitchWorkstation={(ws, subTab) => {
             if (ws === 'IMS') {
               setDashboardView('inventory_system');

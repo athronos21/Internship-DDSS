@@ -131,3 +131,42 @@ CREATE TABLE sales (
   res.setHeader('Content-Type', 'text/plain');
   res.send(sqlSchema);
 });
+
+// PUBLIC CONTACT & PHARMACIST CONSULTATION INQUIRY
+adminRouter.post('/contact', (req, res) => {
+  try {
+    const { name, contact, subject, message } = req.body || {};
+    if (!name || typeof name !== 'string' || !contact || typeof contact !== 'string' || !message || typeof message !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, contact, and message are required fields.',
+      });
+    }
+
+    const inquiryId = `inq-${Date.now()}`;
+    db.auditLogs.unshift({
+      id: `log-${Date.now()}`,
+      userId: 'public-guest',
+      userName: name.trim(),
+      action: 'CUSTOMER_INQUIRY_RECEIVED',
+      entityType: 'INQUIRY',
+      entityId: inquiryId,
+      newData: {
+        name: name.trim(),
+        contact: contact.trim(),
+        subject: subject || 'General Inquiry',
+        message: message.trim(),
+      },
+      ipAddress: req.ip || '127.0.0.1',
+      createdAt: new Date().toISOString(),
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Your inquiry has been submitted and registered with our clinical pharmacists.',
+      inquiryId,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message || 'Internal server error' });
+  }
+});
