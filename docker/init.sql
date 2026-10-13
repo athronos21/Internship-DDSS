@@ -246,30 +246,30 @@ ON CONFLICT (name) DO NOTHING;
 -- Seed Suppliers
 INSERT INTO suppliers (id, name, contact_person, phone, email, address, license_number, is_active)
 VALUES
-  ('s0000000-0000-0000-0000-000000000001', 'MedPharm Wholesale Ltd', 'Abebe Molla', '+251 115 512 345', 'orders@medpharm.com.et', 'Bole Subcity, Woreda 03, Addis Ababa', 'EFDA/LIC/2024/0912', true),
-  ('s0000000-0000-0000-0000-000000000002', 'Global Health Supplies PLC', 'Tigist Hailu', '+251 116 634 890', 'sales@globalhealth.et', 'Merkato Pharma Complex, Addis Ababa', 'EFDA/LIC/2023/1844', true),
-  ('s0000000-0000-0000-0000-000000000003', 'East Africa Pharma Distributors', 'Dawit Cherenet', '+251 114 420 111', 'info@eapharm.com', 'Gotera Industrial Zone, Addis Ababa', 'EFDA/LIC/2025/0022', true)
+  ('d0000000-0000-0000-0000-000000000001', 'MedPharm Wholesale Ltd', 'Abebe Molla', '+251 115 512 345', 'orders@medpharm.com.et', 'Bole Subcity, Woreda 03, Addis Ababa', 'EFDA/LIC/2024/0912', true),
+  ('d0000000-0000-0000-0000-000000000002', 'Global Health Supplies PLC', 'Tigist Hailu', '+251 116 634 890', 'sales@globalhealth.et', 'Merkato Pharma Complex, Addis Ababa', 'EFDA/LIC/2023/1844', true),
+  ('d0000000-0000-0000-0000-000000000003', 'East Africa Pharma Distributors', 'Dawit Cherenet', '+251 114 420 111', 'info@eapharm.com', 'Gotera Industrial Zone, Addis Ababa', 'EFDA/LIC/2025/0022', true)
 ON CONFLICT DO NOTHING;
 
 -- Seed Medicines
 INSERT INTO medicines (id, barcode, sku, name, generic_name, brand_name, category_id, dosage_form, strength, unit, manufacturer, prescription_required, reorder_level)
 VALUES
-  ('m0000000-0000-0000-0000-000000000001', '890103000001', 'MED-PAR-500', 'Paracetamol 500mg Tablets', 'Paracetamol', 'Panadol', 'c0000000-0000-0000-0000-000000000001', 'Tablet', '500mg', 'Strip (10 tabs)', 'GlaxoSmithKline / Cadila', false, 50),
-  ('m0000000-0000-0000-0000-000000000002', '890103000002', 'MED-AMX-500', 'Amoxicillin 500mg Capsules', 'Amoxicillin', 'Amoxil', 'c0000000-0000-0000-0000-000000000002', 'Capsule', '500mg', 'Box (100 caps)', 'EPHARM Ethiopia', true, 30),
-  ('m0000000-0000-0000-0000-000000000003', '890103000003', 'MED-COA-020', 'Coartem 20/120mg Tablets', 'Artemether + Lumefantrine', 'Coartem', 'c0000000-0000-0000-0000-000000000003', 'Tablet', '20mg/120mg', 'Box (24 tabs)', 'Novartis Pharma AG', true, 25),
-  ('m0000000-0000-0000-0000-000000000004', '890103000004', 'MED-OMP-020', 'Omeprazole 20mg Capsules', 'Omeprazole', 'Prilosec / Losec', 'c0000000-0000-0000-0000-000000000005', 'Capsule', '20mg', 'Strip (14 caps)', 'AstraZeneca / Dawa Ltd', false, 40),
-  ('m0000000-0000-0000-0000-000000000005', '890103000005', 'MED-CIP-500', 'Ciprofloxacin 500mg Tablets', 'Ciprofloxacin', 'Ciprobay', 'c0000000-0000-0000-0000-000000000002', 'Tablet', '500mg', 'Box (10 tabs)', 'Bayer AG', true, 20),
-  ('m0000000-0000-0000-0000-000000000006', '890103000006', 'MED-MET-500', 'Metformin 500mg Tablets', 'Metformin HCl', 'Glucophage', 'c0000000-0000-0000-0000-000000000007', 'Tablet', '500mg', 'Box (100 tabs)', 'Merck Serono', true, 35)
+  ('e0000000-0000-0000-0000-000000000001', '890103000001', 'MED-PAR-500', 'Paracetamol 500mg Tablets', 'Paracetamol', 'Panadol', 'c0000000-0000-0000-0000-000000000001', 'Tablet', '500mg', 'Strip (10 tabs)', 'GlaxoSmithKline / Cadila', false, 50),
+  ('e0000000-0000-0000-0000-000000000002', '890103000002', 'MED-AMX-500', 'Amoxicillin 500mg Capsules', 'Amoxicillin', 'Amoxil', 'c0000000-0000-0000-0000-000000000002', 'Capsule', '500mg', 'Box (100 caps)', 'EPHARM Ethiopia', true, 30),
+  ('e0000000-0000-0000-0000-000000000003', '890103000003', 'MED-COA-020', 'Coartem 20/120mg Tablets', 'Artemether + Lumefantrine', 'Coartem', 'c0000000-0000-0000-0000-000000000003', 'Tablet', '20mg/120mg', 'Box (24 tabs)', 'Novartis Pharma AG', true, 25),
+  ('e0000000-0000-0000-0000-000000000004', '890103000004', 'MED-OMP-020', 'Omeprazole 20mg Capsules', 'Omeprazole', 'Prilosec / Losec', 'c0000000-0000-0000-0000-000000000005', 'Capsule', '20mg', 'Strip (14 caps)', 'AstraZeneca / Dawa Ltd', false, 40),
+  ('e0000000-0000-0000-0000-000000000005', '890103000005', 'MED-CIP-500', 'Ciprofloxacin 500mg Tablets', 'Ciprofloxacin', 'Ciprobay', 'c0000000-0000-0000-0000-000000000002', 'Tablet', '500mg', 'Box (10 tabs)', 'Bayer AG', true, 20),
+  ('e0000000-0000-0000-0000-000000000006', '890103000006', 'MED-MET-500', 'Metformin 500mg Tablets', 'Metformin HCl', 'Glucophage', 'c0000000-0000-0000-0000-000000000007', 'Tablet', '500mg', 'Box (100 tabs)', 'Merck Serono', true, 35)
 ON CONFLICT (barcode) DO NOTHING;
 
 -- Seed Medicine Batches (with FEFO expiry dates)
 INSERT INTO medicine_batches (id, medicine_id, batch_number, manufacturing_date, expiry_date, purchase_price, selling_price, initial_quantity, current_quantity, supplier_id)
 VALUES
-  ('b0000000-0000-0000-0000-000000000001', 'm0000000-0000-0000-0000-000000000001', 'BT-PAR-2401', '2024-01-10', '2026-12-31', 25.00, 45.00, 500, 320, 's0000000-0000-0000-0000-000000000001'),
-  ('b0000000-0000-0000-0000-000000000002', 'm0000000-0000-0000-0000-000000000001', 'BT-PAR-2402', '2024-06-15', '2027-06-30', 27.50, 45.00, 400, 400, 's0000000-0000-0000-0000-000000000001'),
-  ('b0000000-0000-0000-0000-000000000003', 'm0000000-0000-0000-0000-000000000002', 'BT-AMX-2309', '2023-09-01', '2026-08-31', 120.00, 185.00, 150, 85, 's0000000-0000-0000-0000-000000000002'),
-  ('b0000000-0000-0000-0000-000000000004', 'm0000000-0000-0000-0000-000000000003', 'BT-COA-2403', '2024-03-20', '2027-03-19', 210.00, 310.00, 200, 145, 's0000000-0000-0000-0000-000000000003'),
-  ('b0000000-0000-0000-0000-000000000005', 'm0000000-0000-0000-0000-000000000004', 'BT-OMP-2404', '2024-04-12', '2027-04-10', 65.00, 110.00, 300, 210, 's0000000-0000-0000-0000-000000000001')
+  ('b0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'BT-PAR-2401', '2024-01-10', '2026-12-31', 25.00, 45.00, 500, 320, 'd0000000-0000-0000-0000-000000000001'),
+  ('b0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000001', 'BT-PAR-2402', '2024-06-15', '2027-06-30', 27.50, 45.00, 400, 400, 'd0000000-0000-0000-0000-000000000001'),
+  ('b0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000002', 'BT-AMX-2309', '2023-09-01', '2026-08-31', 120.00, 185.00, 150, 85, 'd0000000-0000-0000-0000-000000000002'),
+  ('b0000000-0000-0000-0000-000000000004', 'e0000000-0000-0000-0000-000000000003', 'BT-COA-2403', '2024-03-20', '2027-03-19', 210.00, 310.00, 200, 145, 'd0000000-0000-0000-0000-000000000003'),
+  ('b0000000-0000-0000-0000-000000000005', 'e0000000-0000-0000-0000-000000000004', 'BT-OMP-2404', '2024-04-12', '2027-04-10', 65.00, 110.00, 300, 210, 'd0000000-0000-0000-0000-000000000001')
 ON CONFLICT (medicine_id, batch_number) DO NOTHING;
 
 -- Seed Pharmacy Node (Flagship)

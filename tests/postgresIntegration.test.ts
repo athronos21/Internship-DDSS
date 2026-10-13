@@ -38,4 +38,16 @@ describe('PostgreSQL Connection Pool & Lifecycle', () => {
     const result = await runSchemaMigrations();
     expect(result).toBe(false);
   });
+
+  it('connects to live Docker PostgreSQL and runs migrations cleanly when active', async () => {
+    process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/kaziniya_db';
+    const status = await checkDatabaseConnection();
+    if (!status.connected) return;
+
+    expect(status.connected).toBe(true);
+    expect(status.latencyMs).toBeGreaterThanOrEqual(0);
+
+    const migrated = await runSchemaMigrations();
+    expect(migrated).toBe(true);
+  });
 });

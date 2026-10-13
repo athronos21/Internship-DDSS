@@ -188,15 +188,18 @@ function AppContent() {
   useEffect(() => {
     fetchUsers();
 
-    // Check if there is an active session
+    const initialUrlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const explicitRoleParam = initialUrlParams?.get('role');
+
+    // Check if there is an active session (skip if URL explicitly requests a specific role)
     const existingToken = typeof localStorage !== 'undefined' ? localStorage.getItem('kaziniya_auth_token') : null;
-    if (existingToken) {
+    if (existingToken && !explicitRoleParam) {
       safeFetchJson<User>('/api/auth/me').then((res) => {
         if (res?.success && res?.data) {
           setCurrentUser(res.data);
         }
       }).catch(() => {});
-    } else if (currentUser?.email) {
+    } else if (currentUser?.email && !explicitRoleParam) {
       // In development mode, auto-handshake initial user so dashboard requests are authenticated
       safeFetchJson('/api/auth/login', {
         method: 'POST',
@@ -259,50 +262,56 @@ function AppContent() {
         const subParam = urlParams.get('sub');
 
         if (viewParam || roleParam) {
-          fetch('/api/users')
-            .then((r) => r.json())
+          const resolveUserFromList = (uList: User[]) => {
+            let targetUser = uList.find((u) => u.role === 'STORE_OWNER');
+            if (roleParam === 'superadmin' || viewParam === 'master_admin') {
+              targetUser = uList.find((u) => u.isSuperAdmin || u.email === 'athronos21@gmail.com' || u.email === 'beka.girma@gmail.com') || targetUser;
+            } else if (roleParam === 'pharmacist' || viewParam === 'pos') {
+              targetUser = uList.find((u) => u.role === 'PHARMACIST') || targetUser;
+            } else if (roleParam === 'supplier' || viewParam === 'purchases') {
+              targetUser = uList.find((u) => u.role === 'SUPPLIER') || targetUser;
+            }
+            if (targetUser) {
+              setCurrentUser(targetUser);
+              setCurrentScreen('dashboard');
+              if (targetUser.email) {
+                safeFetchJson('/api/auth/login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    identifier: targetUser.email,
+                    password: 'Password123!',
+                  }),
+                }).then((loginRes) => {
+                  if (loginRes.success && loginRes.token && typeof localStorage !== 'undefined') {
+                    localStorage.setItem('kaziniya_auth_token', loginRes.token);
+                    localStorage.setItem('kaziniya_current_user_id', targetUser.id);
+                  }
+                }).catch(() => {});
+              }
+              if (viewParam) {
+                setDashboardView(viewParam);
+              }
+              if (subParam && viewParam === 'reports') {
+                setReportsSubTab(subParam as any);
+              }
+              if (subParam && viewParam === 'inventory') {
+                setInventorySubTab(subParam as any);
+              }
+            }
+          };
+
+          safeFetchJson<User[]>('/api/users')
             .then((data) => {
-              if (data.success && data.data) {
-                const uList: User[] = data.data;
-                let targetUser = uList.find((u) => u.role === 'STORE_OWNER');
-                if (roleParam === 'superadmin' || viewParam === 'master_admin') {
-                  targetUser = uList.find((u) => u.isSuperAdmin || u.email === 'athronos21@gmail.com' || u.email === 'beka.girma@gmail.com') || targetUser;
-                } else if (roleParam === 'pharmacist' || viewParam === 'pos') {
-                  targetUser = uList.find((u) => u.role === 'PHARMACIST') || targetUser;
-                } else if (roleParam === 'supplier' || viewParam === 'purchases') {
-                  targetUser = uList.find((u) => u.role === 'SUPPLIER') || targetUser;
-                }
-                if (targetUser) {
-                  setCurrentUser(targetUser);
-                  setCurrentScreen('dashboard');
-                  if (targetUser.email) {
-                    safeFetchJson('/api/auth/login', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        identifier: targetUser.email,
-                        password: 'Password123!',
-                      }),
-                    }).then((loginRes) => {
-                      if (loginRes.success && loginRes.token && typeof localStorage !== 'undefined') {
-                        localStorage.setItem('kaziniya_auth_token', loginRes.token);
-                        localStorage.setItem('kaziniya_current_user_id', targetUser.id);
-                      }
-                    }).catch(() => {});
-                  }
-                  if (viewParam) {
-                    setDashboardView(viewParam);
-                  }
-                  if (subParam && viewParam === 'reports') {
-                    setReportsSubTab(subParam as any);
-                  }
-                  if (subParam && viewParam === 'inventory') {
-                    setInventorySubTab(subParam as any);
-                  }
-                }
+              if (data?.success && Array.isArray(data.data) && data.data.length > 0) {
+                resolveUserFromList(data.data);
+              } else {
+                resolveUserFromList(DEFAULT_AVAILABLE_USERS);
               }
             })
-            .catch((err) => console.error('Error deep linking user:', err));
+            .catch(() => {
+              resolveUserFromList(DEFAULT_AVAILABLE_USERS);
+            });
         }
 
         if (hasMobileQuery) {

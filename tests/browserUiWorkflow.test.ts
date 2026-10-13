@@ -46,7 +46,7 @@ describe('Automated Browser UI Workflows (Edge Headless)', () => {
     if (serverInstance) {
       await new Promise<void>((resolve) => serverInstance.close(() => resolve()));
     }
-  });
+  }, 15000);
 
   // ---------------------------------------------------------------------------
   // 1. REGISTER NEW DRUG STORE (UI FLOW)

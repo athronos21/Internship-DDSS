@@ -21,7 +21,6 @@ import {
   Cpu,
   Layers,
   FileCheck,
-  Zap,
   Smartphone,
   QrCode,
   FileText,
@@ -94,16 +93,6 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
   // Institutional Users Roster (strictly excluding Customer)
   const institutionalUsers = availableUsers.filter((u) => u.role !== 'CUSTOMER');
 
-  // Instant 1-Click Simulated Login
-  const handleInstantLogin = () => {
-    const matched = institutionalUsers.find(
-      (u) =>
-        u.email.toLowerCase() === emailOrId.trim().toLowerCase() ||
-        (u.employeeId && u.employeeId.toLowerCase() === emailOrId.trim().toLowerCase())
-    ) || institutionalUsers[0] || masterAdminUser;
-    showToast(`Authenticated as ${matched.name}`, 'success', 'Session Active');
-    onLoginSuccess(matched);
-  };
 
   // Handle Quick Badge Roster Select
   const handleStaffBadgeSelect = (staffUser: User) => {
@@ -626,20 +615,9 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
 
                   {/* PASSWORD INPUT */}
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-black text-slate-600 dark:text-slate-400 tracking-wider uppercase block">
-                        PASSWORD
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          showToast('Password reset instructions sent to registered account email.', 'info', 'Password Reset');
-                        }}
-                        className="text-xs font-bold text-[#0052cc] hover:underline cursor-pointer"
-                      >
-                        Forgot?
-                      </button>
-                    </div>
+                    <label className="text-[11px] font-black text-slate-600 dark:text-slate-400 tracking-wider uppercase block">
+                      PASSWORD
+                    </label>
                     <div className="relative">
                       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                         <Lock className="h-4.5 w-4.5" />
@@ -663,7 +641,7 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                     </div>
                   </div>
 
-                  {/* KEEP ME SIGNED IN & INSTANT LOGIN SHORTCUT */}
+                  {/* KEEP ME SIGNED IN & FORGOT PASSWORD */}
                   <div className="flex items-center justify-between text-xs sm:text-[13px] pt-0.5">
                     <label className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium cursor-pointer">
                       <input
@@ -677,11 +655,12 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
 
                     <button
                       type="button"
-                      onClick={handleInstantLogin}
-                      className="text-xs font-black text-[#0052cc] hover:underline transition cursor-pointer flex items-center gap-1"
+                      onClick={() => {
+                        showToast('Password reset instructions sent to registered account email.', 'info', 'Password Reset');
+                      }}
+                      className="text-xs font-bold text-[#0052cc] hover:underline transition cursor-pointer"
                     >
-                      <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                      <span>Instant Enter ⚡</span>
+                      Forgot password?
                     </button>
                   </div>
 
