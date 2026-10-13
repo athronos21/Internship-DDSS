@@ -1,6 +1,8 @@
 import { betterAuth } from 'better-auth';
 import { memoryAdapter } from 'better-auth/adapters/memory';
 import path from 'path';
+import { getPostgresPool } from './db/postgres';
+import { FALLBACK_DEV_SECRET } from './config';
 
 // Check if running in Bun runtime with native SQLite
 const isBun = typeof (globalThis as any).Bun !== 'undefined';
@@ -75,9 +77,9 @@ if (isBun) {
 }
 
 export const auth = betterAuth({
-  database: authDb || memoryAdapter({}),
+  database: getPostgresPool() || authDb || memoryAdapter({}),
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5000',
-  secret: process.env.BETTER_AUTH_SECRET || 'kaziniya-super-secret-better-auth-key-at-least-32-chars',
+  secret: process.env.BETTER_AUTH_SECRET || FALLBACK_DEV_SECRET,
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 6,
