@@ -6,7 +6,7 @@ import { requireRole, AuthenticatedRequest } from '../roleGuard.js';
 export const financeRouter = Router();
 
 // DASHBOARD KPIS & ANALYTICS
-financeRouter.get('/dashboard', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
+financeRouter.get('/dashboard', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'PHARMACIST', 'SUPPLIER']), (req: AuthenticatedRequest, res) => {
   try {
     const summary = SalesRepository.getDashboardSummary();
     res.json({ success: true, data: summary });

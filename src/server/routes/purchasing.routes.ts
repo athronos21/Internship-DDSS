@@ -33,7 +33,7 @@ purchasingRouter.post('/suppliers', requireRole(['STORE_OWNER', 'SUPER_ADMIN']),
 });
 
 // PURCHASES API
-purchasingRouter.get('/purchases', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'SUPPLIER']), (req: AuthenticatedRequest, res) => {
+purchasingRouter.get('/purchases', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'SUPPLIER', 'PHARMACIST']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: PurchaseRepository.listPurchases() });
 });
 
@@ -64,7 +64,7 @@ purchasingRouter.post('/purchases', requireRole(['STORE_OWNER', 'SUPER_ADMIN']),
 const inMemoryPurchaseOrders: any[] = [];
 const inMemoryGoodsReceipts: any[] = [];
 
-purchasingRouter.get('/purchase-orders', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'SUPPLIER']), (req: AuthenticatedRequest, res) => {
+purchasingRouter.get('/purchase-orders', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'SUPPLIER', 'PHARMACIST']), (req: AuthenticatedRequest, res) => {
   res.json({ success: true, data: inMemoryPurchaseOrders });
 });
 
