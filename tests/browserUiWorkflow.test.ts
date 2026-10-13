@@ -25,7 +25,7 @@ describe('Automated Browser UI Workflows (Edge Headless)', () => {
   const baseUrl = `http://localhost:${TEST_PORT}`;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'production';
+    process.env.NODE_ENV = 'test';
     const result = await startServer(TEST_PORT);
     serverInstance = result.server;
 

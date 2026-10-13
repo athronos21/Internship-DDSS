@@ -69,7 +69,7 @@ export async function startServer(portOverride?: number) {
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  } else if (process.env.NODE_ENV === 'production') {
+  } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
