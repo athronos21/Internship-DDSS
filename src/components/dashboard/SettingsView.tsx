@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { safeFetchJson } from '../../utils/api';
 import {
   Bell,
   BellRing,
@@ -325,8 +326,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const fetchPharmacyProfile = async () => {
     try {
-      const res = await fetch('/api/pharmacy/profile');
-      const data = await res.json();
+      const data = await safeFetchJson<any>('/api/pharmacy/profile');
       if (data.success && data.data) {
         setStoreConfig((prev) => ({
           ...prev,
@@ -360,15 +360,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     setStoreConfig((prev) => ({ ...prev, enableBarcodeSystem: newValue }));
 
     try {
-      const res = await fetch('/api/pharmacy/profile', {
+      const data = await safeFetchJson('/api/pharmacy/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': currentUser?.id || 'u-1',
         },
         body: JSON.stringify({ enableBarcodeSystem: newValue }),
       });
-      const data = await res.json();
       if (!data.success) {
         console.warn('Server failed to persist barcode toggle:', data.message);
       }
@@ -379,11 +377,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   const handleSaveStoreConfig = async () => {
     try {
-      const res = await fetch('/api/pharmacy/profile', {
+      const data = await safeFetchJson('/api/pharmacy/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': currentUser?.id || 'u-1',
         },
         body: JSON.stringify({
           storeName: storeConfig.storeName,
@@ -395,7 +392,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           enableBarcodeSystem: storeConfig.enableBarcodeSystem,
         }),
       });
-      const data = await res.json();
       if (data.success) {
         alert('All EIMS system parameters, barcode subsystem configuration, and EFDA credentials saved successfully!');
       } else {
@@ -409,9 +405,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const fetchSqlSchema = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/database/schema-sql');
-      const data = await res.json();
-      if (data.success) {
+      const data = await safeFetchJson<{ sql: string }>('/api/database/schema-sql');
+      if (data.success && data.data?.sql) {
         setSqlSchema(data.data.sql);
       }
     } catch (e) {

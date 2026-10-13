@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sale } from '../../types';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import { safeFetchJson } from '../../utils/api';
 import {
   Search,
   FileText,
@@ -113,9 +114,8 @@ export const SalesView: React.FC<SalesViewProps> = ({ initialSubTab = 'all_sales
   const fetchSalesHistory = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/sales');
-      const data = await res.json();
-      if (data.success) {
+      const data = await safeFetchJson<Sale[]>('/api/sales');
+      if (data.success && data.data) {
         setSales(data.data);
       }
     } catch (e) {

@@ -149,6 +149,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       if (data?.success && data?.data) {
         const user: User = data.data;
 
+        if (data.token && typeof localStorage !== 'undefined') {
+          localStorage.setItem('kaziniya_auth_token', data.token);
+          localStorage.setItem('kaziniya_current_user_id', user.id);
+        }
+
         if (user.mustChangePassword) {
           setPendingUser(user);
           setCurrentTempPassword(effectivePassword || user.temporaryPassword || '');

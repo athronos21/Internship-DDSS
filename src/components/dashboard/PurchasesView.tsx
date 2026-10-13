@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Purchase, Supplier, Medicine, User } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { safeFetchJson } from '../../utils/api';
 import {
   Truck,
   Plus,
@@ -176,20 +177,18 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
 
   const fetchData = async () => {
     try {
-      const [pRes, sRes, mRes] = await Promise.all([
-        fetch('/api/purchases'),
-        fetch('/api/suppliers'),
-        fetch('/api/medicines'),
+      const [pData, sData, mData] = await Promise.all([
+        safeFetchJson<Purchase[]>('/api/purchases'),
+        safeFetchJson<Supplier[]>('/api/suppliers'),
+        safeFetchJson<Medicine[]>('/api/medicines'),
       ]);
 
-      const [pData, sData, mData] = await Promise.all([pRes.json(), sRes.json(), mRes.json()]);
-
-      if (pData.success) setPurchases(pData.data);
-      if (sData.success) {
+      if (pData.success && pData.data) setPurchases(pData.data);
+      if (sData.success && sData.data) {
         setSuppliers(sData.data);
         if (sData.data.length > 0) setPurForm((prev) => ({ ...prev, supplierId: sData.data[0].id }));
       }
-      if (mData.success) {
+      if (mData.success && mData.data) {
         setMedicines(mData.data);
         if (mData.data.length > 0) {
           setPurForm((prev) => ({
@@ -206,19 +205,18 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
   const handleAddSupplierSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/suppliers', {
+      const data = await safeFetchJson('/api/suppliers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(supForm),
       });
 
-      const data = await res.json();
       if (data.success) {
         setIsNewSupplierOpen(false);
         fetchData();
         alert('Supplier added successfully!');
       } else {
-        alert(data.message);
+        alert(data.message || 'Failed to add supplier');
       }
     } catch (e: any) {
       alert(e.message);
@@ -228,19 +226,18 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
   const handleAddPurchaseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/purchases', {
+      const data = await safeFetchJson('/api/purchases', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-user-id': 'u-5' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(purForm),
       });
 
-      const data = await res.json();
       if (data.success) {
         setIsNewPurchaseOpen(false);
         fetchData();
         alert('Purchase order created & stock replenished atomically!');
       } else {
-        alert(data.message);
+        alert(data.message || 'Failed to create purchase order');
       }
     } catch (e: any) {
       alert(e.message);

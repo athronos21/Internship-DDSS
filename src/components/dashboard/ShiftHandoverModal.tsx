@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { User, Sale, PaymentMethod } from '../../types';
 import { formatCurrency, formatDateTime, formatDate } from '../../utils/formatters';
+import { safeFetchJson } from '../../utils/api';
 import {
   Clock,
   DollarSign,
@@ -88,8 +89,7 @@ export const ShiftHandoverModal: React.FC<ShiftHandoverModalProps> = ({
   const fetchShiftSales = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/sales');
-      const data = await res.json();
+      const data = await safeFetchJson<Sale[]>('/api/sales');
       if (data.success && Array.isArray(data.data)) {
         setSales(data.data);
       }
@@ -291,9 +291,9 @@ export const ShiftHandoverModal: React.FC<ShiftHandoverModalProps> = ({
     setIsSubmitting(true);
     try {
       // Record handover event in backend
-      const res = await fetch('/api/audit-logs', {
+      await safeFetchJson('/api/audit-logs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser?.id || 'u-4' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'SHIFT_HANDOVER',
           entityType: 'USER_SESSION',

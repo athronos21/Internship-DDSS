@@ -154,6 +154,11 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
       if (data?.success && data?.data) {
         const user: User = data.data;
 
+        if (data.token && typeof localStorage !== 'undefined') {
+          localStorage.setItem('kaziniya_auth_token', data.token);
+          localStorage.setItem('kaziniya_current_user_id', user.id);
+        }
+
         if (user.mustChangePassword) {
           setPendingUser(user);
           setCurrentTempPassword(rawPassword || user.temporaryPassword || '');
@@ -450,34 +455,8 @@ export const DDSGatewayPage: React.FC<DDSGatewayPageProps> = ({
                   Digital Drug Store (DDS)
                 </h2>
                 <p className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400">
-                  Institutional Gateway • Sign In for All 4 Roles
+                  Institutional Gateway
                 </p>
-              </div>
-
-              {/* Modern Segmented Control Tab Switcher */}
-              <div className="bg-slate-100 dark:bg-slate-900 p-1.5 rounded-xl flex items-center gap-1.5 border border-slate-200/90 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setAuthView('SIGN_IN')}
-                  className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-                    authView === 'SIGN_IN'
-                      ? 'bg-white dark:bg-slate-800 text-[#0052cc] dark:text-sky-400 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Direct Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAuthView('QUICK_ROSTER')}
-                  className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-                    authView === 'QUICK_ROSTER'
-                      ? 'bg-white dark:bg-slate-800 text-[#0052cc] dark:text-sky-400 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Staff Directory ({institutionalUsers.length})
-                </button>
               </div>
 
               {/* FIRST-TIME PASSWORD SET UP */}

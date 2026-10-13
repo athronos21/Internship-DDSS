@@ -16,12 +16,25 @@ export async function safeFetchJson<T = any>(
   init?: RequestInit
 ): Promise<ApiResponse<T>> {
   try {
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('kaziniya_auth_token') : null;
+    const currentUserId = typeof localStorage !== 'undefined' ? localStorage.getItem('kaziniya_current_user_id') : null;
+
+    const mergedHeaders: Record<string, string> = {
+      Accept: 'application/json',
+      ...((init?.headers as Record<string, string>) || {}),
+    };
+
+    if (token && !mergedHeaders['Authorization'] && !mergedHeaders['authorization']) {
+      mergedHeaders['Authorization'] = `Bearer ${token}`;
+    }
+    if (currentUserId && !mergedHeaders['x-user-id']) {
+      mergedHeaders['x-user-id'] = currentUserId;
+    }
+
     const res = await fetch(input, {
+      credentials: 'same-origin',
       ...init,
-      headers: {
-        Accept: 'application/json',
-        ...(init?.headers || {}),
-      },
+      headers: mergedHeaders,
     });
 
     const contentType = res.headers.get('content-type') || '';

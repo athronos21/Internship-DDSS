@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, AuditLog, UserRole } from '../../types';
 import { formatDateTime, formatCurrency } from '../../utils/formatters';
+import { safeFetchJson } from '../../utils/api';
 import {
   Users,
   ShieldCheck,
@@ -126,19 +127,13 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
 
   const fetchUsersAndLogs = async () => {
     try {
-      const [uRes, aRes] = await Promise.all([
-        fetch('/api/users'),
-        fetch('/api/audit-logs'),
+      const [uData, aData] = await Promise.all([
+        safeFetchJson<User[]>('/api/users'),
+        safeFetchJson<AuditLog[]>('/api/audit-logs'),
       ]);
 
-      if (uRes.ok && uRes.headers.get('content-type')?.includes('application/json')) {
-        const uData = await uRes.json();
-        if (uData.success && Array.isArray(uData.data)) setUsers(uData.data);
-      }
-      if (aRes.ok && aRes.headers.get('content-type')?.includes('application/json')) {
-        const aData = await aRes.json();
-        if (aData.success && Array.isArray(aData.data)) setAuditLogs(aData.data);
-      }
+      if (uData.success && Array.isArray(uData.data)) setUsers(uData.data);
+      if (aData.success && Array.isArray(aData.data)) setAuditLogs(aData.data);
     } catch (e) {
       console.warn('[Users & Audit] Could not fetch remote user records:', e);
     }
@@ -147,13 +142,12 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/users', {
+      const data = await safeFetchJson('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userForm),
       });
 
-      const data = await res.json();
       if (data.success) {
         setIsNewUserOpen(false);
         fetchUsersAndLogs();
@@ -163,7 +157,7 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
           isReset: false,
         });
       } else {
-        alert(data.message);
+        alert(data.message || 'Failed to create user');
       }
     } catch (e: any) {
       alert(e.message);
@@ -176,10 +170,9 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
     }
 
     try {
-      const res = await fetch(`/api/users/${userId}/reset-password`, {
+      const data = await safeFetchJson(`/api/users/${userId}/reset-password`, {
         method: 'POST',
       });
-      const data = await res.json();
       if (data.success) {
         fetchUsersAndLogs();
         setCreatedSlip({
@@ -188,7 +181,7 @@ export const UsersAndAuditView: React.FC<UsersAndAuditViewProps> = ({
           isReset: true,
         });
       } else {
-        alert(data.message);
+        alert(data.message || 'Failed to reset password');
       }
     } catch (e: any) {
       alert(e.message);

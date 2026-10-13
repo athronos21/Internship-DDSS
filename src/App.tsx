@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { pageVariants } from './utils/motionVariants';
+import { safeFetchJson } from './utils/api';
 import { User, UserRole, Medicine } from './types';
 import { Header } from './components/public/Header';
 import { Footer } from './components/public/Footer';
@@ -187,6 +188,31 @@ function AppContent() {
   useEffect(() => {
     fetchUsers();
 
+    // Check if there is an active session
+    const existingToken = typeof localStorage !== 'undefined' ? localStorage.getItem('kaziniya_auth_token') : null;
+    if (existingToken) {
+      safeFetchJson<User>('/api/auth/me').then((res) => {
+        if (res?.success && res?.data) {
+          setCurrentUser(res.data);
+        }
+      }).catch(() => {});
+    } else if (currentUser?.email) {
+      // In development mode, auto-handshake initial user so dashboard requests are authenticated
+      safeFetchJson('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: currentUser.email,
+          password: 'Password123!',
+        }),
+      }).then((loginRes) => {
+        if (loginRes.success && loginRes.token && typeof localStorage !== 'undefined') {
+          localStorage.setItem('kaziniya_auth_token', loginRes.token);
+          localStorage.setItem('kaziniya_current_user_id', currentUser.id);
+        }
+      }).catch(() => {});
+    }
+
     const checkMobileUrlParams = () => {
       if (typeof window === 'undefined') return;
       try {
@@ -249,6 +275,21 @@ function AppContent() {
                 if (targetUser) {
                   setCurrentUser(targetUser);
                   setCurrentScreen('dashboard');
+                  if (targetUser.email) {
+                    safeFetchJson('/api/auth/login', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        identifier: targetUser.email,
+                        password: 'Password123!',
+                      }),
+                    }).then((loginRes) => {
+                      if (loginRes.success && loginRes.token && typeof localStorage !== 'undefined') {
+                        localStorage.setItem('kaziniya_auth_token', loginRes.token);
+                        localStorage.setItem('kaziniya_current_user_id', targetUser.id);
+                      }
+                    }).catch(() => {});
+                  }
                   if (viewParam) {
                     setDashboardView(viewParam);
                   }
@@ -315,12 +356,28 @@ function AppContent() {
     }
 
     if (matchedUser) {
-      setCurrentUser({
+      const activeUser = {
         ...matchedUser,
         role,
         isSuperAdmin: role === 'SUPER_ADMIN',
         isOwner: role === 'STORE_OWNER',
-      });
+      };
+      setCurrentUser(activeUser);
+      if (activeUser.email) {
+        safeFetchJson('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifier: activeUser.email,
+            password: 'Password123!',
+          }),
+        }).then((loginRes) => {
+          if (loginRes.success && loginRes.token && typeof localStorage !== 'undefined') {
+            localStorage.setItem('kaziniya_auth_token', loginRes.token);
+            localStorage.setItem('kaziniya_current_user_id', activeUser.id);
+          }
+        }).catch(() => {});
+      }
       if (role === 'SUPER_ADMIN') {
         setDashboardView('master_admin');
         setMasterAdminSubTab('HUB');

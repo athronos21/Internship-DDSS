@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ProfitReportData, InventoryTransaction, Medicine, Sale, User } from '../../types';
 import { getEffectiveRole } from '../../utils/roleManager';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import { safeFetchJson } from '../../utils/api';
 import { MlDemandForecasting } from './MlDemandForecasting';
 import { FinancialPdfExportModal } from './FinancialPdfExportModal';
 import {
@@ -241,22 +242,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const [pRes, mRes, medRes, salesRes] = await Promise.all([
-        fetch('/api/reports/profit'),
-        fetch('/api/reports/stock-movement'),
-        fetch('/api/medicines'),
-        fetch('/api/sales'),
-      ]);
-
       const [pData, mData, medData, salesData] = await Promise.all([
-        pRes.json(),
-        mRes.json(),
-        medRes.json(),
-        salesRes.json(),
+        safeFetchJson<ProfitReportData>('/api/reports/profit'),
+        safeFetchJson<InventoryTransaction[]>('/api/reports/stock-movement'),
+        safeFetchJson<Medicine[]>('/api/medicines'),
+        safeFetchJson<Sale[]>('/api/sales'),
       ]);
 
-      if (pData.success) setProfitData(pData.data);
-      if (mData.success) setStockMovements(mData.data);
+      if (pData.success && pData.data) setProfitData(pData.data);
+      if (mData.success && mData.data) setStockMovements(mData.data);
       if (medData.success && Array.isArray(medData.data)) setMedicines(medData.data);
       if (salesData.success && Array.isArray(salesData.data)) setSales(salesData.data);
     } catch (e) {
