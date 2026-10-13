@@ -478,3 +478,27 @@ export interface MLForecastSummary {
   items: ProductForecastItem[];
 }
 
+export interface StoreAlert {
+  id: string;
+  title: string;
+  message: string;
+  type: 'warning' | 'danger' | 'info';
+  category: 'LOW_STOCK' | 'EXPIRING_SOON' | 'EXPIRED' | 'OUT_OF_STOCK';
+  medicineId?: string;
+  medicineName?: string;
+  batchNumber?: string;
+  currentValue: number;
+  thresholdValue?: number;
+  expiryDate?: string;
+  actionTarget: 'inventory' | 'batch_mgmt';
+  timestamp: string;
+}
+
+export interface StoreAlertsResponse {
+  totalAlertCount: number;
+  lowStockCount: number;
+  outOfStockCount: number;
+  expiringSoonCount: number;
+  expiredCount: number;
+  alerts: StoreAlert[];
+}

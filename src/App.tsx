@@ -298,6 +298,9 @@ function AppContent() {
               if (subParam && viewParam === 'inventory') {
                 setInventorySubTab(subParam as any);
               }
+              if (subParam && viewParam === 'purchases') {
+                setPurchasesSubTab(subParam as any);
+              }
             }
           };
 

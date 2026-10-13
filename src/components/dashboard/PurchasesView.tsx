@@ -20,7 +20,27 @@ import {
   AlertCircle,
   CheckCircle2,
   ShieldCheck,
+  TrendingUp,
+  BarChart3,
+  Activity,
+  Boxes,
+  ArrowUpRight,
+  PackageCheck,
+  Percent,
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+} from 'recharts';
 
 interface PurchasesViewProps {
   currentUser?: User | null;
@@ -45,6 +65,59 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
   useEffect(() => {
     setActiveSubTab(initialSubTab);
   }, [initialSubTab]);
+
+  // Analytics Datasets for Procurement & Supplier Intelligence
+  const monthlyProcurementTrend = [
+    { month: 'May 2026', spend: 42000, batches: 14, orders: 8 },
+    { month: 'Jun 2026', spend: 58500, batches: 19, orders: 12 },
+    { month: 'Jul 2026', spend: 64200, batches: 22, orders: 15 },
+    { month: 'Aug 2026', spend: 78000, batches: 27, orders: 18 },
+    { month: 'Sep 2026', spend: 61800, batches: 21, orders: 14 },
+    { month: 'Oct 2026', spend: 89500, batches: 32, orders: 21 },
+  ];
+
+  const supplierPerformanceData = [
+    {
+      name: 'MedPharm Ltd',
+      fullName: 'MedPharm Wholesale Ltd',
+      license: 'EFDA/LIC/2024/0912',
+      spend: 145000,
+      batches: 28,
+      onTimeRate: 98.6,
+      leadTimeDays: 1.4,
+      efdaCompliance: 100,
+      color: '#0d9488',
+    },
+    {
+      name: 'Global Health',
+      fullName: 'Global Health Supplies PLC',
+      license: 'EFDA/LIC/2023/1844',
+      spend: 118500,
+      batches: 22,
+      onTimeRate: 96.4,
+      leadTimeDays: 2.1,
+      efdaCompliance: 99.5,
+      color: '#0284c7',
+    },
+    {
+      name: 'East Africa Dist',
+      fullName: 'East Africa Pharma Distributors',
+      license: 'EFDA/LIC/2025/0022',
+      spend: 85000,
+      batches: 15,
+      onTimeRate: 99.2,
+      leadTimeDays: 1.8,
+      efdaCompliance: 100,
+      color: '#6366f1',
+    },
+  ];
+
+  const apAgingChartData = [
+    { bracket: '0-30 Days (Current)', amount: 25000, color: '#10b981', note: 'Within Net 30 Terms' },
+    { bracket: '31-60 Days (Aging)', amount: 32000, color: '#f59e0b', note: 'Immediate Settlement Due' },
+    { bracket: '61-90 Days', amount: 0, color: '#64748b', note: 'Zero Overdue' },
+    { bracket: '>90 Days Delinquent', amount: 0, color: '#94a3b8', note: 'Clean Audit Record' },
+  ];
 
   // Mock Goods Receipts (GRN)
   const [goodsReceipts, setGoodsReceipts] = useState([
@@ -388,9 +461,9 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
         </button>
       </div>
 
-      {/* SUB-VIEW 1: SUPPLIERS DIRECTORY */}
+      {/* SUB-VIEW 1: SUPPLIERS DIRECTORY & PROCUREMENT INTELLIGENCE */}
       {activeSubTab === 'suppliers' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-slate-900 text-sm dark:text-white">Registered Wholesalers & Manufacturers</h3>
             <span className="text-xs text-slate-500">{suppliers.length} Active Wholesalers</span>
@@ -424,6 +497,328 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* PROCUREMENT ANALYTICS & SUPPLIER PERFORMANCE */}
+          <div className="space-y-6 pt-1">
+            {/* Analytics Header Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-teal-900 via-slate-900 to-slate-900 text-white p-5 rounded-2xl border border-teal-800/40 shadow-xs">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/20 text-teal-400 border border-teal-500/30">
+                    <BarChart3 className="h-4 w-4" />
+                  </span>
+                  <h3 className="font-extrabold text-base tracking-tight text-white">
+                    Procurement Intelligence & Supplier Analytics
+                  </h3>
+                  <span className="bg-teal-500/20 text-teal-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-teal-500/30 flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse" />
+                    Live Wholesale Telemetry
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300">
+                  Continuous audit of wholesale replenishment trends, supplier fulfillment velocity, and EFDA regulatory compliance.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 text-slate-200 font-mono">
+                  FY 2026 Procurement Cycle
+                </span>
+              </div>
+            </div>
+
+            {/* 4 Procurement KPI Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Card 1: Total Spend */}
+              <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500">YTD Wholesale Spend</span>
+                  <div className="h-8 w-8 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 dark:bg-teal-950/60 dark:text-teal-400">
+                    <DollarSign className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {formatCurrency(348500)}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  <span>+14.2% vs last quarter</span>
+                </div>
+                <p className="text-[10px] text-slate-400">Across 3 verified distributors</p>
+              </div>
+
+              {/* Card 2: Avg Lead Time */}
+              <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500">Avg Fulfillment Velocity</span>
+                  <div className="h-8 w-8 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 dark:bg-sky-950/60 dark:text-sky-400">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  1.8 Days
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-teal-600 font-medium">
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                  <span>0.6d faster than SLA benchmark</span>
+                </div>
+                <p className="text-[10px] text-slate-400">Order issue to dockside GRN check</p>
+              </div>
+
+              {/* Card 3: Quality Pass Rate */}
+              <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500">EFDA Seal Inspection Pass</span>
+                  <div className="h-8 w-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
+                    <ShieldCheck className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                  99.8%
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>65 / 65 batches verified sealed</span>
+                </div>
+                <p className="text-[10px] text-slate-400">Zero batch quarantine flags</p>
+              </div>
+
+              {/* Card 4: Trade Credit Exposure */}
+              <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500">Active Trade Liabilities</span>
+                  <div className="h-8 w-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 dark:bg-amber-950/60 dark:text-amber-400">
+                    <Banknote className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                  {formatCurrency(57000)}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-medium">
+                  <span>Net 30 terms • 94% on-schedule</span>
+                </div>
+                <p className="text-[10px] text-slate-400">ETB 38,500 settled this month</p>
+              </div>
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Chart 1: Monthly Wholesale Spend & Inflow Trend */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm dark:text-white flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-teal-600" />
+                      <span>Monthly Procurement Expenditure Trend</span>
+                    </h4>
+                    <p className="text-[11px] text-slate-500">Historical spending trajectory and medicine batch intake</p>
+                  </div>
+                  <span className="text-[11px] font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200 dark:bg-teal-950 dark:text-teal-300">
+                    6-Month Inflow
+                  </span>
+                </div>
+
+                <div className="h-72 w-full pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={monthlyProcurementTrend} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="spendGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#0d9488" stopOpacity={0.35} />
+                          <stop offset="95%" stopColor="#0d9488" stopOpacity={0.0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} />
+                      <YAxis
+                        stroke="#64748b"
+                        fontSize={11}
+                        tickLine={false}
+                        tickFormatter={(val) => `ETB ${(val / 1000).toFixed(0)}k`}
+                      />
+                      <Tooltip
+                        formatter={(value: any, name: string) => {
+                          if (name.includes('Spend')) {
+                            return [`ETB ${Number(value).toLocaleString()}`, 'Procurement Spend'];
+                          }
+                          return [value, name];
+                        }}
+                        labelStyle={{ fontWeight: 'bold', color: '#f8fafc', marginBottom: '4px' }}
+                        contentStyle={{
+                          backgroundColor: '#0f172a',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          border: 'none',
+                          fontSize: '12px',
+                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="spend"
+                        name="Procurement Spend (ETB)"
+                        stroke="#0d9488"
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#spendGradient)"
+                        dot={{ r: 4, fill: '#0d9488', strokeWidth: 2, stroke: '#ffffff' }}
+                        activeDot={{ r: 7, fill: '#14b8a6' }}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100 text-center dark:border-slate-800">
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950">
+                    <p className="text-[10px] text-slate-400 uppercase font-semibold">Monthly Avg</p>
+                    <p className="text-xs font-bold text-slate-800 dark:text-white">ETB 65,667</p>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950">
+                    <p className="text-[10px] text-slate-400 uppercase font-semibold">Peak Month</p>
+                    <p className="text-xs font-bold text-teal-600">Oct (ETB 89.5k)</p>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950">
+                    <p className="text-[10px] text-slate-400 uppercase font-semibold">Total Batches</p>
+                    <p className="text-xs font-bold text-slate-800 dark:text-white">135 Batches</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chart 2: Wholesaler Fulfillment Share & Delivery Performance */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm dark:text-white flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-teal-600" />
+                      <span>Wholesaler Fulfillment Allocation & Volume</span>
+                    </h4>
+                    <p className="text-[11px] text-slate-500">Cumulative procurement volume and delivery reliability</p>
+                  </div>
+                  <span className="text-[11px] font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 dark:bg-sky-950 dark:text-sky-300">
+                    Distribution Share
+                  </span>
+                </div>
+
+                <div className="h-72 w-full pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={supplierPerformanceData} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} />
+                      <YAxis
+                        stroke="#64748b"
+                        fontSize={11}
+                        tickLine={false}
+                        tickFormatter={(val) => `ETB ${(val / 1000).toFixed(0)}k`}
+                      />
+                      <Tooltip
+                        formatter={(value: any, name: string) => {
+                          if (name.includes('Spend') || name.includes('Volume')) {
+                            return [`ETB ${Number(value).toLocaleString()}`, 'Procurement Volume'];
+                          }
+                          return [value, name];
+                        }}
+                        labelStyle={{ fontWeight: 'bold', color: '#f8fafc', marginBottom: '4px' }}
+                        contentStyle={{
+                          backgroundColor: '#0f172a',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          border: 'none',
+                          fontSize: '12px',
+                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+                        }}
+                      />
+                      <Bar dataKey="spend" name="Procurement Volume (ETB)" radius={[8, 8, 0, 0]}>
+                        {supplierPerformanceData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  {supplierPerformanceData.map((s) => (
+                    <div key={s.name} className="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-xl dark:bg-slate-950">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                        <span className="font-bold text-slate-800 dark:text-white">{s.fullName}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold text-slate-600 dark:text-slate-300">{formatCurrency(s.spend)}</span>
+                        <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-200">
+                          {s.onTimeRate}% On-Time
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Wholesaler Compliance & SLA Performance Matrix */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4 dark:bg-slate-900 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm dark:text-white flex items-center gap-2">
+                    <PackageCheck className="h-4 w-4 text-teal-600" />
+                    <span>Distributor SLA & EFDA Regulatory Performance Matrix</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500">Service Level Agreement metrics, quality scorecards, and fulfillment lead times</p>
+                </div>
+                <span className="text-xs text-slate-500 font-mono">Audited: Oct 2026</span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200 dark:bg-slate-950 dark:border-slate-800">
+                    <tr>
+                      <th className="px-4 py-3">WHOLESALER & LICENSE</th>
+                      <th className="px-4 py-3 text-center">STATUS & TIER</th>
+                      <th className="px-4 py-3 text-right">YTD REPLENISHMENT</th>
+                      <th className="px-4 py-3 text-center">AVG LEAD TIME</th>
+                      <th className="px-4 py-3 text-center">ON-TIME DELIVERY</th>
+                      <th className="px-4 py-3 text-center">EFDA SEAL AUDIT</th>
+                      <th className="px-4 py-3 text-right">CREDIT TERMS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {supplierPerformanceData.map((s) => (
+                      <tr key={s.name} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
+                        <td className="px-4 py-3.5">
+                          <div className="font-bold text-slate-900 dark:text-white">{s.fullName}</div>
+                          <div className="text-[10px] text-slate-400 font-mono">Lic: {s.license}</div>
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          <span className="inline-flex items-center gap-1 bg-teal-50 text-teal-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-teal-200 dark:bg-teal-950 dark:text-teal-300">
+                            <ShieldCheck className="h-3 w-3" /> Tier 1 Certified
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-right font-extrabold text-slate-900 dark:text-white">
+                          {formatCurrency(s.spend)}
+                          <div className="text-[10px] text-slate-400 font-normal">{s.batches} batches delivered</div>
+                        </td>
+                        <td className="px-4 py-3.5 text-center font-bold text-slate-700 dark:text-slate-300">
+                          {s.leadTimeDays} Days
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          <div className="inline-flex items-center gap-1 font-bold text-emerald-600">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            <span>{s.onTimeRate}%</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-200">
+                            {s.efdaCompliance}% PASSED
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-right font-medium text-slate-600 dark:text-slate-400">
+                          Net 30 Days
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -725,6 +1120,54 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({
               </div>
               <div className="text-2xl font-extrabold text-emerald-600">{formatCurrency(38500)}</div>
               <p className="text-[11px] text-slate-500">2 supplier invoices paid in August 2026</p>
+            </div>
+          </div>
+
+          {/* AP Aging & Outflow Schedule Chart */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4 dark:bg-slate-900 dark:border-slate-800">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm dark:text-white flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-teal-600" />
+                  <span>Accounts Payable Aging & Settlement Horizon</span>
+                </h4>
+                <p className="text-[11px] text-slate-500">Distribution of trade liabilities across repayment aging horizons</p>
+              </div>
+              <span className="text-[11px] font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200 dark:bg-teal-950 dark:text-teal-300">
+                Total Due: {formatCurrency(57000)}
+              </span>
+            </div>
+
+            <div className="h-64 w-full pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={apAgingChartData} margin={{ top: 10, right: 15, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="bracket" stroke="#64748b" fontSize={11} tickLine={false} />
+                  <YAxis
+                    stroke="#64748b"
+                    fontSize={11}
+                    tickLine={false}
+                    tickFormatter={(val) => `ETB ${(val / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    formatter={(value: any) => [`ETB ${Number(value).toLocaleString()}`, 'Payable Liability']}
+                    labelStyle={{ fontWeight: 'bold', color: '#f8fafc', marginBottom: '4px' }}
+                    contentStyle={{
+                      backgroundColor: '#0f172a',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      border: 'none',
+                      fontSize: '12px',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+                    }}
+                  />
+                  <Bar dataKey="amount" name="Liability (ETB)" radius={[8, 8, 0, 0]}>
+                    {apAgingChartData.map((entry, index) => (
+                      <Cell key={`cell-ap-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 

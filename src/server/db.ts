@@ -12,6 +12,8 @@ import {
   ProfitReportData,
   PharmacyStoreProfile,
   RegisteredPharmacyNode,
+  StoreAlert,
+  StoreAlertsResponse,
 } from '../types';
 
 // Seed Registered Pharmacies & Drug Stores across Ethiopia
@@ -2047,6 +2049,131 @@ export function updateRegisteredPharmacyStatus(id: string, status: RegisteredPha
   return null;
 }
 
+// OPERATIONAL STORE ALERTS (LOW STOCK & EXPIRY WARNINGS)
+const dismissedAlertIds = new Set<string>();
+
+export function getStoreAlerts(): StoreAlertsResponse {
+  const calculatedMeds = getCalculatedMedicines();
+  const batchesWithStatus = getBatchesWithStatus();
+  const alerts: StoreAlert[] = [];
+  const now = new Date().toISOString();
+
+  let outOfStockCount = 0;
+  let lowStockCount = 0;
+  let expiredCount = 0;
+  let expiringSoonCount = 0;
+
+  // 1. Stock thresholds for medicines
+  for (const med of calculatedMeds) {
+    const stock = med.totalStock ?? 0;
+    if (stock === 0) {
+      outOfStockCount++;
+      const alertId = `alert-oos-${med.id}`;
+      if (!dismissedAlertIds.has(alertId)) {
+        alerts.push({
+          id: alertId,
+          title: `Out of Stock: ${med.name}`,
+          message: `${med.name} is completely depleted (0 units). Reorder immediately.`,
+          type: 'danger',
+          category: 'OUT_OF_STOCK',
+          medicineId: med.id,
+          medicineName: med.name,
+          currentValue: 0,
+          thresholdValue: med.reorderLevel,
+          actionTarget: 'inventory',
+          timestamp: now,
+        });
+      }
+    } else if (stock <= med.reorderLevel) {
+      lowStockCount++;
+      const alertId = `alert-low-${med.id}`;
+      if (!dismissedAlertIds.has(alertId)) {
+        alerts.push({
+          id: alertId,
+          title: `Low Stock: ${med.name}`,
+          message: `Only ${stock} units remaining (below reorder threshold of ${med.reorderLevel}).`,
+          type: 'warning',
+          category: 'LOW_STOCK',
+          medicineId: med.id,
+          medicineName: med.name,
+          currentValue: stock,
+          thresholdValue: med.reorderLevel,
+          actionTarget: 'inventory',
+          timestamp: now,
+        });
+      }
+    }
+  }
+
+  // 2. Batches expiry & shelf-life
+  for (const b of batchesWithStatus) {
+    if (b.status === 'EXPIRED') {
+      expiredCount++;
+      const alertId = `alert-exp-${b.id}`;
+      if (!dismissedAlertIds.has(alertId)) {
+        alerts.push({
+          id: alertId,
+          title: `Expired Batch: ${b.medicineName}`,
+          message: `Batch #${b.batchNumber} expired on ${b.expiryDate} (${b.currentQuantity} units left). Quarantine immediately.`,
+          type: 'danger',
+          category: 'EXPIRED',
+          medicineId: b.medicineId,
+          medicineName: b.medicineName,
+          batchNumber: b.batchNumber,
+          currentValue: b.currentQuantity,
+          expiryDate: b.expiryDate,
+          actionTarget: 'batch_mgmt',
+          timestamp: now,
+        });
+      }
+    } else if (b.status === 'EXPIRING_SOON') {
+      expiringSoonCount++;
+      const alertId = `alert-exps-${b.id}`;
+      if (!dismissedAlertIds.has(alertId)) {
+        alerts.push({
+          id: alertId,
+          title: `Expiring Soon: ${b.medicineName}`,
+          message: `Batch #${b.batchNumber} expires on ${b.expiryDate} (${b.currentQuantity} units remaining). Prioritize dispensing.`,
+          type: 'warning',
+          category: 'EXPIRING_SOON',
+          medicineId: b.medicineId,
+          medicineName: b.medicineName,
+          batchNumber: b.batchNumber,
+          currentValue: b.currentQuantity,
+          expiryDate: b.expiryDate,
+          actionTarget: 'batch_mgmt',
+          timestamp: now,
+        });
+      }
+    }
+  }
+
+  // Sort: danger alerts first, then warnings
+  alerts.sort((a, b) => {
+    if (a.type === 'danger' && b.type !== 'danger') return -1;
+    if (a.type !== 'danger' && b.type === 'danger') return 1;
+    return 0;
+  });
+
+  return {
+    totalAlertCount: alerts.length,
+    lowStockCount,
+    outOfStockCount,
+    expiringSoonCount,
+    expiredCount,
+    alerts,
+  };
+}
+
+export function dismissStoreAlert(alertId: string): boolean {
+  dismissedAlertIds.add(alertId);
+  return true;
+}
+
+export function clearAllDismissedStoreAlerts(): void {
+  dismissedAlertIds.clear();
+}
+
 // EXPORT STORE ENTITIES ACCESSORS
 export const db = {
   users,
@@ -2073,4 +2200,8 @@ export const db = {
   createPurchaseOrder,
   getDashboardSummary,
   getProfitReport,
+  getStoreAlerts,
+  dismissStoreAlert,
+  clearAllDismissedStoreAlerts,
 };
+

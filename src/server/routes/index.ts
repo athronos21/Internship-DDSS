@@ -7,6 +7,7 @@ import { financeRouter } from './finance.routes.js';
 import { hrRouter } from './hr.routes.js';
 import { adminRouter } from './admin.routes.js';
 import { aiRouter } from './ai.routes.js';
+import { notificationsRouter } from './notifications.routes.js';
 
 export function registerDomainRoutes(app: Express) {
   app.use('/api', authRouter);
@@ -17,6 +18,7 @@ export function registerDomainRoutes(app: Express) {
   app.use('/api', hrRouter);
   app.use('/api', adminRouter);
   app.use('/api', aiRouter);
+  app.use('/api', notificationsRouter);
 }
 
 export {
@@ -28,4 +30,6 @@ export {
   hrRouter,
   adminRouter,
   aiRouter,
+  notificationsRouter,
 };
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, UserRole } from '../../types';
+import { User, UserRole, StoreAlert, StoreAlertsResponse } from '../../types';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { safeFetchJson } from '../../utils/api';
 import { RoleManagerModal } from './RoleManagerModal';
@@ -82,6 +82,9 @@ import {
   AlertOctagon,
   Radio,
   Server,
+  CheckCircle2,
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -115,8 +118,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onOpenDocumentation,
   children,
 }) => {
-  const [notifications, setNotifications] = useState<Array<{ title: string; message: string; type: 'warning' | 'danger' }>>([]);
+  const [alertsData, setAlertsData] = useState<StoreAlertsResponse | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isFetchingAlerts, setIsFetchingAlerts] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [isRoleManagerOpen, setIsRoleManagerOpen] = useState(false);
@@ -209,34 +213,71 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     }, 2200);
   };
 
-  useEffect(() => {
-    fetchAlerts();
-  }, []);
-
   const fetchAlerts = async () => {
     try {
-      const data = await safeFetchJson('/api/dashboard');
-      if (data.success && data.data) {
-        const alerts = [];
-        if (data.data.lowStockCount > 0) {
-          alerts.push({
-            title: 'Low Stock Alert',
-            message: `${data.data.lowStockCount} items below reorder level.`,
-            type: 'warning' as const,
-          });
-        }
-        if (data.data.expiringSoonCount > 0) {
-          alerts.push({
-            title: 'Expiring Soon Warning',
-            message: `${data.data.expiringSoonCount} batches expire soon.`,
-            type: 'warning' as const,
-          });
-        }
-        setNotifications(alerts);
+      setIsFetchingAlerts(true);
+      const res = await safeFetchJson<StoreAlertsResponse>('/api/notifications/alerts');
+      if (res.success && res.data) {
+        setAlertsData(res.data);
       }
     } catch (e) {
       console.warn('Alerts fetch fallback:', e);
+    } finally {
+      setIsFetchingAlerts(false);
     }
+  };
+
+  useEffect(() => {
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 45000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleDismissAlert = async (alertId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const res = await safeFetchJson<StoreAlertsResponse>('/api/notifications/dismiss', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alertId }),
+      });
+      if (res.success && res.data) {
+        setAlertsData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to dismiss alert:', err);
+    }
+  };
+
+  const handleClearAllAlerts = async () => {
+    try {
+      const res = await safeFetchJson<StoreAlertsResponse>('/api/notifications/dismiss', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clearAll: true }),
+      });
+      if (res.success && res.data) {
+        setAlertsData(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to clear alerts:', err);
+    }
+  };
+
+  const handleAlertClick = (alert: StoreAlert) => {
+    setShowNotifications(false);
+    if (alert.actionTarget === 'batch_mgmt') {
+      setActiveView('inventory');
+      onNavigateSubItem?.('inventory', 'batch_mgmt');
+    } else {
+      setActiveView('inventory');
+    }
+  };
+
+  const handleOpenNotificationCenter = () => {
+    setShowNotifications(false);
+    setActiveView('settings');
+    onNavigateSubItem?.('settings', 'all_notifications');
   };
 
   const toggleMenu = (id: string, e?: React.MouseEvent) => {
@@ -771,57 +812,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
 
-          {/* Quick 1-Click Role Switcher */}
-          <div className="flex items-center gap-1 bg-[#005A96] p-1 rounded-xl border border-sky-400/25">
-            <button
-              type="button"
-              onClick={() => onSelectRole('SUPER_ADMIN')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
-                currentUser?.role === 'SUPER_ADMIN' || currentUser?.isSuperAdmin
-                  ? 'bg-white text-[#0070BA] shadow-xs'
-                  : 'text-sky-100 hover:bg-white/10'
-              }`}
-              title="Super Admin Dashboard"
-            >
-              <span>🛡️ Admin</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectRole('STORE_OWNER')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
-                currentUser?.role === 'STORE_OWNER' && !currentUser?.isSuperAdmin
-                  ? 'bg-white text-[#0070BA] shadow-xs'
-                  : 'text-sky-100 hover:bg-white/10'
-              }`}
-              title="Store Owner Dashboard"
-            >
-              <span>🏪 Owner</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectRole('PHARMACIST')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
-                currentUser?.role === 'PHARMACIST'
-                  ? 'bg-white text-[#0070BA] shadow-xs'
-                  : 'text-sky-100 hover:bg-white/10'
-              }`}
-              title="Pharmacist Station & Dispensing"
-            >
-              <span>💊 Pharmacist</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectRole('SUPPLIER')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
-                currentUser?.role === 'SUPPLIER'
-                  ? 'bg-white text-[#0070BA] shadow-xs'
-                  : 'text-sky-100 hover:bg-white/10'
-              }`}
-              title="Wholesale Supplier & Procurement Hub"
-            >
-              <span>🚚 Supplier</span>
-            </button>
-          </div>
         </div>
 
         {/* Right Controls: Network Status, Notifications, Shift Handover, User Profile */}
@@ -853,32 +843,136 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition"
+              className="relative p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+              title="Store Alerts & Notifications"
             >
               <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-bold flex items-center justify-center text-white border border-[#0070BA]">
-                11
-              </span>
+              {alertsData && alertsData.totalAlertCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-[10px] font-bold flex items-center justify-center text-white border border-[#0070BA] animate-pulse">
+                  {alertsData.totalAlertCount > 99 ? '99+' : alertsData.totalAlertCount}
+                </span>
+              )}
             </button>
 
             {/* Notification Dropdown */}
             {showNotifications && (
-              <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl bg-white p-4 shadow-2xl border border-slate-200 z-50 text-slate-900 space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span className="font-bold text-xs">Store Alerts (2)</span>
-                  <button onClick={() => setShowNotifications(false)} className="text-slate-400 hover:text-slate-600">
-                    <X className="h-4 w-4" />
-                  </button>
+              <div className="absolute right-0 top-full mt-2 w-88 sm:w-96 rounded-2xl bg-white p-4 shadow-2xl border border-slate-200 z-50 text-slate-900 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-xs uppercase tracking-wider text-slate-700">
+                      Store Alerts ({alertsData?.totalAlertCount || 0})
+                    </span>
+                    {alertsData && alertsData.totalAlertCount > 0 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">
+                        {alertsData.outOfStockCount > 0
+                          ? `${alertsData.outOfStockCount} Out of Stock`
+                          : `${alertsData.lowStockCount} Low Stock`}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={fetchAlerts}
+                      disabled={isFetchingAlerts}
+                      className="p-1 text-slate-400 hover:text-slate-600 rounded transition cursor-pointer"
+                      title="Refresh Alerts"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${isFetchingAlerts ? 'animate-spin text-teal-600' : ''}`} />
+                    </button>
+                    {alertsData && alertsData.totalAlertCount > 0 && (
+                      <button
+                        onClick={handleClearAllAlerts}
+                        className="text-[11px] font-semibold text-slate-500 hover:text-rose-600 px-1.5 py-0.5 rounded transition cursor-pointer"
+                        title="Dismiss all active alerts"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs">
-                    <span className="font-bold block">14 Low Stock Items</span>
-                    <span className="text-[11px] opacity-80">Reorder thresholds reached for essential drugs.</span>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs">
-                    <span className="font-bold block">2 Expiring Soon Batches</span>
-                    <span className="text-[11px] opacity-80">Check inventory audit log before expiry.</span>
-                  </div>
+
+                {/* Alerts List */}
+                <div className="max-h-80 overflow-y-auto space-y-2 pr-0.5">
+                  {!alertsData || alertsData.totalAlertCount === 0 ? (
+                    <div className="p-6 text-center rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                      <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto" />
+                      <p className="text-xs font-bold text-slate-800">All Shelves Healthy</p>
+                      <p className="text-[11px] text-slate-500">
+                        No critical low-stock items or expiring batches requiring attention.
+                      </p>
+                    </div>
+                  ) : (
+                    alertsData.alerts.map((alert) => {
+                      const isDanger = alert.type === 'danger';
+                      return (
+                        <div
+                          key={alert.id}
+                          onClick={() => handleAlertClick(alert)}
+                          className={`p-3 rounded-xl border text-xs cursor-pointer transition relative group ${
+                            isDanger
+                              ? 'bg-rose-50/80 hover:bg-rose-100/80 border-rose-200 text-rose-950'
+                              : 'bg-amber-50/80 hover:bg-amber-100/80 border-amber-200 text-amber-950'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-start gap-2">
+                              {isDanger ? (
+                                <AlertOctagon className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                              )}
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-bold text-xs">{alert.title}</span>
+                                  <span
+                                    className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${
+                                      isDanger ? 'bg-rose-200 text-rose-800' : 'bg-amber-200 text-amber-800'
+                                    }`}
+                                  >
+                                    {alert.category.replace('_', ' ')}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] opacity-90 leading-relaxed">{alert.message}</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => handleDismissAlert(alert.id, e)}
+                              className="text-slate-400 hover:text-slate-600 opacity-60 group-hover:opacity-100 p-0.5 rounded transition cursor-pointer"
+                              title="Dismiss Alert"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <div className="mt-2 pt-1.5 border-t border-black/5 flex items-center justify-between text-[10px] opacity-75">
+                            <span>
+                              {alert.actionTarget === 'batch_mgmt' ? 'Inspect Batches' : 'View in Shelves'}
+                            </span>
+                            <span className="flex items-center gap-0.5 font-semibold text-teal-700 dark:text-teal-600">
+                              Open <ChevronRight className="h-3 w-3" />
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Dropdown Footer */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <button
+                    onClick={handleOpenNotificationCenter}
+                    className="text-xs font-bold text-[#0052cc] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Notification Center</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </button>
+                  <span className="text-[10px] text-slate-400">FEFO Active</span>
                 </div>
               </div>
             )}
@@ -1486,7 +1580,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {/* MAIN DISPLAY AREA */}
         <div className="flex-1 overflow-y-auto bg-[#f8fafc] flex flex-col justify-between relative">
           {/* SUPER ADMIN WORKSTATION INSPECTION BANNER */}
-          {isSuperAdmin && activeView !== 'master_admin' && (
+          {isSuperAdmin && !['master_admin', 'dashboard', 'registration_hub', 'portal_cms'].includes(activeView) && (
             <div className="bg-indigo-950 text-white px-5 py-2.5 flex items-center justify-between shadow-xs border-b border-indigo-800 text-xs shrink-0 z-10">
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
@@ -1517,11 +1611,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             {children}
           </div>
 
-          {/* Footer Banner */}
-          <footer className="px-4 sm:px-6 py-3.5 border-t border-slate-200/80 bg-[#f8fafc] flex items-center justify-between text-xs text-slate-500 shrink-0">
-            <span>© 2026 Teninete</span>
-            <span>Version 2.0.0</span>
-          </footer>
+
         </div>
       </div>
 

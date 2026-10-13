@@ -26,6 +26,7 @@ import {
   DollarSign,
   Layers,
   ArrowRight,
+  ArrowLeft,
   ExternalLink,
   ShieldCheck,
   Sparkles,
@@ -1213,129 +1214,40 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 🧭 SUPER ADMIN MAIN MENU & NAVIGATION BAR */}
-      {/* ========================================================================= */}
-      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2.5 pt-0.5 border-b border-slate-200/80 scrollbar-thin">
-        <button
-          type="button"
-          onClick={() => setActiveTab('HUB')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'HUB'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <Shield className={`h-4 w-4 shrink-0 ${activeTab === 'HUB' ? 'text-amber-300' : 'text-[#0070BA]'}`} />
-          <span>Overview</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('NODES')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'NODES'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <Building2 className={`h-4 w-4 shrink-0 ${activeTab === 'NODES' ? 'text-white' : 'text-[#0070BA]'}`} />
-          <span>Stores & Branches ({pharmacyFleet.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('ANALYTICS')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'ANALYTICS'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <BarChart3 className={`h-4 w-4 shrink-0 ${activeTab === 'ANALYTICS' ? 'text-white' : 'text-[#0070BA]'}`} />
-          <span>Sales & Charts</span>
-          <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 whitespace-nowrap ${
-            activeTab === 'ANALYTICS' ? 'bg-white/20 text-white' : 'bg-[#E0EFF9] text-[#0070BA]'
-          }`}>
-            Live Charts
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('COMPLIANCE')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'COMPLIANCE'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <FileCheck className={`h-4 w-4 shrink-0 ${activeTab === 'COMPLIANCE' ? 'text-white' : 'text-[#0070BA]'}`} />
-          <span>Licenses & Recalls</span>
-          {(pendingNodesCount > 0 || criticalRecallsCount > 0) && (
-            <span className="bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 whitespace-nowrap">
-              {pendingNodesCount + criticalRecallsCount}
+      {/* Sleek Sub-View Breadcrumb Navigation (shown only when viewing sub-pages) */}
+      {activeTab !== 'HUB' && (
+        <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+          <div className="flex items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab('HUB')}
+              className="font-bold text-slate-500 hover:text-[#0070BA] flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <Shield className="h-3.5 w-3.5 text-[#0070BA]" />
+              <span>Fleet Overview</span>
+            </button>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
+            <span className="font-extrabold text-[#0070BA]">
+              {activeTab === 'NODES' ? `Stores & Branches (${pharmacyFleet.length})` :
+               activeTab === 'ANALYTICS' ? 'Sales & Charts' :
+               activeTab === 'COMPLIANCE' ? 'Licenses & Recalls' :
+               activeTab === 'GLOBAL_CATALOG' ? 'Medicine Catalog' :
+               activeTab === 'FINANCIALS' ? 'Sales & Revenue' :
+               activeTab === 'STAFF' ? 'Staff Directory' :
+               activeTab === 'SYSTEM_HEALTH' ? 'System & Announcements' : activeTab}
             </span>
-          )}
-        </button>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('GLOBAL_CATALOG')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'GLOBAL_CATALOG'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <Pill className={`h-4 w-4 shrink-0 ${activeTab === 'GLOBAL_CATALOG' ? 'text-white' : 'text-[#0070BA]'}`} />
-          <span>Medicine Catalog</span>
-          {criticalShortagesCount > 0 && (
-            <span className="bg-rose-100 text-rose-800 border border-rose-300 px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 whitespace-nowrap">
-              {criticalShortagesCount} Short
-            </span>
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('FINANCIALS')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'FINANCIALS'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <DollarSign className={`h-4 w-4 shrink-0 ${activeTab === 'FINANCIALS' ? 'text-white' : 'text-[#0070BA]'}`} />
-          <span>Sales & Revenue</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('STAFF')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'STAFF'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <Users className={`h-4 w-4 shrink-0 ${activeTab === 'STAFF' ? 'text-white' : 'text-[#0070BA]'}`} />
-          <span>Staff Directory</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('SYSTEM_HEALTH')}
-          className={`px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'SYSTEM_HEALTH'
-              ? 'bg-[#0070BA] text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 hover:text-[#0070BA]'
-          }`}
-        >
-          <Server className={`h-4 w-4 shrink-0 ${activeTab === 'SYSTEM_HEALTH' ? 'text-white' : 'text-[#0070BA]'}`} />
-          <span>System & Announcements</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab('HUB')}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Back to Overview</span>
+          </button>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* TAB 0: EXECUTIVE COMMAND HUB OVERVIEW */}
@@ -1345,19 +1257,27 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
           {/* Section 1: Overview Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card 1: Medicine Recalls */}
-            <div className="p-5 rounded-3xl bg-white border-2 border-rose-100 hover:border-rose-300 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
+            <div className="p-5 rounded-2xl bg-white border border-rose-200/80 hover:border-rose-300 text-slate-900 space-y-3 shadow-2xs hover:shadow-xs relative overflow-hidden transition-all group">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertOctagon className="h-4 w-4 text-rose-600" />
-                  <span>Medicine Recalls</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                    <AlertOctagon className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-bold text-rose-800 tracking-wide uppercase">
+                    Medicine Recalls
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
                   ACTION NEEDED
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-slate-900">{criticalRecallsCount} Batches Paused</div>
-                <p className="text-xs text-slate-500 mt-1">1,240 units paused at cashier counters across 6 stores.</p>
+                <div className="text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  {criticalRecallsCount} {criticalRecallsCount === 1 ? 'Batch Paused' : 'Batches Paused'}
+                </div>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  1,240 units paused at cashier counters across 6 stores.
+                </p>
               </div>
               <button
                 type="button"
@@ -1365,7 +1285,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   setActiveTab('COMPLIANCE');
                   setComplianceSubTab('RECALLS');
                 }}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] group-hover:translate-x-0.5 transition-all cursor-pointer"
               >
                 <span>View recalled medicines</span>
                 <ChevronRight className="h-4 w-4" />
@@ -1373,19 +1293,27 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             </div>
 
             {/* Card 2: Price Limit Alerts */}
-            <div className="p-5 rounded-3xl bg-white border-2 border-amber-100 hover:border-amber-300 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
+            <div className="p-5 rounded-2xl bg-white border border-amber-200/80 hover:border-amber-300 text-slate-900 space-y-3 shadow-2xs hover:shadow-xs relative overflow-hidden transition-all group">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldAlert className="h-4 w-4 text-amber-600" />
-                  <span>Price Limit Alerts</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                    <ShieldAlert className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-bold text-amber-800 tracking-wide uppercase">
+                    Price Cap Alerts
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200">
                   REVIEW
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-slate-900">3 Medicines Above Price Cap</div>
-                <p className="text-xs text-slate-500 mt-1">Automated price checks active across all 1,420 medicines.</p>
+                <div className="text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  3 Above Price Cap
+                </div>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Automated price checks active across all 1,420 medicines.
+                </p>
               </div>
               <button
                 type="button"
@@ -1393,7 +1321,7 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
                   setActiveTab('GLOBAL_CATALOG');
                   setCatalogSubTab('PRICE_CEILINGS');
                 }}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] group-hover:translate-x-0.5 transition-all cursor-pointer"
               >
                 <span>Review price alerts</span>
                 <ChevronRight className="h-4 w-4" />
@@ -1401,24 +1329,32 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             </div>
 
             {/* Card 3: Expiring Soon */}
-            <div className="p-5 rounded-3xl bg-white border-2 border-sky-100 hover:border-[#0070BA]/40 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
+            <div className="p-5 rounded-2xl bg-white border border-sky-200/80 hover:border-[#0070BA]/50 text-slate-900 space-y-3 shadow-2xs hover:shadow-xs relative overflow-hidden transition-all group">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#0070BA] uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-[#0070BA]" />
-                  <span>Expiring Soon (FEFO)</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 text-[#0070BA] flex items-center justify-center shrink-0">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-bold text-sky-800 tracking-wide uppercase">
+                    Expiring Soon (FEFO)
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#E0EFF9] text-[#0070BA] border border-[#BAE0F4]">
                   MONITORED
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-slate-900">ETB 14,200 Expiring Soon</div>
-                <p className="text-xs text-slate-500 mt-1">Medicines expiring soon tagged to sell or transfer first.</p>
+                <div className="text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  ETB 14,200 Expiring Soon
+                </div>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Medicines expiring soon tagged to sell or transfer first.
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveTab('ANALYTICS')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] group-hover:translate-x-0.5 transition-all cursor-pointer"
               >
                 <span>View expiring medicines</span>
                 <ChevronRight className="h-4 w-4" />
@@ -1426,24 +1362,32 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
             </div>
 
             {/* Card 4: Medicine Fridges & Temperatures */}
-            <div className="p-5 rounded-3xl bg-white border-2 border-emerald-100 hover:border-emerald-300 text-slate-900 space-y-3 shadow-xs relative overflow-hidden transition-colors">
+            <div className="p-5 rounded-2xl bg-white border border-emerald-200/80 hover:border-emerald-300 text-slate-900 space-y-3 shadow-2xs hover:shadow-xs relative overflow-hidden transition-all group">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  <span>Medicine Fridges</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-bold text-emerald-800 tracking-wide uppercase">
+                    Medicine Fridges
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   ALL SAFE
                 </span>
               </div>
               <div>
-                <div className="text-2xl font-black font-mono text-slate-900">6 / 6 Safe (2°C - 8°C)</div>
-                <p className="text-xs text-slate-500 mt-1">All insulins and vaccines kept at safe temperatures.</p>
+                <div className="text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  6 / 6 Safe (2°C - 8°C)
+                </div>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  All insulins and vaccines kept at safe temperatures.
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveTab('ANALYTICS')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0070BA] hover:text-[#005A96] group-hover:translate-x-0.5 transition-all cursor-pointer"
               >
                 <span>Check fridge temperatures</span>
                 <ChevronRight className="h-4 w-4" />
@@ -1479,20 +1423,20 @@ export const MasterAdminView: React.FC<MasterAdminViewProps> = ({
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
               <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Average Daily Sales</span>
-                <div className="text-lg font-black font-mono text-slate-900">ETB 242.8k</div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Average Daily Sales</span>
+                <div className="text-lg font-bold text-slate-900 tracking-tight font-sans">ETB 242.8k</div>
               </div>
               <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Daily Prescriptions</span>
-                <div className="text-lg font-black font-mono text-slate-900">1,280 Rx/day</div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Daily Prescriptions</span>
+                <div className="text-lg font-bold text-slate-900 tracking-tight font-sans">1,280 Rx/day</div>
               </div>
               <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Cashless Payments</span>
-                <div className="text-lg font-black font-mono text-[#0070BA]">90.0% Cashless</div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cashless Payments</span>
+                <div className="text-lg font-bold text-[#0070BA] tracking-tight font-sans">90.0% Cashless</div>
               </div>
               <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/60">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Fridge Temperature Alerts</span>
-                <div className="text-lg font-black font-mono text-slate-900">0 Reported</div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fridge Temperature Alerts</span>
+                <div className="text-lg font-bold text-slate-900 tracking-tight font-sans">0 Reported</div>
               </div>
             </div>
 
