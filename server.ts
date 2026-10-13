@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { registerDomainRoutes } from './src/server/routes/index.js';
+import { validateEnvironment } from './src/server/config.js';
 
 export async function createExpressApp() {
   const app = express();
@@ -56,6 +57,7 @@ export async function createExpressApp() {
 }
 
 export async function startServer(portOverride?: number) {
+  validateEnvironment();
   const PORT = portOverride || (process.env.PORT ? parseInt(process.env.PORT, 10) : 5000);
   const app = await createExpressApp();
 
