@@ -92,12 +92,16 @@ export const auth = betterAuth({
   },
 });
 
-let seedingPromise: Promise<void> | null = null;
+let seedingPromise: Promise<boolean> | null = null;
 
 /**
  * Seed initial administrative users into Better Auth if they do not exist
  */
-export async function seedInitialBetterAuthUsers() {
+export async function seedInitialBetterAuthUsers(): Promise<boolean> {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_PRODUCTION_DEMO_SEED !== 'true') {
+    return false;
+  }
+
   if (seedingPromise) {
     return seedingPromise;
   }
@@ -184,6 +188,7 @@ export async function seedInitialBetterAuthUsers() {
         // Ignore if user already seeded
       }
     }
+    return true;
   })();
 
   return seedingPromise;
