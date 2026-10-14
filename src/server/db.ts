@@ -14,6 +14,7 @@ import {
   RegisteredPharmacyNode,
   StoreAlert,
   StoreAlertsResponse,
+  ContactInquiry,
 } from '../types';
 
 // Seed Registered Pharmacies & Drug Stores across Ethiopia
@@ -1326,6 +1327,40 @@ const auditLogs: AuditLog[] = [
   },
 ];
 
+// Seed Customer Contact Inquiries
+const contactInquiries: ContactInquiry[] = [
+  {
+    id: 'inq-101',
+    name: 'Tigist Haile',
+    contact: '+251 922 345 678',
+    subject: 'Prescription Drug Availability',
+    message: 'Hello, do you currently have Insulin Glargine (Lantus) pens available for immediate pickup at the Bole branch?',
+    status: 'UNREAD',
+    createdAt: '2026-10-12T09:30:00Z',
+  },
+  {
+    id: 'inq-102',
+    name: 'Dr. Dawit Mengistu',
+    contact: '+251 911 234 567',
+    subject: 'Wholesale Clinic Order',
+    message: 'Good morning, we are requesting a wholesale quotation for 50 boxes of Amoxicillin 500mg capsules and sterile IV fluids for our outpatient clinic.',
+    status: 'READ',
+    createdAt: '2026-10-11T14:15:00Z',
+  },
+  {
+    id: 'inq-103',
+    name: 'Abebech Tadesse',
+    contact: 'abebech.t@gmail.com',
+    subject: 'Pharmacist Dosage Consultation',
+    message: 'Can I take Paracetamol concurrently with Ciprofloxacin prescribed for my respiratory infection?',
+    status: 'REPLIED',
+    replyNotes: 'Advised patient: Paracetamol has no significant pharmacokinetic interaction with Ciprofloxacin, but ensure to maintain 2 hours spacing from dairy or multivitamin supplements.',
+    repliedAt: '2026-10-10T16:00:00Z',
+    repliedBy: 'Pharm. Solomon Bekele',
+    createdAt: '2026-10-10T11:20:00Z',
+  },
+];
+
 // HELPER COMPUTATIONS
 export function getCalculatedMedicines(): Medicine[] {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -2148,10 +2183,30 @@ export function getStoreAlerts(): StoreAlertsResponse {
     }
   }
 
-  // Sort: danger alerts first, then warnings
+  // 3. Customer inquiries notifications
+  const unreadInquiries = contactInquiries.filter((inq) => inq.status === 'UNREAD');
+  if (unreadInquiries.length > 0) {
+    const alertId = 'alert-unread-inquiries';
+    if (!dismissedAlertIds.has(alertId)) {
+      alerts.push({
+        id: alertId,
+        title: `${unreadInquiries.length} New Customer Inquiry${unreadInquiries.length > 1 ? 's' : ''}`,
+        message: `You have ${unreadInquiries.length} unread customer message${unreadInquiries.length > 1 ? 's' : ''} from the public storefront awaiting response.`,
+        type: 'info',
+        category: 'CUSTOMER_INQUIRY',
+        currentValue: unreadInquiries.length,
+        actionTarget: 'inquiries',
+        timestamp: now,
+      });
+    }
+  }
+
+  // Sort: danger alerts first, then warnings, then info
   alerts.sort((a, b) => {
     if (a.type === 'danger' && b.type !== 'danger') return -1;
     if (a.type !== 'danger' && b.type === 'danger') return 1;
+    if (a.type === 'warning' && b.type === 'info') return -1;
+    if (a.type === 'info' && b.type === 'warning') return 1;
     return 0;
   });
 
@@ -2161,6 +2216,7 @@ export function getStoreAlerts(): StoreAlertsResponse {
     outOfStockCount,
     expiringSoonCount,
     expiredCount,
+    inquiriesCount: unreadInquiries.length,
     alerts,
   };
 }
@@ -2172,6 +2228,56 @@ export function dismissStoreAlert(alertId: string): boolean {
 
 export function clearAllDismissedStoreAlerts(): void {
   dismissedAlertIds.clear();
+}
+
+// CUSTOMER CONTACT INQUIRIES ACCESSORS
+export function getContactInquiries(): ContactInquiry[] {
+  return [...contactInquiries];
+}
+
+export function addContactInquiry(data: {
+  name: string;
+  contact: string;
+  subject?: string;
+  message: string;
+}): ContactInquiry {
+  const inquiry: ContactInquiry = {
+    id: `inq-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+    name: data.name,
+    contact: data.contact,
+    subject: data.subject || 'General Inquiry',
+    message: data.message,
+    status: 'UNREAD',
+    createdAt: new Date().toISOString(),
+  };
+  contactInquiries.unshift(inquiry);
+  return inquiry;
+}
+
+export function updateContactInquiryStatus(
+  id: string,
+  updates: {
+    status?: ContactInquiry['status'];
+    replyNotes?: string;
+    repliedBy?: string;
+  }
+): ContactInquiry | null {
+  const inquiry = contactInquiries.find((inq) => inq.id === id);
+  if (!inquiry) return null;
+  if (updates.status) inquiry.status = updates.status;
+  if (updates.replyNotes !== undefined) inquiry.replyNotes = updates.replyNotes;
+  if (updates.repliedBy) inquiry.repliedBy = updates.repliedBy;
+  if (updates.status === 'REPLIED' && !inquiry.repliedAt) {
+    inquiry.repliedAt = new Date().toISOString();
+  }
+  return { ...inquiry };
+}
+
+export function deleteContactInquiry(id: string): boolean {
+  const idx = contactInquiries.findIndex((inq) => inq.id === id);
+  if (idx === -1) return false;
+  contactInquiries.splice(idx, 1);
+  return true;
 }
 
 // EXPORT STORE ENTITIES ACCESSORS
@@ -2186,11 +2292,16 @@ export const db = {
   sales,
   auditLogs,
   registeredPharmacies,
+  contactInquiries,
   getPharmacyProfile,
   updatePharmacyProfile,
   getRegisteredPharmacies,
   addRegisteredPharmacy,
   updateRegisteredPharmacyStatus,
+  getContactInquiries,
+  addContactInquiry,
+  updateContactInquiryStatus,
+  deleteContactInquiry,
   getCalculatedMedicines,
   getBatchesWithStatus,
   allocateFefoStock,
@@ -2204,4 +2315,5 @@ export const db = {
   dismissStoreAlert,
   clearAllDismissedStoreAlerts,
 };
+
 

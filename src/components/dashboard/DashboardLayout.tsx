@@ -86,6 +86,7 @@ import {
   CheckCircle2,
   RefreshCw,
   ExternalLink,
+  MessageSquare,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -271,7 +272,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   const handleAlertClick = (alert: StoreAlert) => {
     setShowNotifications(false);
-    if (alert.actionTarget === 'batch_mgmt') {
+    if (alert.actionTarget === 'inquiries') {
+      setActiveView('inquiries');
+    } else if (alert.actionTarget === 'batch_mgmt') {
       setActiveView('inventory');
       onNavigateSubItem?.('inventory', 'batch_mgmt');
     } else {
@@ -307,6 +310,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       id === 'system_broadcast'
     ) {
       targetView = 'master_admin';
+    } else if (['inquiries', 'customer_inquiries'].includes(id)) {
+      targetView = 'inquiries';
     } else if (['inventory_add', 'add_product', 'add_medicine'].includes(id)) {
       targetView = 'add_medicine';
     } else if (['inventory', 'inventory_expired', 'inventory_archived', 'stock_movements', 'stock_adjustments', 'stock_requests', 'create_stock_req', 'batch_mgmt', 'expiry_tracking', 'inventory_health', 'medicines', 'inspect_flagship'].includes(id)) {
@@ -669,9 +674,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           ],
         },
         {
-          group: 'CUSTOMERS',
+          group: 'CUSTOMERS & INQUIRIES',
           items: [
             { id: 'customers', label: 'Customer Directory', icon: Users },
+            {
+              id: 'inquiries',
+              label: 'Customer Inquiries',
+              icon: MessageSquare,
+              badge: alertsData?.inquiriesCount,
+            },
           ],
         },
         {
@@ -916,6 +927,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   ) : (
                     alertsData.alerts.map((alert) => {
                       const isDanger = alert.type === 'danger';
+                      const isInfo = alert.type === 'info' || alert.category === 'CUSTOMER_INQUIRY';
                       return (
                         <div
                           key={alert.id}
@@ -923,6 +935,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                           className={`p-3 rounded-xl border text-xs cursor-pointer transition relative group ${
                             isDanger
                               ? 'bg-rose-50/80 hover:bg-rose-100/80 border-rose-200 text-rose-950'
+                              : isInfo
+                              ? 'bg-sky-50/80 hover:bg-sky-100/80 border-sky-200 text-sky-950'
                               : 'bg-amber-50/80 hover:bg-amber-100/80 border-amber-200 text-amber-950'
                           }`}
                         >
@@ -930,6 +944,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                             <div className="flex items-start gap-2">
                               {isDanger ? (
                                 <AlertOctagon className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" />
+                              ) : isInfo ? (
+                                <MessageSquare className="h-4 w-4 text-[#0070ba] mt-0.5 shrink-0" />
                               ) : (
                                 <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                               )}
@@ -938,7 +954,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                                   <span className="font-bold text-xs">{alert.title}</span>
                                   <span
                                     className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${
-                                      isDanger ? 'bg-rose-200 text-rose-800' : 'bg-amber-200 text-amber-800'
+                                      isDanger
+                                        ? 'bg-rose-200 text-rose-800'
+                                        : isInfo
+                                        ? 'bg-sky-200 text-sky-800'
+                                        : 'bg-amber-200 text-amber-800'
                                     }`}
                                   >
                                     {alert.category.replace('_', ' ')}
@@ -957,9 +977,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                           </div>
                           <div className="mt-2 pt-1.5 border-t border-black/5 flex items-center justify-between text-[10px] opacity-75">
                             <span>
-                              {alert.actionTarget === 'batch_mgmt' ? 'Inspect Batches' : 'View in Shelves'}
+                              {alert.actionTarget === 'inquiries'
+                                ? 'View Inquiries Inbox'
+                                : alert.actionTarget === 'batch_mgmt'
+                                ? 'Inspect Batches'
+                                : 'View in Shelves'}
                             </span>
-                            <span className="flex items-center gap-0.5 font-semibold text-teal-700 dark:text-teal-600">
+                            <span className="flex items-center gap-0.5 font-semibold text-[#0070ba]">
                               Open <ChevronRight className="h-3 w-3" />
                             </span>
                           </div>
@@ -1427,7 +1451,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                                 handleItemClick(item.id);
                               }
                             }}
-                            className={`w-full h-10 flex items-center justify-center rounded-xl text-xs font-medium transition ${
+                            className={`w-full h-10 flex items-center justify-center rounded-xl text-xs font-medium transition relative ${
                               isOpen || activeView === item.id
                                 ? 'bg-white/25 text-white shadow-xs font-bold border border-white/30'
                                 : 'text-white/90 hover:bg-white/10 hover:text-white'
@@ -1435,6 +1459,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                             title={item.label}
                           >
                             <Icon className="h-5 w-5" />
+                            {item.badge !== undefined && item.badge > 0 && (
+                              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-amber-400 border border-[#0070ba] animate-pulse" />
+                            )}
                           </button>
                         );
                       }
@@ -1462,17 +1489,24 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                               <span className="whitespace-nowrap text-xs font-semibold">{item.label}</span>
                             </div>
 
-                            {item.hasSubmenu && (
-                              <ChevronRight
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleMenu(item.id, e);
-                                }}
-                                className={`h-3.5 w-3.5 text-white/60 shrink-0 transition-transform duration-200 group-hover:text-white ml-2 ${
-                                  isOpen ? 'rotate-90 text-white' : ''
-                                }`}
-                              />
-                            )}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {item.badge !== undefined && item.badge > 0 && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-900 shadow-xs animate-pulse">
+                                  {item.badge}
+                                </span>
+                              )}
+                              {item.hasSubmenu && (
+                                <ChevronRight
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleMenu(item.id, e);
+                                  }}
+                                  className={`h-3.5 w-3.5 text-white/60 shrink-0 transition-transform duration-200 group-hover:text-white ml-2 ${
+                                    isOpen ? 'rotate-90 text-white' : ''
+                                  }`}
+                                />
+                              )}
+                            </div>
                           </button>
 
                           {/* Level 1 Submenu with Vertical Connector Line */}

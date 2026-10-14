@@ -483,14 +483,14 @@ export interface StoreAlert {
   title: string;
   message: string;
   type: 'warning' | 'danger' | 'info';
-  category: 'LOW_STOCK' | 'EXPIRING_SOON' | 'EXPIRED' | 'OUT_OF_STOCK';
+  category: 'LOW_STOCK' | 'EXPIRING_SOON' | 'EXPIRED' | 'OUT_OF_STOCK' | 'CUSTOMER_INQUIRY';
   medicineId?: string;
   medicineName?: string;
   batchNumber?: string;
   currentValue: number;
   thresholdValue?: number;
   expiryDate?: string;
-  actionTarget: 'inventory' | 'batch_mgmt';
+  actionTarget: 'inventory' | 'batch_mgmt' | 'inquiries';
   timestamp: string;
 }
 
@@ -500,5 +500,20 @@ export interface StoreAlertsResponse {
   outOfStockCount: number;
   expiringSoonCount: number;
   expiredCount: number;
+  inquiriesCount?: number;
   alerts: StoreAlert[];
 }
+
+export interface ContactInquiry {
+  id: string;
+  name: string;
+  contact: string;
+  subject: string;
+  message: string;
+  status: 'UNREAD' | 'READ' | 'REPLIED' | 'ARCHIVED';
+  createdAt: string;
+  replyNotes?: string;
+  repliedAt?: string;
+  repliedBy?: string;
+}
+

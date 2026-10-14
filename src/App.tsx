@@ -28,6 +28,7 @@ import { ReportsView } from './components/dashboard/ReportsView';
 import { UsersAndAuditView } from './components/dashboard/UsersAndAuditView';
 import { SettingsView } from './components/dashboard/SettingsView';
 import { PortalCmsView } from './components/dashboard/PortalCmsView';
+import { CustomerInquiriesView } from './components/dashboard/CustomerInquiriesView';
 import { MasterAdminView, MasterAdminTab } from './components/dashboard/MasterAdminView';
 import { RegistrationNetworkDashboard } from './components/public/RegistrationNetworkDashboard';
 import { ShiftHandoverModal } from './components/dashboard/ShiftHandoverModal';
@@ -749,6 +750,7 @@ function AppContent() {
             />
           )}
           {dashboardView === 'users' && <UsersAndAuditView currentUser={currentUser} initialSubTab={hrSubTab} />}
+          {dashboardView === 'inquiries' && <CustomerInquiriesView currentUser={currentUser} />}
           {dashboardView === 'portal_cms' && <PortalCmsView />}
           {dashboardView === 'registration_hub' && (
             <RegistrationNetworkDashboard

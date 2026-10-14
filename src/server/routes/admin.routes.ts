@@ -143,19 +143,25 @@ adminRouter.post('/contact', (req, res) => {
       });
     }
 
-    const inquiryId = `inq-${Date.now()}`;
+    const inquiry = db.addContactInquiry({
+      name: name.trim(),
+      contact: contact.trim(),
+      subject: (subject && typeof subject === 'string') ? subject.trim() : 'General Inquiry',
+      message: message.trim(),
+    });
+
     db.auditLogs.unshift({
       id: `log-${Date.now()}`,
       userId: 'public-guest',
       userName: name.trim(),
       action: 'CUSTOMER_INQUIRY_RECEIVED',
       entityType: 'INQUIRY',
-      entityId: inquiryId,
+      entityId: inquiry.id,
       newData: {
-        name: name.trim(),
-        contact: contact.trim(),
-        subject: subject || 'General Inquiry',
-        message: message.trim(),
+        name: inquiry.name,
+        contact: inquiry.contact,
+        subject: inquiry.subject,
+        message: inquiry.message,
       },
       ipAddress: req.ip || '127.0.0.1',
       createdAt: new Date().toISOString(),
@@ -164,9 +170,83 @@ adminRouter.post('/contact', (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Your inquiry has been submitted and registered with our clinical pharmacists.',
-      inquiryId,
+      inquiryId: inquiry.id,
+      data: inquiry,
     });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message || 'Internal server error' });
   }
 });
+
+// ADMIN CUSTOMER INQUIRIES MANAGEMENT
+adminRouter.get('/contact/inquiries', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) => {
+  try {
+    const inquiries = db.getContactInquiries();
+    res.json({ success: true, data: inquiries });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message || 'Internal server error' });
+  }
+});
+
+adminRouter.patch('/contact/inquiries/:id', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, replyNotes } = req.body || {};
+    const currentUser = (req as any).user;
+
+    const updated = db.updateContactInquiryStatus(id, {
+      status,
+      replyNotes,
+      repliedBy: currentUser?.name || currentUser?.id || 'Administrator',
+    });
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Contact inquiry not found' });
+    }
+
+    db.auditLogs.unshift({
+      id: `log-${Date.now()}`,
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.name || 'Administrator',
+      action: 'CUSTOMER_INQUIRY_UPDATED',
+      entityType: 'INQUIRY',
+      entityId: id,
+      newData: { status: updated.status, replyNotes: updated.replyNotes },
+      ipAddress: req.ip || '127.0.0.1',
+      createdAt: new Date().toISOString(),
+    });
+
+    res.json({ success: true, message: 'Inquiry updated successfully', data: updated });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message || 'Internal server error' });
+  }
+});
+
+adminRouter.delete('/contact/inquiries/:id', requireRole('STORE_OWNER', 'SUPER_ADMIN'), (req, res) => {
+  try {
+    const { id } = req.params;
+    const currentUser = (req as any).user;
+    const deleted = db.deleteContactInquiry(id);
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: 'Contact inquiry not found' });
+    }
+
+    db.auditLogs.unshift({
+      id: `log-${Date.now()}`,
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.name || 'Administrator',
+      action: 'CUSTOMER_INQUIRY_DELETED',
+      entityType: 'INQUIRY',
+      entityId: id,
+      newData: { id },
+      ipAddress: req.ip || '127.0.0.1',
+      createdAt: new Date().toISOString(),
+    });
+
+    res.json({ success: true, message: 'Inquiry deleted successfully' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message || 'Internal server error' });
+  }
+});
+
