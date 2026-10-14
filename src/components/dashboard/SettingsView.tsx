@@ -1475,7 +1475,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <Server className="h-5 w-5 text-teal-600" />
               </div>
               <p className="text-2xl font-black text-slate-900 dark:text-white">v2.4.0 Live</p>
-              <p className="text-[11px] text-teal-600 font-bold">Build #891 - Cloud Container Active</p>
+              <p className="text-[11px] text-teal-600 font-bold">Build #891 - Docker Container Active</p>
             </div>
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-1">

@@ -158,7 +158,8 @@ describe('Comprehensive Security Hardening & Regression Suite', () => {
       expect(data.error).toBe('FORBIDDEN_ROLE');
     });
 
-    it('Pharmacist CANNOT register new medicines (403)', async () => {
+    it('Pharmacist CAN register new medicines (201) as authorized by Store Owner', async () => {
+      const uniqueBarcode = `6281${Date.now().toString().slice(-8)}`;
       const res = await fetch(`${baseUrl}/api/medicines`, {
         method: 'POST',
         headers: {
@@ -166,12 +167,33 @@ describe('Comprehensive Security Hardening & Regression Suite', () => {
           Authorization: `Bearer ${pharmacistToken}`,
         },
         body: JSON.stringify({
-          name: 'Unauthorized Drug',
-          brandName: 'Brand',
-          dosageForm: 'TABLET',
-          strength: '500mg',
-          sellingPrice: 100,
+          name: 'Pharmacist Registered Drug',
+          brandName: 'PharmDrug',
+          dosageForm: 'Tablet',
+          strength: '250mg',
+          barcode: uniqueBarcode,
+          initialBatch: {
+            batchNumber: `BAT-PHARM-${Date.now().toString().slice(-4)}`,
+            quantity: 20,
+            purchasePrice: 20,
+            sellingPrice: 35,
+            mfgDate: '2025-01-01',
+            expDate: '2028-01-01',
+          },
         }),
+      });
+      expect(res.status).toBe(201);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.data.id).toBeDefined();
+    });
+
+    it('Pharmacist CANNOT delete or permanently drop medicines (403)', async () => {
+      const res = await fetch(`${baseUrl}/api/medicines/med-1`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${pharmacistToken}`,
+        },
       });
       expect(res.status).toBe(403);
       const data = await res.json();

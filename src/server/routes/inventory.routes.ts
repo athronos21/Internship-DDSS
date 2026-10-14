@@ -39,7 +39,7 @@ inventoryRouter.get('/medicines', (req, res) => {
   }
 });
 
-inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
+inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'PHARMACIST']), (req: AuthenticatedRequest, res) => {
   try {
     const {
       name,
@@ -272,7 +272,7 @@ inventoryRouter.get('/medicines/:id', (req, res) => {
   res.json({ success: true, data: { medicine: med, batches, transactions } });
 });
 
-inventoryRouter.put('/medicines/:id', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
+inventoryRouter.put('/medicines/:id', requireRole(['STORE_OWNER', 'SUPER_ADMIN', 'PHARMACIST']), (req: AuthenticatedRequest, res) => {
   const med = db.medicines.find((m) => m.id === req.params.id);
   if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });
 
