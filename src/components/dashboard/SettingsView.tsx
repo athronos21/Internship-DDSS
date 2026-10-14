@@ -43,13 +43,14 @@ import {
   Printer,
   Lock,
   FileText,
+  Receipt,
   Activity,
   Server,
 } from 'lucide-react';
 import { User } from '../../types';
 
 interface SettingsViewProps {
-  initialSubTab?: 'branch_config' | 'payment_methods' | 'store_config' | 'all_notifications' | 'notif_settings' | 'db_schema';
+  initialSubTab?: 'branch_config' | 'payment_methods' | 'store_config' | 'eims_config' | 'all_notifications' | 'notif_settings' | 'db_schema';
   currentUser?: User;
 }
 
@@ -58,7 +59,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   currentUser,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<
-    'branch_config' | 'payment_methods' | 'store_config' | 'all_notifications' | 'notif_settings' | 'db_schema'
+    'branch_config' | 'payment_methods' | 'store_config' | 'eims_config' | 'all_notifications' | 'notif_settings' | 'db_schema'
   >(initialSubTab);
 
   const [sqlSchema, setSqlSchema] = useState<string>('');
@@ -72,14 +73,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     address: 'Near Central Hospital, Bole Road, Addis Ababa, Ethiopia',
     phone: '+251 911 234 567',
     tinNumber: '0098234123',
+    vatNumber: 'VAT-ETH-991204',
     taxRatePercent: 15,
+    totRatePercent: 2,
     currencySymbol: 'ETB',
     defaultReorderThreshold: 20,
     expiringAlertDays: 90,
     fefoEnforcement: true,
     requirePrescriptionForControlledSubstances: true,
     posReceiptPrinterWidth: '80mm',
+    receiptHeaderSlogan: 'First-Class Healthcare & Certified Pharmaceuticals',
     receiptFooterMessage: 'Thank you for trusting Kaziniya Pharmacy. Contact +251 911 234 567 for refill queries.',
+    enableEimsQrOnReceipt: true,
+    eimsMachineSerial: 'EIMS-KZ-2026-081',
     sessionTimeoutMinutes: 15,
     autoBackupFrequency: 'DAILY',
     auditLogRetentionDays: 365,
@@ -335,6 +341,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           address: data.data.streetAddress || prev.address,
           phone: data.data.phone || prev.phone,
           tinNumber: data.data.tinNumber || prev.tinNumber,
+          vatNumber: data.data.vatNumber || prev.vatNumber,
+          receiptHeaderSlogan: data.data.storeSlogan || prev.receiptHeaderSlogan,
           receiptFooterMessage: data.data.receiptFooterMessage || prev.receiptFooterMessage,
           enableBarcodeSystem: Boolean(data.data.enableBarcodeSystem),
         }));
@@ -388,6 +396,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           streetAddress: storeConfig.address,
           phone: storeConfig.phone,
           tinNumber: storeConfig.tinNumber,
+          vatNumber: storeConfig.vatNumber,
+          receiptHeaderMessage: storeConfig.receiptHeaderSlogan,
           receiptFooterMessage: storeConfig.receiptFooterMessage,
           enableBarcodeSystem: storeConfig.enableBarcodeSystem,
         }),
@@ -426,7 +436,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     const element = document.createElement('a');
     const file = new Blob([sqlSchema], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = 'kaziniya_pharmacy_schema_supabase.sql';
+    element.download = 'kaziniya_docker_init.sql';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -553,6 +563,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveSubTab('eims_config')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
+            activeSubTab === 'eims_config'
+              ? 'bg-teal-600 text-white shadow-xs'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+          }`}
+        >
+          <FileText className="h-4 w-4" />
+          <span>Tax & Invoicing (EIMS)</span>
+        </button>
+
+        <button
           onClick={() => setActiveSubTab('db_schema')}
           className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
             activeSubTab === 'db_schema'
@@ -561,7 +583,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           }`}
         >
           <Database className="h-4 w-4" />
-          <span>PostgreSQL / Supabase DDL</span>
+          <span>Docker PostgreSQL DDL</span>
         </button>
       </div>
 
@@ -1461,8 +1483,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <span className="text-xs font-bold text-slate-500">DATABASE ENGINE</span>
                 <Database className="h-5 w-5 text-blue-600" />
               </div>
-              <p className="text-2xl font-black text-blue-600">PostgreSQL</p>
-              <p className="text-[11px] text-slate-500 font-medium">Supabase Pool Latency 18ms</p>
+              <p className="text-2xl font-black text-blue-600">PostgreSQL 16</p>
+              <p className="text-[11px] text-teal-600 font-bold font-mono">Docker Compose (Port 5432)</p>
             </div>
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-1">
@@ -1828,16 +1850,334 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       )}
 
+      {/* SUB-VIEW 3.5: TAX, EIMS FISCAL INVOICING & THERMAL RECEIPT SETTINGS */}
+      {activeSubTab === 'eims_config' && (
+        <div className="space-y-6">
+          {/* EIMS TOP STATUS CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">EIMS STATUS</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
+                  ONLINE
+                </span>
+              </div>
+              <p className="text-2xl font-black text-slate-900 dark:text-white">MoR Certified</p>
+              <p className="text-[11px] text-teal-600 font-mono font-bold">{storeConfig.eimsMachineSerial}</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">STANDARD VAT</span>
+                <Percent className="h-5 w-5 text-blue-600" />
+              </div>
+              <p className="text-2xl font-black text-blue-600">{storeConfig.taxRatePercent}% Rate</p>
+              <p className="text-[11px] text-slate-500 font-medium">Standard Prescription & OTC</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">FISCAL SIGNATURE</span>
+                <ShieldCheck className="h-5 w-5 text-emerald-600" />
+              </div>
+              <p className="text-2xl font-black text-emerald-600">SHA-256</p>
+              <p className="text-[11px] text-slate-500 font-medium">Automatic MoR Cloud Sync</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs dark:bg-slate-900 dark:border-slate-800 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">DAILY Z-REPORT</span>
+                <FileText className="h-5 w-5 text-purple-600" />
+              </div>
+              <p className="text-2xl font-black text-purple-600">Automated</p>
+              <p className="text-[11px] text-slate-500 font-medium">Generated at Shift Handover</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* LEFT COLUMN: EIMS & TAX CONFIGURATION FORM (7 COLS) */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* SECTION: TAX IDENTIFICATION & TIN */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5 dark:bg-slate-900 dark:border-slate-800">
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base dark:text-white flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-teal-600" /> Business Tax Identification & Legal VAT Profile
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Registered business taxpayer credentials validated against the Ethiopian Ministry of Revenue (MoR).
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="font-bold block mb-1 text-slate-700 dark:text-slate-300">
+                      Tax Identification Number (TIN) <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={storeConfig.tinNumber}
+                      onChange={(e) => setStoreConfig({ ...storeConfig, tinNumber: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 dark:bg-slate-900 dark:border-slate-800 dark:text-white font-mono font-bold"
+                      placeholder="e.g. 0098234123"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">10-digit National Taxpayer ID</span>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1 text-slate-700 dark:text-slate-300">
+                      VAT Registration Certificate No. <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={storeConfig.vatNumber}
+                      onChange={(e) => setStoreConfig({ ...storeConfig, vatNumber: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 dark:bg-slate-900 dark:border-slate-800 dark:text-white font-mono font-bold"
+                      placeholder="e.g. VAT-ETH-991204"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">MoR Value Added Tax Certification</span>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1 text-slate-700 dark:text-slate-300">
+                      Standard VAT Rate (%)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={storeConfig.taxRatePercent}
+                        onChange={(e) => setStoreConfig({ ...storeConfig, taxRatePercent: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-slate-200 bg-white p-2.5 dark:bg-slate-900 dark:border-slate-800 dark:text-white font-bold"
+                      />
+                      <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">%</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 mt-1 block">Statutory standard rate across Ethiopia (15%)</span>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1 text-slate-700 dark:text-slate-300">
+                      Turnover Tax (TOT) for Exempt Drugs
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={storeConfig.totRatePercent}
+                        onChange={(e) => setStoreConfig({ ...storeConfig, totRatePercent: Number(e.target.value) })}
+                        className="w-full rounded-xl border border-slate-200 bg-white p-2.5 dark:bg-slate-900 dark:border-slate-800 dark:text-white font-bold"
+                      />
+                      <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">%</span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 mt-1 block">Applicable for specific life-saving exemptions (2%)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION: POS THERMAL CASH REGISTER & RECEIPT PRINTING */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5 dark:bg-slate-900 dark:border-slate-800">
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base dark:text-white flex items-center gap-2">
+                    <Printer className="h-5 w-5 text-teal-600" /> POS Thermal Receipt & Cash Register Parameters
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Format thermal receipt paper widths, header legal slogans, and customer disclaimers.
+                  </p>
+                </div>
+
+                <div className="space-y-4 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="font-bold block mb-1 text-slate-700 dark:text-slate-300">
+                        Thermal Printer Paper Width
+                      </label>
+                      <select
+                        value={storeConfig.posReceiptPrinterWidth}
+                        onChange={(e) => setStoreConfig({ ...storeConfig, posReceiptPrinterWidth: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 bg-white p-2.5 dark:bg-slate-900 dark:border-slate-800 dark:text-white font-semibold"
+                      >
+                        <option value="80mm">80mm Standard POS Thermal Roll (Countertop)</option>
+                        <option value="58mm">58mm Compact Mobile Printer (Handheld POS)</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200/80 dark:bg-slate-950 dark:border-slate-800">
+                      <div>
+                        <span className="font-bold block text-slate-800 dark:text-slate-200">
+                          EIMS QR Code on Receipts
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Print MoR verification QR code on customer slips
+                        </span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={storeConfig.enableEimsQrOnReceipt}
+                        onChange={(e) => setStoreConfig({ ...storeConfig, enableEimsQrOnReceipt: e.target.checked })}
+                        className="h-4 w-4 accent-teal-600 rounded shrink-0 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1 text-slate-700 dark:text-slate-300">
+                      Receipt Header Slogan / Subtitle
+                    </label>
+                    <input
+                      type="text"
+                      value={storeConfig.receiptHeaderSlogan}
+                      onChange={(e) => setStoreConfig({ ...storeConfig, receiptHeaderSlogan: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                      placeholder="e.g. First-Class Healthcare & Certified Pharmaceuticals"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold block mb-1 text-slate-700 dark:text-slate-300">
+                      Receipt Footer Notice & Refill Inquiries
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={storeConfig.receiptFooterMessage}
+                      onChange={(e) => setStoreConfig({ ...storeConfig, receiptFooterMessage: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                      placeholder="e.g. Thank you for choosing Kaziniya Pharmacy. Contact +251 911 234 567 for refill queries."
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    onClick={handleSaveStoreConfig}
+                    className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition flex items-center gap-2 shadow-xs cursor-pointer"
+                  >
+                    <CheckCircle2 className="h-4 w-4" /> Save Tax & EIMS Settings
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: LIVE THERMAL RECEIPT SLIP PREVIEW (5 COLS) */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 dark:bg-slate-900 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-extrabold text-slate-900 text-sm dark:text-white flex items-center gap-2">
+                    <Receipt className="h-4 w-4 text-teal-600" /> Live Thermal Slip Preview
+                  </h4>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold dark:bg-slate-800 dark:text-slate-300">
+                    {storeConfig.posReceiptPrinterWidth} Roll
+                  </span>
+                </div>
+
+                {/* AUTHENTIC THERMAL PAPER SLIP */}
+                <div className="mx-auto max-w-[340px] bg-amber-50/40 border border-dashed border-slate-300 rounded-xl p-5 shadow-xs font-mono text-slate-800 text-[11px] leading-tight dark:bg-slate-950 dark:border-slate-800 dark:text-slate-200">
+                  {/* STORE HEADER */}
+                  <div className="text-center space-y-1 pb-3 border-b border-dashed border-slate-300 dark:border-slate-800">
+                    <p className="font-black text-sm tracking-wide uppercase">{storeConfig.storeName}</p>
+                    <p className="text-[10px] text-slate-500">{storeConfig.receiptHeaderSlogan}</p>
+                    <p className="text-[10px] text-slate-500">{storeConfig.address}</p>
+                    <p className="text-[10px] font-bold">Tel: {storeConfig.phone}</p>
+                    <div className="pt-1 text-[9px] text-slate-600 flex justify-center gap-2">
+                      <span>TIN: <b>{storeConfig.tinNumber}</b></span>
+                      <span>|</span>
+                      <span>VAT: <b>{storeConfig.vatNumber}</b></span>
+                    </div>
+                  </div>
+
+                  {/* INVOICE META */}
+                  <div className="py-2.5 border-b border-dashed border-slate-300 dark:border-slate-800 text-[10px] space-y-0.5">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">FS NO:</span>
+                      <span className="font-bold">FS-2026-98104</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">DATE:</span>
+                      <span>{new Date().toISOString().split('T')[0]} 14:32</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">CASHIER:</span>
+                      <span>Monet Alemayehu (EMP-PHARM-01)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">EIMS MACHINE:</span>
+                      <span>{storeConfig.eimsMachineSerial}</span>
+                    </div>
+                  </div>
+
+                  {/* ITEM LIST */}
+                  <div className="py-2.5 border-b border-dashed border-slate-300 dark:border-slate-800 space-y-2 text-[10px]">
+                    <div className="flex justify-between font-bold text-slate-600 dark:text-slate-400">
+                      <span>ITEM / QTY</span>
+                      <span>TOTAL (ETB)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="font-bold">Amoxicillin 500mg Caps</p>
+                        <p className="text-[9px] text-slate-500">2 x 150.00 ETB (Taxable)</p>
+                      </div>
+                      <span className="font-bold pt-1">300.00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="font-bold">Paracetamol 500mg Tabs</p>
+                        <p className="text-[9px] text-slate-500">1 x 45.00 ETB (Taxable)</p>
+                      </div>
+                      <span className="font-bold pt-1">45.00</span>
+                    </div>
+                  </div>
+
+                  {/* TOTALS & TAX BREAKDOWN */}
+                  <div className="py-2.5 border-b border-dashed border-slate-300 dark:border-slate-800 space-y-1 text-[11px]">
+                    <div className="flex justify-between">
+                      <span>Subtotal:</span>
+                      <span>300.00 ETB</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600 dark:text-slate-400">
+                      <span>VAT ({storeConfig.taxRatePercent}%):</span>
+                      <span>45.00 ETB</span>
+                    </div>
+                    <div className="flex justify-between font-black text-sm pt-1 border-t border-slate-300 dark:border-slate-700">
+                      <span>TOTAL:</span>
+                      <span className="text-teal-700 dark:text-teal-400">345.00 ETB</span>
+                    </div>
+                    <div className="flex justify-between text-[10px] text-slate-500 pt-0.5">
+                      <span>PAYMENT:</span>
+                      <span>CASH PAID (350.00) | CHG: 5.00</span>
+                    </div>
+                  </div>
+
+                  {/* QR & FISCAL SIGNATURE */}
+                  {storeConfig.enableEimsQrOnReceipt && (
+                    <div className="pt-3 text-center space-y-2">
+                      <div className="mx-auto w-20 h-20 bg-white border border-slate-300 p-1 rounded-md flex items-center justify-center dark:bg-slate-900 dark:border-slate-700">
+                        <QrCode className="w-16 h-16 text-slate-800 dark:text-slate-100" />
+                      </div>
+                      <p className="text-[8px] text-slate-400 tracking-wider">
+                        EIMS VERIFICATION CODE: EIMS-88A9-2026-ETH
+                      </p>
+                    </div>
+                  )}
+
+                  {/* FOOTER MESSAGE */}
+                  <div className="pt-3 text-center text-[9px] text-slate-500 leading-tight">
+                    <p>{storeConfig.receiptFooterMessage}</p>
+                    <p className="pt-1 font-bold">Powered by Kaziniya EIMS Core v2.4</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* SUB-VIEW 4: DATABASE SCHEMA DDL EXPORT */}
       {activeSubTab === 'db_schema' && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4 dark:bg-slate-900 dark:border-slate-800">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5 dark:bg-slate-900 dark:border-slate-800">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="font-bold text-slate-900 text-base dark:text-white flex items-center gap-2">
-                <Database className="h-5 w-5 text-teal-600" /> Supabase / PostgreSQL DDL Export
+                <Database className="h-5 w-5 text-teal-600" /> Docker PostgreSQL 16 DDL & Init Schema
               </h3>
-              <p className="text-xs text-slate-500">
-                Ready-to-deploy SQL schema file for production Supabase / Cloud SQL migration with Foreign Keys & Indexes
+              <p className="text-xs text-slate-500 mt-1">
+                Local Docker Compose PostgreSQL 16 schema (<code className="text-teal-600">docker/init.sql</code>) containerized as <code className="font-mono text-slate-800 dark:text-slate-200">kaziniya-postgres:5432</code> with Foreign Keys, Cascades & Performance Indexes.
               </p>
             </div>
 
@@ -1855,6 +2195,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               >
                 <Download className="h-4 w-4" /> Download .SQL File
               </button>
+            </div>
+          </div>
+
+          {/* DOCKER CONTAINER RUNTIME STATUS BANNER */}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 dark:bg-slate-950 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold block">CONTAINER</span>
+              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">kaziniya-postgres</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold block">IMAGE</span>
+              <span className="font-mono font-bold text-teal-600">postgres:16-alpine</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold block">PORT / DATABASE</span>
+              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">5432 / kaziniya_db</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold block">WEB GUI (ADMINER)</span>
+              <a
+                href="http://localhost:8080"
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono font-bold text-blue-600 hover:underline inline-flex items-center gap-1"
+              >
+                :8080 <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
           </div>
 

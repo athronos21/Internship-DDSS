@@ -65,14 +65,85 @@ inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), 
       sku,
     } = req.body;
 
-    if (!name) {
+    if (!name || typeof name !== 'string' || !name.trim()) {
       return res.status(400).json({ success: false, message: 'Medicine Name is required' });
     }
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2) {
+      return res.status(400).json({ success: false, message: 'Medicine Name must be at least 2 characters' });
+    }
 
-    let assignedBarcode = barcode || `6281${Math.floor(10000000 + Math.random() * 90000000)}`;
+    let assignedBarcode = (barcode && typeof barcode === 'string' && barcode.trim())
+      ? barcode.trim()
+      : `6281${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+    // Barcode collision check: Ensure barcode is not already assigned to another distinct medicine
+    const barcodeConflict = db.medicines.find(
+      (m) => m.barcode.toLowerCase() === assignedBarcode.toLowerCase() && m.name.toLowerCase() !== trimmedName.toLowerCase()
+    );
+    if (barcodeConflict) {
+      return res.status(409).json({
+        success: false,
+        message: `Barcode "${assignedBarcode}" is already assigned to medicine "${barcodeConflict.name}". Barcodes must be unique per medicine.`,
+      });
+    }
+
+    if (reorderLevel !== undefined) {
+      const rl = Number(reorderLevel);
+      if (isNaN(rl) || rl < 0) {
+        return res.status(400).json({ success: false, message: 'Reorder level must be a non-negative number' });
+      }
+    }
+
+    // Comprehensive Initial Batch Validation
+    if (initialBatch) {
+      const { batchNumber, quantity, purchasePrice, sellingPrice, mfgDate, expDate } = initialBatch;
+
+      if (!batchNumber || typeof batchNumber !== 'string' || !batchNumber.trim()) {
+        return res.status(400).json({ success: false, message: 'Batch / Lot number is required when specifying initial batch stock' });
+      }
+
+      const qty = Number(quantity);
+      if (isNaN(qty) || !Number.isInteger(qty) || qty < 1 || qty > 1000000) {
+        return res.status(400).json({ success: false, message: 'Initial batch quantity must be a positive integer between 1 and 1,000,000' });
+      }
+
+      const cost = Number(purchasePrice);
+      if (isNaN(cost) || cost < 0) {
+        return res.status(400).json({ success: false, message: 'Purchase price (unit cost) cannot be negative' });
+      }
+
+      const price = Number(sellingPrice);
+      if (isNaN(price) || price < 0) {
+        return res.status(400).json({ success: false, message: 'Selling price cannot be negative' });
+      }
+
+      if (price < cost) {
+        return res.status(400).json({
+          success: false,
+          message: `Selling price (${price} ETB) cannot be less than purchase cost (${cost} ETB). Dispensing at a loss is prohibited.`,
+        });
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (mfgDate && expDate) {
+        if (expDate <= mfgDate) {
+          return res.status(400).json({
+            success: false,
+            message: `Batch expiry date (${expDate}) must be strictly after manufacturing date (${mfgDate})`,
+          });
+        }
+      }
+      if (expDate && expDate < todayStr) {
+        return res.status(400).json({
+          success: false,
+          message: `Batch expiry date (${expDate}) has already passed. Expired medicine cannot be stocked for dispensing.`,
+        });
+      }
+    }
 
     const existing = db.medicines.find(
-      (m) => m.barcode === assignedBarcode || m.name.toLowerCase() === name.toLowerCase()
+      (m) => m.barcode === assignedBarcode || m.name.toLowerCase() === trimmedName.toLowerCase()
     );
 
     const now = new Date().toISOString();
@@ -82,10 +153,10 @@ inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), 
       const newMed = {
         id: `med-${Date.now()}`,
         barcode: assignedBarcode,
-        sku: sku || `MED-${name.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
-        name,
-        genericName: genericName || name,
-        brandName: brandName || name,
+        sku: sku || `MED-${trimmedName.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
+        name: trimmedName,
+        genericName: genericName || trimmedName,
+        brandName: brandName || trimmedName,
         categoryId: categoryId || 'cat-1',
         dosageForm: dosageForm || 'Tablet',
         strength: strength || '500mg',
@@ -122,7 +193,7 @@ inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), 
       const batchObj = {
         id: `bat-${Date.now()}`,
         medicineId: targetMed.id,
-        batchNumber: initialBatch.batchNumber,
+        batchNumber: initialBatch.batchNumber.trim(),
         manufacturingDate: initialBatch.mfgDate || '2025-01-01',
         expiryDate: initialBatch.expDate || '2028-01-01',
         purchasePrice: Number(initialBatch.purchasePrice) || 10,
@@ -145,7 +216,7 @@ inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), 
         quantity: batchObj.initialQuantity,
         previousQuantity: 0,
         newQuantity: batchObj.initialQuantity,
-        performedBy: (req.headers['x-user-id'] as string) || 'u-1',
+        performedBy: req.user?.id || (req.headers['x-user-id'] as string) || 'u-1',
         notes: 'Medicine stock intake initial batch',
         createdAt: now,
       });
@@ -153,7 +224,7 @@ inventoryRouter.post('/medicines', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), 
 
     db.auditLogs.unshift({
       id: `log-${Date.now()}`,
-      userId: (req.headers['x-user-id'] as string) || 'u-1',
+      userId: req.user?.id || (req.headers['x-user-id'] as string) || 'u-1',
       action: existing ? 'MEDICINE_BATCH_ADDED' : 'MEDICINE_CREATED',
       entityType: 'MEDICINE',
       entityId: targetMed.id,
@@ -204,6 +275,33 @@ inventoryRouter.get('/medicines/:id', (req, res) => {
 inventoryRouter.put('/medicines/:id', requireRole(['STORE_OWNER', 'SUPER_ADMIN']), (req: AuthenticatedRequest, res) => {
   const med = db.medicines.find((m) => m.id === req.params.id);
   if (!med) return res.status(404).json({ success: false, message: 'Medicine not found' });
+
+  const { name, barcode, reorderLevel } = req.body;
+  if (name !== undefined) {
+    if (typeof name !== 'string' || name.trim().length < 2) {
+      return res.status(400).json({ success: false, message: 'Medicine Name must be at least 2 characters' });
+    }
+  }
+
+  if (barcode !== undefined && typeof barcode === 'string') {
+    const cleanBarcode = barcode.trim();
+    const barcodeConflict = db.medicines.find(
+      (m) => m.barcode.toLowerCase() === cleanBarcode.toLowerCase() && m.id !== req.params.id
+    );
+    if (barcodeConflict) {
+      return res.status(409).json({
+        success: false,
+        message: `Barcode "${cleanBarcode}" is already assigned to medicine "${barcodeConflict.name}".`,
+      });
+    }
+  }
+
+  if (reorderLevel !== undefined) {
+    const rl = Number(reorderLevel);
+    if (isNaN(rl) || rl < 0) {
+      return res.status(400).json({ success: false, message: 'Reorder level must be a non-negative number' });
+    }
+  }
 
   Object.assign(med, req.body, { updatedAt: new Date().toISOString() });
   res.json({ success: true, message: 'Medicine updated successfully', data: med });

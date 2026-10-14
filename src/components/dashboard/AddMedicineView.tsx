@@ -29,6 +29,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { safeFetchJson } from '../../utils/api';
 import {
   parsePackagingText,
   accumulatePackagingData,
@@ -142,6 +143,9 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
     dosageForm?: boolean;
     manufacturer?: boolean;
   }>({});
+
+  // Main form validation state for inline error feedback
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Quick Add Supplier state
   const [newSupplierName, setNewSupplierName] = useState('');
@@ -449,17 +453,12 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
   const fetchInitialData = async () => {
     try {
       const [medRes, supRes] = await Promise.all([
-        fetch('/api/medicines'),
-        fetch('/api/suppliers'),
+        safeFetchJson<any[]>('/api/medicines'),
+        safeFetchJson<any[]>('/api/suppliers'),
       ]);
 
-      const [medData, supData] = await Promise.all([
-        medRes.json(),
-        supRes.json(),
-      ]);
-
-      if (medData.success && medData.data) {
-        const mapped: MedicineOption[] = medData.data.map((m: any) => ({
+      if (medRes.success && medRes.data) {
+        const mapped: MedicineOption[] = medRes.data.map((m: any) => ({
           id: m.id,
           brandName: m.brandName || m.name,
           genericName: m.genericName || m.name,
@@ -474,8 +473,8 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
         setMedicinesList(mapped);
       }
 
-      if (supData.success && supData.data) {
-        setSuppliersList(supData.data);
+      if (supRes.success && supRes.data) {
+        setSuppliersList(supRes.data);
       }
     } catch (e) {
       console.error('Error fetching initial medicine or supplier data:', e);
@@ -515,6 +514,13 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
         ? prev.filter((c) => c !== catName)
         : [...prev, catName]
     );
+    if (formErrors.categories) {
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next.categories;
+        return next;
+      });
+    }
   };
 
   // Handle Cover Image Upload
@@ -667,21 +673,100 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
     }
   };
 
+  // Main Form Validation Logic
+  const validateForm = () => {
+    const errs: Record<string, string> = {};
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // 1. Brand / Product Name
+    const effectiveBrand = (brandName || '').trim();
+    if (!effectiveBrand) {
+      errs.brandName = 'Medicine Brand / Product Name is required.';
+    } else if (effectiveBrand.length < 2) {
+      errs.brandName = 'Medicine Name must be at least 2 characters.';
+    }
+
+    // 2. Generic Name
+    const effectiveGeneric = (genericName || '').trim();
+    if (!effectiveGeneric) {
+      errs.genericName = 'Generic Name (Active Pharmaceutical Ingredient) is required.';
+    }
+
+    // 3. Strength & Dosage Form
+    if (!(strength || '').trim()) {
+      errs.strength = 'Dosage strength is required (e.g., 500mg, 250mg/5ml).';
+    }
+    if (!(dosageForm || '').trim()) {
+      errs.dosageForm = 'Dosage form is required.';
+    }
+
+    // 4. Categories
+    if (selectedCategories.length === 0) {
+      errs.categories = 'Please select at least one therapeutic classification category.';
+    }
+
+    // 5. Barcode
+    const cleanBarcode = (barcode || '').trim();
+    if (!cleanBarcode) {
+      errs.barcode = 'Barcode is required. Click "Generate New" or scan packaging.';
+    } else if (cleanBarcode.length < 3) {
+      errs.barcode = 'Barcode must be at least 3 characters.';
+    }
+
+    // 6. Pricing (Buy vs. Sell price)
+    const buyNum = parseFloat(String(buyPrice));
+    if (isNaN(buyNum) || buyNum < 0) {
+      errs.buyPrice = 'Buy Price must be a valid non-negative number (0 or higher).';
+    }
+
+    const sellNum = parseFloat(String(sellPrice));
+    if (isNaN(sellNum) || sellNum < 0) {
+      errs.sellPrice = 'Sell Price must be a valid non-negative number (0 or higher).';
+    } else if (!isNaN(buyNum) && sellNum < buyNum) {
+      errs.sellPrice = `Sell Price (${sellNum} ETB) cannot be less than purchase cost (${buyNum} ETB).`;
+    }
+
+    // 7. Initial Batch Stock
+    const qtyNum = parseInt(String(initialQuantity), 10);
+    if (isNaN(qtyNum) || qtyNum < 1) {
+      errs.initialQuantity = 'Initial Stock Quantity must be at least 1 unit.';
+    }
+
+    const cleanBatch = (batchNumber || '').trim();
+    if (!cleanBatch) {
+      errs.batchNumber = 'Batch / Lot # is required for inventory trace tracking.';
+    }
+
+    // 8. EFDA Date Integrity
+    if (!expDate) {
+      errs.expDate = 'Batch Expiry Date is required by EFDA regulations.';
+    } else {
+      if (expDate < todayStr) {
+        errs.expDate = `Expiry date (${expDate}) is in the past. Cannot stock expired medicine.`;
+      }
+      if (mfgDate && expDate <= mfgDate) {
+        errs.expDate = `Expiry date (${expDate}) must be strictly after manufacturing date (${mfgDate}).`;
+        errs.mfgDate = `Manufacturing date (${mfgDate}) cannot be on or after expiry date (${expDate}).`;
+      }
+    }
+
+    return errs;
+  };
+
   // Main Submit Handler
   const handleMainSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setFormErrors(validationErrors);
+      const firstErrorMessage = Object.values(validationErrors)[0];
+      showToast(firstErrorMessage, 'warning', 'Form Validation Error');
+      return;
+    }
+    setFormErrors({});
+
     const effectiveBrandName = (brandName || '').trim();
-    if (!effectiveBrandName) {
-      showToast('Medicine Brand Name is required. Enter name or pick from formulary.', 'warning', 'Medicine Name Required');
-      return;
-    }
-
-    if (selectedCategories.length === 0) {
-      showToast('Please select at least one classification category.', 'warning', 'Category Required');
-      return;
-    }
-
     const effectiveGenericName = (genericName || effectiveBrandName).trim();
     const finalBarcode = (barcode || '').trim() || `6281${Math.floor(10000000 + Math.random() * 90000000)}`;
 
@@ -718,17 +803,15 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
         },
       };
 
-      const res = await fetch('/api/medicines', {
+      const res = await safeFetchJson<any>('/api/medicines', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': 'u-1',
         },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (data.success) {
+      if (res.success) {
         showToast(
           `Product "${effectiveBrandName}" successfully added to stock with ${qtyNum} units!`,
           'success',
@@ -740,7 +823,10 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
           onBack();
         }
       } else {
-        showToast(data.message || 'Failed to add medicine.', 'error');
+        showToast(res.message || 'Failed to add medicine.', 'error', 'Registration Error');
+        if (res.message?.includes('Barcode')) {
+          setFormErrors((prev) => ({ ...prev, barcode: res.message! }));
+        }
       }
     } catch (err: any) {
       console.error('Error adding medicine:', err);
@@ -1317,6 +1403,21 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
 
       {/* MAIN FORM */}
       <form onSubmit={handleMainSubmit} className="space-y-6">
+        {/* Global Form Validation Error Alert Banner */}
+        {Object.keys(formErrors).length > 0 && (
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center gap-2 font-bold mb-1.5 text-rose-900">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+              <span>Please resolve {Object.keys(formErrors).length} validation {Object.keys(formErrors).length === 1 ? 'issue' : 'issues'} before submitting:</span>
+            </div>
+            <ul className="list-disc list-inside space-y-0.5 text-rose-700 ml-1">
+              {Object.entries(formErrors).map(([key, msg]) => (
+                <li key={key}>{msg}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* SECTION 1: BASIC INFORMATION */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5">
           <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1385,9 +1486,28 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 required
                 placeholder="e.g. Paracetamol 500mg, Amoxicillin"
                 value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-900 font-semibold focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition"
+                onChange={(e) => {
+                  setBrandName(e.target.value);
+                  if (formErrors.brandName) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.brandName;
+                      return next;
+                    });
+                  }
+                }}
+                className={`w-full rounded-xl border ${
+                  formErrors.brandName
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs text-slate-900 font-semibold focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition`}
               />
+              {formErrors.brandName && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.brandName}</span>
+                </p>
+              )}
             </div>
 
             {/* Generic Name / Active Ingredient * */}
@@ -1400,9 +1520,28 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 required
                 placeholder="e.g. Paracetamol, Amoxicillin Trihydrate"
                 value={genericName}
-                onChange={(e) => setGenericName(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition"
+                onChange={(e) => {
+                  setGenericName(e.target.value);
+                  if (formErrors.genericName) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.genericName;
+                      return next;
+                    });
+                  }
+                }}
+                className={`w-full rounded-xl border ${
+                  formErrors.genericName
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition`}
               />
+              {formErrors.genericName && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.genericName}</span>
+                </p>
+              )}
             </div>
 
             {/* Dosage Strength * */}
@@ -1415,9 +1554,28 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 required
                 placeholder="e.g. 500mg, 250mg/5ml, 1g"
                 value={strength}
-                onChange={(e) => setStrength(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition"
+                onChange={(e) => {
+                  setStrength(e.target.value);
+                  if (formErrors.strength) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.strength;
+                      return next;
+                    });
+                  }
+                }}
+                className={`w-full rounded-xl border ${
+                  formErrors.strength
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition`}
               />
+              {formErrors.strength && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.strength}</span>
+                </p>
+              )}
             </div>
 
             {/* Dosage Form * */}
@@ -1428,8 +1586,21 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
               <select
                 required
                 value={dosageForm}
-                onChange={(e) => setDosageForm(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition"
+                onChange={(e) => {
+                  setDosageForm(e.target.value);
+                  if (formErrors.dosageForm) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.dosageForm;
+                      return next;
+                    });
+                  }
+                }}
+                className={`w-full rounded-xl border ${
+                  formErrors.dosageForm
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition`}
               >
                 <option value="Tablet">Tablet</option>
                 <option value="Capsule">Capsule</option>
@@ -1445,6 +1616,12 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 <option value="Suppository">Suppository</option>
                 <option value="Powder / Granules">Powder / Granules</option>
               </select>
+              {formErrors.dosageForm && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.dosageForm}</span>
+                </p>
+              )}
             </div>
 
             {/* Manufacturer */}
@@ -1469,7 +1646,16 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 </label>
                 <button
                   type="button"
-                  onClick={() => setBarcode(`6281${Math.floor(10000000 + Math.random() * 90000000)}`)}
+                  onClick={() => {
+                    setBarcode(`6281${Math.floor(10000000 + Math.random() * 90000000)}`);
+                    if (formErrors.barcode) {
+                      setFormErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.barcode;
+                        return next;
+                      });
+                    }
+                  }}
                   className="text-[11px] font-bold text-[#0070ba] hover:underline cursor-pointer"
                 >
                   Generate New
@@ -1479,9 +1665,28 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 type="text"
                 placeholder="Scan or enter barcode"
                 value={barcode}
-                onChange={(e) => setBarcode(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition"
+                onChange={(e) => {
+                  setBarcode(e.target.value);
+                  if (formErrors.barcode) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.barcode;
+                      return next;
+                    });
+                  }
+                }}
+                className={`w-full rounded-xl border ${
+                  formErrors.barcode
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs font-mono text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition`}
               />
+              {formErrors.barcode && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.barcode}</span>
+                </p>
+              )}
             </div>
 
             {/* Supplier (Optional) + Add New */}
@@ -1551,10 +1756,30 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                   min="0"
                   required
                   value={buyPrice}
-                  onChange={(e) => setBuyPrice(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-12 pr-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition"
+                  onChange={(e) => {
+                    setBuyPrice(e.target.value);
+                    if (formErrors.buyPrice || formErrors.sellPrice) {
+                      setFormErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.buyPrice;
+                        delete next.sellPrice;
+                        return next;
+                      });
+                    }
+                  }}
+                  className={`w-full rounded-xl border ${
+                    formErrors.buyPrice
+                      ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                      : 'border-slate-200 bg-white'
+                  } pl-12 pr-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition`}
                 />
               </div>
+              {formErrors.buyPrice && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.buyPrice}</span>
+                </p>
+              )}
             </div>
 
             {/* Profit Margin * */}
@@ -1569,7 +1794,16 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                   min="0"
                   required
                   value={profitMargin}
-                  onChange={(e) => setProfitMargin(e.target.value)}
+                  onChange={(e) => {
+                    setProfitMargin(e.target.value);
+                    if (formErrors.sellPrice) {
+                      setFormErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.sellPrice;
+                        return next;
+                      });
+                    }
+                  }}
                   className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-8 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none transition"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
@@ -1592,10 +1826,29 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                   step="0.01"
                   min="0"
                   value={sellPrice}
-                  onChange={(e) => setSellPrice(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-emerald-50/50 pl-12 pr-3.5 py-2.5 text-xs font-black text-emerald-700 focus:border-[#0070ba] focus:outline-none"
+                  onChange={(e) => {
+                    setSellPrice(e.target.value);
+                    if (formErrors.sellPrice) {
+                      setFormErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.sellPrice;
+                        return next;
+                      });
+                    }
+                  }}
+                  className={`w-full rounded-xl border ${
+                    formErrors.sellPrice
+                      ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                      : 'border-slate-200 bg-emerald-50/50'
+                  } pl-12 pr-3.5 py-2.5 text-xs font-black text-emerald-700 focus:border-[#0070ba] focus:outline-none`}
                 />
               </div>
+              {formErrors.sellPrice && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.sellPrice}</span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -1611,10 +1864,29 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 min="1"
                 required
                 value={initialQuantity}
-                onChange={(e) => setInitialQuantity(e.target.value)}
+                onChange={(e) => {
+                  setInitialQuantity(e.target.value);
+                  if (formErrors.initialQuantity) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.initialQuantity;
+                      return next;
+                    });
+                  }
+                }}
                 placeholder="100"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none"
+                className={`w-full rounded-xl border ${
+                  formErrors.initialQuantity
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none`}
               />
+              {formErrors.initialQuantity && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.initialQuantity}</span>
+                </p>
+              )}
             </div>
 
             {/* Batch Number */}
@@ -1625,7 +1897,16 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 </label>
                 <button
                   type="button"
-                  onClick={() => setBatchNumber(`KZ-BAT-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`)}
+                  onClick={() => {
+                    setBatchNumber(`KZ-BAT-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`);
+                    if (formErrors.batchNumber) {
+                      setFormErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.batchNumber;
+                        return next;
+                      });
+                    }
+                  }}
                   className="text-[10px] text-[#0070ba] font-bold hover:underline cursor-pointer"
                 >
                   Gen #
@@ -1635,10 +1916,29 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 type="text"
                 required
                 value={batchNumber}
-                onChange={(e) => setBatchNumber(e.target.value)}
+                onChange={(e) => {
+                  setBatchNumber(e.target.value);
+                  if (formErrors.batchNumber) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.batchNumber;
+                      return next;
+                    });
+                  }
+                }}
                 placeholder="e.g. KZ-BAT-2026-842"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none"
+                className={`w-full rounded-xl border ${
+                  formErrors.batchNumber
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none`}
               />
+              {formErrors.batchNumber && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.batchNumber}</span>
+                </p>
+              )}
             </div>
 
             {/* Expiry Date */}
@@ -1650,9 +1950,29 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                 type="date"
                 required
                 value={expDate}
-                onChange={(e) => setExpDate(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none"
+                onChange={(e) => {
+                  setExpDate(e.target.value);
+                  if (formErrors.expDate || formErrors.mfgDate) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.expDate;
+                      delete next.mfgDate;
+                      return next;
+                    });
+                  }
+                }}
+                className={`w-full rounded-xl border ${
+                  formErrors.expDate
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none`}
               />
+              {formErrors.expDate && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.expDate}</span>
+                </p>
+              )}
             </div>
 
             {/* Manufacturing Date */}
@@ -1663,9 +1983,29 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
               <input
                 type="date"
                 value={mfgDate}
-                onChange={(e) => setMfgDate(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none"
+                onChange={(e) => {
+                  setMfgDate(e.target.value);
+                  if (formErrors.expDate || formErrors.mfgDate) {
+                    setFormErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.expDate;
+                      delete next.mfgDate;
+                      return next;
+                    });
+                  }
+                }}
+                className={`w-full rounded-xl border ${
+                  formErrors.mfgDate
+                    ? 'border-rose-400 bg-rose-50/20 ring-1 ring-rose-400'
+                    : 'border-slate-200 bg-white'
+                } px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0070ba] focus:outline-none`}
               />
+              {formErrors.mfgDate && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.mfgDate}</span>
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -1741,6 +2081,12 @@ export const AddMedicineView: React.FC<AddMedicineViewProps> = ({ onBack, onSucc
                   );
                 })}
               </div>
+              {formErrors.categories && (
+                <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 mt-1.5">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{formErrors.categories}</span>
+                </p>
+              )}
             </div>
           </div>
         </div>

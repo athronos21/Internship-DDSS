@@ -160,7 +160,7 @@ function AppContent() {
   const [purchasesSubTab, setPurchasesSubTab] = useState<'suppliers' | 'purchase_orders' | 'goods_receipts' | 'purchase_invoices' | 'supplier_payments' | 'purchase_returns' | 'ap_dashboard'>('purchase_orders');
   const [reportsSubTab, setReportsSubTab] = useState<'analytics' | 'ml_forecast' | 'chart_of_accounts' | 'journal_entries' | 'trial_balance' | 'profit_loss' | 'balance_sheet' | 'expenses' | 'branch_reports'>('analytics');
   const [hrSubTab, setHrSubTab] = useState<'dashboard' | 'employees' | 'attendance' | 'schedules' | 'leave_requests' | 'payroll' | 'loans' | 'departments' | 'job_titles' | 'audit_logs'>('employees');
-  const [settingsSubTab, setSettingsSubTab] = useState<'store_config' | 'all_notifications' | 'notif_settings' | 'db_schema' | 'branch_config' | 'payment_methods'>('all_notifications');
+  const [settingsSubTab, setSettingsSubTab] = useState<'store_config' | 'eims_config' | 'all_notifications' | 'notif_settings' | 'db_schema' | 'branch_config' | 'payment_methods'>('all_notifications');
   const [masterAdminSubTab, setMasterAdminSubTab] = useState<MasterAdminTab>('HUB');
   const [masterAdminSubFilter, setMasterAdminSubFilter] = useState<string>('');
   const [autoOpenAddMedModal, setAutoOpenAddMedModal] = useState(false);
@@ -651,12 +651,17 @@ function AppContent() {
               setIsPhoneQrModalOpen(true);
             } else if (
               itemId === 'store_settings' ||
-              itemId === 'eims_config' ||
               itemId === 'system_config' ||
               itemId === 'system_settings' ||
               itemId === 'sys_config'
             ) {
               setSettingsSubTab('store_config');
+            } else if (
+              itemId === 'eims_config' ||
+              itemId === 'tax_settings' ||
+              itemId === 'invoice_settings'
+            ) {
+              setSettingsSubTab('eims_config');
             }
           }}
           onOpenMobileApp={() => setIsPhoneQrModalOpen(true)}

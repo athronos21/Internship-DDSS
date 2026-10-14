@@ -29,6 +29,8 @@ import { MedicineQrCodeModal } from '../common/MedicineQrCodeModal';
 import { BarcodeGeneratorModal } from '../common/BarcodeGeneratorModal';
 import { CsvImportModal } from '../common/CsvImportModal';
 import { Barcode as BarcodeIcon, UploadCloud } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
+import { safeFetchJson } from '../../utils/api';
 
 interface InventoryViewProps {
   initialSubTab?: 'medicines' | 'batches' | 'low' | 'expiring' | 'archived' | 'movements' | 'requests';
@@ -45,6 +47,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   autoOpenCreateReqModal = false,
   onNavigateToAddMedicine,
 }) => {
+  const { showToast } = useToast();
   const [activeSubTab, setActiveSubTab] = useState<'medicines' | 'batches' | 'low' | 'expiring' | 'archived' | 'movements' | 'requests'>(initialSubTab);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [batches, setBatches] = useState<MedicineBatch[]>([]);
@@ -298,16 +301,72 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
   const handleAddMedicineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Name validation
+    const trimmedName = (addMedForm.name || '').trim();
+    if (!trimmedName || trimmedName.length < 2) {
+      showToast('Medicine Brand/Trade Name must be at least 2 characters.', 'warning', 'Validation Warning');
+      return;
+    }
+
+    // 2. Reorder level validation
+    const rl = Number(addMedForm.reorderLevel);
+    if (isNaN(rl) || rl < 0) {
+      showToast('Reorder level must be a non-negative number (0 or higher).', 'warning', 'Validation Warning');
+      return;
+    }
+
+    // 3. Initial Batch validations
+    const batchNum = (addMedForm.batchNumber || '').trim();
+    if (!batchNum) {
+      showToast('Batch / Lot number is required for inventory trace tracking.', 'warning', 'Validation Warning');
+      return;
+    }
+
+    const qty = Number(addMedForm.quantity);
+    if (isNaN(qty) || !Number.isInteger(qty) || qty < 1) {
+      showToast('Initial batch quantity must be a positive integer (at least 1 unit).', 'warning', 'Validation Warning');
+      return;
+    }
+
+    const cost = Number(addMedForm.purchasePrice);
+    if (isNaN(cost) || cost < 0) {
+      showToast('Purchase price cannot be negative.', 'warning', 'Validation Warning');
+      return;
+    }
+
+    const price = Number(addMedForm.sellingPrice);
+    if (isNaN(price) || price < 0) {
+      showToast('Selling price cannot be negative.', 'warning', 'Validation Warning');
+      return;
+    }
+
+    if (price < cost) {
+      showToast(`Selling price (${price} ETB) cannot be less than purchase cost (${cost} ETB).`, 'warning', 'Validation Warning');
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (addMedForm.expDate && addMedForm.expDate < todayStr) {
+      showToast(`Batch expiry date (${addMedForm.expDate}) is in the past. Cannot stock expired medicine.`, 'warning', 'Validation Warning');
+      return;
+    }
+
+    if (addMedForm.mfgDate && addMedForm.expDate && addMedForm.expDate <= addMedForm.mfgDate) {
+      showToast(`Batch expiry date (${addMedForm.expDate}) must be strictly after manufacturing date (${addMedForm.mfgDate}).`, 'warning', 'Validation Warning');
+      return;
+    }
+
     try {
-      const res = await fetch('/api/medicines', {
+      const data = await safeFetchJson<{ success: boolean; message?: string; data?: any }>('/api/medicines', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-user-id': 'u-5' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          barcode: addMedForm.barcode,
-          sku: addMedForm.sku,
-          name: addMedForm.name,
-          genericName: addMedForm.genericName,
-          brandName: addMedForm.brandName,
+          barcode: addMedForm.barcode?.trim() || undefined,
+          sku: addMedForm.sku?.trim() || undefined,
+          name: trimmedName,
+          genericName: addMedForm.genericName?.trim() || trimmedName,
+          brandName: addMedForm.brandName?.trim() || trimmedName,
           categoryId: addMedForm.categoryId,
           dosageForm: addMedForm.dosageForm,
           strength: addMedForm.strength,
@@ -315,29 +374,28 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           manufacturer: addMedForm.manufacturer,
           description: addMedForm.description,
           prescriptionRequired: addMedForm.prescriptionRequired,
-          reorderLevel: addMedForm.reorderLevel,
+          reorderLevel: rl,
           initialBatch: {
-            batchNumber: addMedForm.batchNumber,
+            batchNumber: batchNum,
             mfgDate: addMedForm.mfgDate,
             expDate: addMedForm.expDate,
-            purchasePrice: addMedForm.purchasePrice,
-            sellingPrice: addMedForm.sellingPrice,
-            quantity: addMedForm.quantity,
+            purchasePrice: cost,
+            sellingPrice: price,
+            quantity: qty,
             supplierId: addMedForm.supplierId,
           },
         }),
       });
 
-      const data = await res.json();
       if (data.success) {
         setIsAddMedOpen(false);
         fetchInventoryData();
-        alert('Medicine registered successfully with initial batch!');
+        showToast('Medicine registered successfully with initial batch!', 'success', 'Inventory Stocked');
       } else {
-        alert(data.message);
+        showToast(data.message || 'Failed to register medicine', 'error', 'Registration Error');
       }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message || 'Failed to register medicine', 'error', 'Error');
     }
   };
 
