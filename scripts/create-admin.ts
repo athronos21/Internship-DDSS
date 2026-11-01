@@ -1,5 +1,5 @@
-import { auth, authDb, hashPassword } from '../src/server/auth.js';
-import { db } from '../src/server/db.js';
+import { auth, authDb, hashPassword } from '../server/middleware/auth.js';
+import { db } from '../server/db/queries.js';
 
 async function main() {
   const args = process.argv.slice(2);

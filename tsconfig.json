@@ -18,14 +18,24 @@
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@shared/*": ["./shared/*"],
+      "@server/*": ["./server/*"],
+      "@client/*": ["./client/src/*"]
     },
     "types": ["bun-types"],
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["**/*"],
+  "include": [
+    "client/**/*",
+    "server/**/*",
+    "shared/**/*",
+    "tests/**/*",
+    "scripts/**/*",
+    "deploy/**/*",
+    "*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
+
