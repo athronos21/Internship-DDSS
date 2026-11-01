@@ -23,7 +23,7 @@ describe('InventorySystemWorkstation Architecture & Subsystems', () => {
   };
 
   it('exposes the 6 dedicated IMS subsystem tabs', async () => {
-    const { IMS_SUBSYSTEMS } = await import('../src/components/inventory/InventorySystemWorkstation');
+    const { IMS_SUBSYSTEMS } = await import('../../client/src/components/inventory/InventorySystemWorkstation');
     expect(IMS_SUBSYSTEMS).toBeDefined();
     expect(IMS_SUBSYSTEMS.length).toBe(6);
     expect(IMS_SUBSYSTEMS.some((s) => s.id === 'medicines')).toBe(true);
@@ -35,7 +35,7 @@ describe('InventorySystemWorkstation Architecture & Subsystems', () => {
   });
 
   it('provides quick action toolbelt actions', async () => {
-    const { IMS_TOOLBELT_ACTIONS } = await import('../src/components/inventory/InventorySystemWorkstation');
+    const { IMS_TOOLBELT_ACTIONS } = await import('../../client/src/components/inventory/InventorySystemWorkstation');
     expect(IMS_TOOLBELT_ACTIONS).toBeDefined();
     expect(IMS_TOOLBELT_ACTIONS.some((a) => a.id === 'scan')).toBe(true);
     expect(IMS_TOOLBELT_ACTIONS.some((a) => a.id === 'barcode')).toBe(true);

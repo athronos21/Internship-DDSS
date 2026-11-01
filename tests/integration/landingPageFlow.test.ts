@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
 describe('Redesigned Professional Landing Page Suite', () => {
-  const root = resolve(import.meta.dir, '..');
+  const root = resolve(import.meta.dir, '../../client');
 
   test('1. Verifies PublicHome exists and contains complete Digital Drug Store info and dual registrations', () => {
     const publicHomePath = resolve(root, 'src/components/public/PublicHome.tsx');

@@ -39,7 +39,7 @@ financeRouter.get('/reports/internship-docx', async (req, res) => {
     const fs = await import('fs');
     const path = await import('path');
     const primaryPath = path.join(process.cwd(), 'documentation', 'Internship Report – Digital Drug Store (DDS) Pharmaceutical Inventory Management Platform.docx');
-    const pimsPath = path.join(process.cwd(), 'public', 'Kaziniya_PIMS_Internship_Report.docx');
+    const pimsPath = path.join(process.cwd(), 'client', 'public', 'Kaziniya_PIMS_Internship_Report.docx');
     const targetPath = fs.existsSync(primaryPath) ? primaryPath : fs.existsSync(pimsPath) ? pimsPath : null;
 
     if (targetPath) {
@@ -54,7 +54,7 @@ financeRouter.get('/reports/internship-docx', async (req, res) => {
       return res.send(fs.readFileSync(targetPath));
     }
 
-    const { generatePimsDocx } = await import('../../../scripts/build_final_pims_docx.ts');
+    const { generatePimsDocx } = await import('../../scripts/build_final_pims_docx.ts');
     const buffer = await generatePimsDocx();
     res.setHeader(
       'Content-Type',

@@ -15,7 +15,7 @@ export type VatTotType = 'VAT_15' | 'TOT_2' | 'TOT_10' | 'EXEMPT';
 export type NodeStatus = 'ACTIVE' | 'PENDING_REVIEW' | 'VERIFIED' | 'MAINTENANCE';
 
 export type UserRole = 'SUPER_ADMIN' | 'STORE_OWNER' | 'PHARMACIST' | 'CUSTOMER' | 'SUPPLIER';
-export type { User } from '../../types.js';
+export type { User } from '../../shared/types.js';
 
 export interface PharmacyStoreProfile {
   id: string;

@@ -33,7 +33,7 @@ describe('WorkstationDropdown Configuration & Routing', () => {
   };
 
   it('exposes the standard workstation choices', async () => {
-    const { WORKSTATION_ITEMS } = await import('../src/components/dashboard/WorkstationDropdown');
+    const { WORKSTATION_ITEMS } = await import('../../client/src/components/dashboard/WorkstationDropdown');
     expect(WORKSTATION_ITEMS).toBeDefined();
     expect(WORKSTATION_ITEMS.some((w) => w.id === 'IMS')).toBe(true);
     expect(WORKSTATION_ITEMS.some((w) => w.id === 'POS')).toBe(true);
@@ -42,7 +42,7 @@ describe('WorkstationDropdown Configuration & Routing', () => {
   });
 
   it('provides quick jump direct links for inventory sub-tasks', async () => {
-    const { IMS_QUICK_JUMPS } = await import('../src/components/dashboard/WorkstationDropdown');
+    const { IMS_QUICK_JUMPS } = await import('../../client/src/components/dashboard/WorkstationDropdown');
     expect(IMS_QUICK_JUMPS).toBeDefined();
     expect(IMS_QUICK_JUMPS.some((j) => j.tab === 'medicines')).toBe(true);
     expect(IMS_QUICK_JUMPS.some((j) => j.tab === 'batches')).toBe(true);
@@ -51,7 +51,7 @@ describe('WorkstationDropdown Configuration & Routing', () => {
   });
 
   it('filters available workstations based on role permissions', async () => {
-    const { getAvailableWorkstations } = await import('../src/components/dashboard/WorkstationDropdown');
+    const { getAvailableWorkstations } = await import('../../client/src/components/dashboard/WorkstationDropdown');
     
     // Store Owner should see IMS, POS, STORE_OPS, but not MASTER_ADMIN
     const ownerOptions = getAvailableWorkstations(storeOwner);

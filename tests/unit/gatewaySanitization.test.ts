@@ -4,7 +4,7 @@ import path from 'path';
 
 describe('Serverless & Mobile Client Sanitization', () => {
   it('api/index.ts catch block does not return stack trace in client payload', () => {
-    const content = fs.readFileSync(path.resolve(process.cwd(), 'api/index.ts'), 'utf-8');
+    const content = fs.readFileSync(path.resolve(process.cwd(), 'deploy/vercel/api/index.ts'), 'utf-8');
     expect(content).not.toContain('stack: err?.stack');
     expect(content).not.toContain('err?.stack');
     expect(content).toContain("message: 'Internal server error'");

@@ -9,7 +9,7 @@ describe('Modular Express Domain Routers (Task 3)', () => {
   });
 
   test('Exposes domain routes via modular router exports', async () => {
-    const { authRouter, inventoryRouter, posRouter, financeRouter } = await import('../src/server/routes/index.js');
+    const { authRouter, inventoryRouter, posRouter, financeRouter } = await import('../../server/routes/index.js');
     expect(authRouter).toBeDefined();
     expect(inventoryRouter).toBeDefined();
     expect(posRouter).toBeDefined();

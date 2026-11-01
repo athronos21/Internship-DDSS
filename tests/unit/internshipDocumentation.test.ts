@@ -4,10 +4,10 @@ import path from 'path';
 
 describe('Official Internship Documentation & Academic Report Suite', () => {
   it('1. Verifies official docx, pdf, and latex zip report files exist in public directory', () => {
-    const docxPath = path.join(process.cwd(), 'public', 'Kaziniya_PIMS_Internship_Report.docx');
-    const legacyDocxPath = path.join(process.cwd(), 'public', 'Internship_Report_Digital_Drug_Store.docx');
-    const pdfPath = path.join(process.cwd(), 'public', 'Kaziniya_PIMS_Internship_Report.pdf');
-    const zipPath = path.join(process.cwd(), 'public', 'Kaziniya_PIMS_Internship_Report_Overleaf.zip');
+    const docxPath = path.join(process.cwd(), 'client', 'public', 'Kaziniya_PIMS_Internship_Report.docx');
+    const legacyDocxPath = path.join(process.cwd(), 'client', 'public', 'Internship_Report_Digital_Drug_Store.docx');
+    const pdfPath = path.join(process.cwd(), 'client', 'public', 'Kaziniya_PIMS_Internship_Report.pdf');
+    const zipPath = path.join(process.cwd(), 'client', 'public', 'Kaziniya_PIMS_Internship_Report_Overleaf.zip');
 
     expect(fs.existsSync(docxPath)).toBe(true);
     expect(fs.existsSync(legacyDocxPath)).toBe(true);
@@ -27,7 +27,7 @@ describe('Official Internship Documentation & Academic Report Suite', () => {
   });
 
   it('2. Verifies InternshipReportModal source contains authentic academic attribution', () => {
-    const modalPath = path.join(process.cwd(), 'src', 'components', 'common', 'InternshipReportModal.tsx');
+    const modalPath = path.join(process.cwd(), 'client', 'src', 'components', 'common', 'InternshipReportModal.tsx');
     expect(fs.existsSync(modalPath)).toBe(true);
     const content = fs.readFileSync(modalPath, 'utf-8');
 
@@ -50,11 +50,11 @@ describe('Official Internship Documentation & Academic Report Suite', () => {
   });
 
   it('3. Verifies navigation access points wired to open documentation modal across web app', () => {
-    const gatewayPath = path.join(process.cwd(), 'src', 'components', 'public', 'DDSGatewayPage.tsx');
-    const headerPath = path.join(process.cwd(), 'src', 'components', 'public', 'Header.tsx');
-    const footerPath = path.join(process.cwd(), 'src', 'components', 'public', 'Footer.tsx');
-    const dashboardPath = path.join(process.cwd(), 'src', 'components', 'dashboard', 'DashboardLayout.tsx');
-    const appPath = path.join(process.cwd(), 'src', 'App.tsx');
+    const gatewayPath = path.join(process.cwd(), 'client', 'src', 'components', 'public', 'DDSGatewayPage.tsx');
+    const headerPath = path.join(process.cwd(), 'client', 'src', 'components', 'public', 'Header.tsx');
+    const footerPath = path.join(process.cwd(), 'client', 'src', 'components', 'public', 'Footer.tsx');
+    const dashboardPath = path.join(process.cwd(), 'client', 'src', 'components', 'dashboard', 'DashboardLayout.tsx');
+    const appPath = path.join(process.cwd(), 'client', 'src', 'App.tsx');
 
     expect(fs.readFileSync(gatewayPath, 'utf-8')).toContain('onOpenDocumentation');
     expect(fs.readFileSync(headerPath, 'utf-8')).toContain('onOpenDocumentation');
@@ -64,7 +64,7 @@ describe('Official Internship Documentation & Academic Report Suite', () => {
   });
 
   it('4. Verifies finance endpoint serves the complete official report docx file', async () => {
-    const routesPath = path.join(process.cwd(), 'src', 'server', 'routes', 'finance.routes.ts');
+    const routesPath = path.join(process.cwd(), 'server', 'routes', 'finance.routes.ts');
     const content = fs.readFileSync(routesPath, 'utf-8');
     expect(content).toContain('/reports/internship-docx');
     expect(content).toContain('Internship Report – Digital Drug Store (DDS) Pharmaceutical Inventory Management Platform.docx');
