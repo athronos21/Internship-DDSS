@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $docxPath = Join-Path $PSScriptRoot "..\documentation\Kaziniya_PIMS_Internship_Report.docx"
 $pdfPath = Join-Path $PSScriptRoot "..\documentation\Kaziniya_PIMS_Internship_Report.pdf"
-$publicPdfPath = Join-Path $PSScriptRoot "..\public\Kaziniya_PIMS_Internship_Report.pdf"
+$publicPdfPath = Join-Path $PSScriptRoot "..\client\public\Kaziniya_PIMS_Internship_Report.pdf"
 
 $docxPath = [System.IO.Path]::GetFullPath($docxPath)
 $pdfPath = [System.IO.Path]::GetFullPath($pdfPath)

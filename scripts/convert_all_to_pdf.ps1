@@ -7,7 +7,7 @@ try {
     # 1. DDS Inventory Docx
     $docx1 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\documentation\Kaziniya_DDS_Inventory_Internship_Report.docx"))
     $pdf1 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\documentation\Kaziniya_DDS_Inventory_Internship_Report.pdf"))
-    $pubPdf1 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\public\Kaziniya_DDS_Inventory_Internship_Report.pdf"))
+    $pubPdf1 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\client\public\Kaziniya_DDS_Inventory_Internship_Report.pdf"))
     
     Write-Host "Opening: $docx1"
     $doc1 = $word.Documents.Open($docx1)
@@ -20,7 +20,7 @@ try {
     # 2. PIMS Docx (synced copy)
     $docx2 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\documentation\Kaziniya_PIMS_Internship_Report.docx"))
     $pdf2 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\documentation\Kaziniya_PIMS_Internship_Report.pdf"))
-    $pubPdf2 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\public\Kaziniya_PIMS_Internship_Report.pdf"))
+    $pubPdf2 = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\client\public\Kaziniya_PIMS_Internship_Report.pdf"))
 
     Write-Host "Opening: $docx2"
     $doc2 = $word.Documents.Open($docx2)

@@ -1326,8 +1326,8 @@ if (process.argv[1]?.endsWith('build_final_pims_docx.ts')) {
   generatePimsDocx().then((buffer) => {
     const docxPath = path.join(process.cwd(), 'documentation', 'Kaziniya_PIMS_Internship_Report.docx');
     const ddsDocxPath = path.join(process.cwd(), 'documentation', 'Kaziniya_DDS_Inventory_Internship_Report.docx');
-    const publicPath = path.join(process.cwd(), 'public', 'Kaziniya_PIMS_Internship_Report.docx');
-    const publicDdsPath = path.join(process.cwd(), 'public', 'Kaziniya_DDS_Inventory_Internship_Report.docx');
+    const publicPath = path.join(process.cwd(), 'client', 'public', 'Kaziniya_PIMS_Internship_Report.docx');
+    const publicDdsPath = path.join(process.cwd(), 'client', 'public', 'Kaziniya_DDS_Inventory_Internship_Report.docx');
     fs.writeFileSync(docxPath, buffer);
     fs.writeFileSync(ddsDocxPath, buffer);
     fs.writeFileSync(publicPath, buffer);

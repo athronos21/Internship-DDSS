@@ -1113,7 +1113,7 @@ export async function generateInternshipDocx(): Promise<Buffer> {
 // If executed directly from command line
 if (process.argv[1]?.endsWith('generate_docx_report.ts')) {
   generateInternshipDocx().then((buffer) => {
-    const outputPath = path.join(process.cwd(), 'public', 'Internship_Report_Digital_Drug_Store.docx');
+    const outputPath = path.join(process.cwd(), 'client', 'public', 'Internship_Report_Digital_Drug_Store.docx');
     fs.writeFileSync(outputPath, buffer);
     console.log(`[Success] Word document generated successfully at: ${outputPath}`);
   });

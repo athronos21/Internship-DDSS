@@ -7,6 +7,12 @@ export default defineConfig(({mode}) => {
   // Load env from project root (one level up from client/)
   const env = loadEnv(mode || 'development', path.resolve(__dirname, '..'), '');
   return {
+    root: path.resolve(__dirname, '.'),
+    publicDir: path.resolve(__dirname, 'public'),
+    build: {
+      outDir: path.resolve(__dirname, '../dist'),
+      emptyOutDir: true,
+    },
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),

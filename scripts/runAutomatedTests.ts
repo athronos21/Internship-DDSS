@@ -19,8 +19,8 @@ console.log(`${CYAN}${BOLD}=====================================================
 console.log(`${DIM}Testing Ethiopian Regulatory & Pharmacy Workflows via Bun Test Runner...${RESET}\n`);
 
 const testFiles = [
-  { name: 'Core Workflows (Backend API & RBAC Matrix)', path: 'tests/coreWorkflow.test.ts' },
-  { name: 'Browser UI Workflows (Edge Headless E2E)', path: 'tests/browserUiWorkflow.test.ts' },
+  { name: 'Core Workflows (Backend API & RBAC Matrix)', path: 'tests/e2e/coreWorkflow.test.ts' },
+  { name: 'Browser UI Workflows (Edge Headless E2E)', path: 'tests/e2e/browserUiWorkflow.test.ts' },
 ];
 
 async function runTestFile(file: { name: string; path: string }): Promise<boolean> {

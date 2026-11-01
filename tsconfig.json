@@ -23,7 +23,7 @@
       "@server/*": ["./server/*"],
       "@client/*": ["./client/src/*"]
     },
-    "types": ["bun-types"],
+    "types": ["bun-types", "node"],
     "allowImportingTsExtensions": true,
     "noEmit": true
   },

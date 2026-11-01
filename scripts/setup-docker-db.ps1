@@ -60,7 +60,8 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "`n[+] Docker engine is running!" -ForegroundColor Green
 Write-Host "[*] Starting PostgreSQL and Adminer containers..." -ForegroundColor Cyan
 
-docker compose up -d
+$composeFile = Join-Path $PSScriptRoot "..\infrastructure\docker\docker-compose.yml"
+docker compose -f $composeFile up -d
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`n========================================================" -ForegroundColor Green
@@ -77,5 +78,5 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "    (System: PostgreSQL | Server: db | Username: postgres | DB: kaziniya_db)" -ForegroundColor Gray
     Write-Host "========================================================" -ForegroundColor Green
 } else {
-    Write-Host "`n[-] Failed to start containers. Check error logs with 'docker compose logs'." -ForegroundColor Red
+    Write-Host "`n[-] Failed to start containers. Check error logs with 'docker compose -f infrastructure/docker/docker-compose.yml logs'." -ForegroundColor Red
 }
