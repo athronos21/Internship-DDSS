@@ -830,6 +830,47 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
         </div>
       </div>
 
+      {/* Route & Breadcrumbs Status Bar */}
+      <div className="bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-8 py-1.5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+          <span className="font-bold text-slate-400 text-[10.5px] uppercase tracking-wider">Route:</span>
+          <button
+            type="button"
+            onClick={() => onNavigate && onNavigate('public_home')}
+            className="hover:text-emerald-600 dark:hover:text-emerald-400 font-semibold transition cursor-pointer"
+          >
+            DDS Storefront
+          </button>
+          <span className="text-slate-300 dark:text-slate-700">/</span>
+          <span className="font-bold text-emerald-700 dark:text-emerald-300">
+            {currentScreen === 'public_home'
+              ? 'Home'
+              : currentScreen === 'public_products'
+              ? 'Catalog'
+              : currentScreen === 'public_orders'
+              ? 'Track Orders'
+              : currentScreen === 'public_favorites'
+              ? 'Saved Favorites'
+              : currentScreen === 'public_contact'
+              ? 'Branches & Contact'
+              : currentScreen === 'gateway'
+              ? 'Institutional Gateway'
+              : currentScreen === 'public_registration'
+              ? 'Registration Hub'
+              : currentScreen}
+          </span>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-1.5 font-mono text-[11px] text-slate-500 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200/80 dark:border-slate-700">
+          <span className="text-slate-400 font-sans text-[10px]">URL:</span>
+          <span>
+            {typeof window !== 'undefined'
+              ? `${window.location.pathname}${window.location.search || `?screen=${currentScreen}`}`
+              : `/?screen=${currentScreen}`}
+          </span>
+        </div>
+      </div>
+
       {/* ========================================================================= */}
       {/* 4. MOBILE SLIDE-DOWN DRAWER MENU (100% Comprehensive Accessibility)      */}
       {/* ========================================================================= */}

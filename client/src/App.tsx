@@ -293,15 +293,21 @@ function AppContent() {
               if (viewParam) {
                 setDashboardView(viewParam);
               }
-              if (subParam && viewParam === 'reports') {
-                setReportsSubTab(subParam as any);
+              if (subParam) {
+                if (viewParam === 'reports') setReportsSubTab(subParam as any);
+                if (viewParam === 'inventory' || viewParam === 'inventory_system') setInventorySubTab(subParam as any);
+                if (viewParam === 'purchases') setPurchasesSubTab(subParam as any);
+                if (viewParam === 'sales') setSalesSubTab(subParam as any);
+                if (viewParam === 'users') setHrSubTab(subParam as any);
+                if (viewParam === 'settings') setSettingsSubTab(subParam as any);
+                if (viewParam === 'master_admin') setMasterAdminSubTab(subParam as any);
               }
-              if (subParam && viewParam === 'inventory') {
-                setInventorySubTab(subParam as any);
-              }
-              if (subParam && viewParam === 'purchases') {
-                setPurchasesSubTab(subParam as any);
-              }
+              const modalParam = urlParams.get('modal');
+              if (modalParam === 'internship' || modalParam === 'report') setIsInternshipModalOpen(true);
+              else if (modalParam === 'login') setIsLoginModalOpen(true);
+              else if (modalParam === 'owner_register') setIsOwnerRegisterModalOpen(true);
+              else if (modalParam === 'supplier_register') setIsSupplierRegisterModalOpen(true);
+              else if (modalParam === 'pharmacist_auth') setIsPharmacistAuthModalOpen(true);
             }
           };
 
@@ -335,6 +341,54 @@ function AppContent() {
       window.removeEventListener('hashchange', checkMobileUrlParams);
     };
   }, []);
+
+  // Synchronize active screen, dashboard workstation view, and sub-tabs with the browser URL
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const url = new URL(window.location.href);
+      if (currentScreen === 'dashboard') {
+        url.searchParams.set('screen', 'dashboard');
+        if (dashboardView) {
+          url.searchParams.set('view', dashboardView);
+        } else {
+          url.searchParams.delete('view');
+        }
+
+        let activeSub: string | undefined;
+        if (dashboardView === 'inventory' || dashboardView === 'inventory_system') activeSub = inventorySubTab;
+        else if (dashboardView === 'purchases') activeSub = purchasesSubTab;
+        else if (dashboardView === 'sales') activeSub = salesSubTab;
+        else if (dashboardView === 'reports') activeSub = reportsSubTab;
+        else if (dashboardView === 'users') activeSub = hrSubTab;
+        else if (dashboardView === 'settings') activeSub = settingsSubTab;
+        else if (dashboardView === 'master_admin') activeSub = masterAdminSubTab;
+
+        if (activeSub) {
+          url.searchParams.set('sub', activeSub);
+        } else {
+          url.searchParams.delete('sub');
+        }
+      } else {
+        url.searchParams.set('screen', currentScreen);
+        url.searchParams.delete('view');
+        url.searchParams.delete('sub');
+      }
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      // Ignore URL parsing errors
+    }
+  }, [
+    currentScreen,
+    dashboardView,
+    inventorySubTab,
+    salesSubTab,
+    purchasesSubTab,
+    reportsSubTab,
+    hrSubTab,
+    settingsSubTab,
+    masterAdminSubTab,
+  ]);
 
   const fetchUsers = async () => {
     try {
@@ -462,6 +516,23 @@ function AppContent() {
           onSelectRole={handleSelectRole}
           activeView={dashboardView}
           setActiveView={setDashboardView}
+          activeSubTab={
+            dashboardView === 'inventory' || dashboardView === 'inventory_system'
+              ? inventorySubTab
+              : dashboardView === 'purchases'
+              ? purchasesSubTab
+              : dashboardView === 'sales'
+              ? salesSubTab
+              : dashboardView === 'reports'
+              ? reportsSubTab
+              : dashboardView === 'users'
+              ? hrSubTab
+              : dashboardView === 'settings'
+              ? settingsSubTab
+              : dashboardView === 'master_admin'
+              ? masterAdminSubTab
+              : undefined
+          }
           onNavigateSubItem={(view, itemId) => {
             // Reset modal auto-open triggers by default
             setAutoOpenAddMedModal(false);

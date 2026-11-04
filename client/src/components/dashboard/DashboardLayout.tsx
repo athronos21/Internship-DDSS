@@ -90,6 +90,7 @@ import {
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
+  activeSubTab?: string;
   currentUser: User;
   onSelectRole: (role: UserRole) => void;
   activeView: string;
@@ -111,6 +112,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSelectRole,
   activeView,
   setActiveView,
+  activeSubTab,
   onNavigateSubItem,
   onOpenMobileApp,
   onOpenShiftHandover,
@@ -1641,6 +1643,76 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </div>
           )}
 
+          {/* INTERACTIVE ROUTE & BREADCRUMB BAR */}
+          <div className="bg-white/95 backdrop-blur-xs border-b border-slate-200/90 px-4 sm:px-6 py-2 flex items-center justify-between text-xs text-slate-600 shrink-0 shadow-2xs z-10">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+              <span className="font-bold text-slate-400 text-[11px] uppercase tracking-wider">Route:</span>
+              <button
+                type="button"
+                onClick={onBackToPublicPortal}
+                className="hover:text-[#0070BA] font-semibold flex items-center gap-1 transition text-slate-700 cursor-pointer"
+                title="Return to Public Storefront"
+              >
+                <span>Storefront</span>
+              </button>
+              <ChevronRight className="h-3 w-3 text-slate-300 shrink-0" />
+              <button
+                type="button"
+                onClick={() => setActiveView('dashboard')}
+                className={`font-semibold hover:text-[#0070BA] transition cursor-pointer ${
+                  activeView === 'dashboard' ? 'text-[#0070BA] font-bold' : 'text-slate-700'
+                }`}
+              >
+                Dashboard
+              </button>
+              {activeView !== 'dashboard' && (
+                <>
+                  <ChevronRight className="h-3 w-3 text-slate-300 shrink-0" />
+                  <span className="font-bold text-[#0070BA]">
+                    {activeView === 'pos'
+                      ? 'POS Counter'
+                      : activeView === 'inventory' || activeView === 'inventory_system'
+                      ? 'Inventory & Batches'
+                      : activeView === 'add_medicine'
+                      ? 'Add Medicine (EFDA)'
+                      : activeView === 'purchases'
+                      ? 'Purchasing & Suppliers'
+                      : activeView === 'sales'
+                      ? 'Sales Ledger'
+                      : activeView === 'reports'
+                      ? 'Reports & Accounting'
+                      : activeView === 'users'
+                      ? 'Staff & HR Directory'
+                      : activeView === 'master_admin'
+                      ? 'Master Admin Hub'
+                      : activeView === 'settings'
+                      ? 'Store Settings'
+                      : activeView === 'inquiries'
+                      ? 'Customer Inquiries'
+                      : activeView}
+                  </span>
+                </>
+              )}
+              {activeSubTab && (
+                <>
+                  <ChevronRight className="h-3 w-3 text-slate-300 shrink-0" />
+                  <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200/80 font-mono text-[11px] font-semibold">
+                    {activeSubTab}
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Direct URL Route Pill */}
+            <div className="hidden sm:flex items-center gap-2 shrink-0">
+              <span className="text-[10px] text-slate-400 font-medium">URL:</span>
+              <span className="font-mono text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200 transition">
+                {typeof window !== 'undefined'
+                  ? `${window.location.pathname}${window.location.search || `?screen=dashboard&view=${activeView}`}`
+                  : `/?screen=dashboard&view=${activeView}`}
+              </span>
+            </div>
+          </div>
           <div className="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6 flex-1 max-w-full">
             {children}
           </div>

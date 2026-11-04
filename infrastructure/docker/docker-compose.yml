@@ -38,6 +38,29 @@ services:
       db:
         condition: service_healthy
 
+  # ========================================================
+  # pgAdmin 4 Web Interface
+  # Accessible at: http://localhost:5050
+  # ========================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: kaziniya-pgadmin
+    restart: unless-stopped
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@kaziniya.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-Password123!}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
+    driver: local
+  pgadmin_data:
     driver: local
