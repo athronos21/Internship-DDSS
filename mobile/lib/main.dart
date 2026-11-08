@@ -288,7 +288,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.between,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
           Flexible(

@@ -618,7 +618,7 @@ class _RegisterMedicineScreenState extends State<RegisterMedicineScreen>
 
           // Quick Presets to test multi-angle packaging
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Test Presets (Multi-Angle Packaging):',
@@ -682,7 +682,7 @@ class _RegisterMedicineScreenState extends State<RegisterMedicineScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.between,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
@@ -812,7 +812,7 @@ class _RegisterMedicineScreenState extends State<RegisterMedicineScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Row(
                 children: [

@@ -21,11 +21,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _identifierController = TextEditingController(text: 'pharmacist@kaziniya.com');
-  final _passwordController = TextEditingController(text: 'Pharma#2026');
-  final _pinController = TextEditingController(text: '3456');
+  final _identifierController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  bool _isPinMode = false;
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
@@ -34,21 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _identifierController.dispose();
     _passwordController.dispose();
-    _pinController.dispose();
     super.dispose();
-  }
-
-  void _fillPreset({
-    required String identifier,
-    required String password,
-    required String pin,
-  }) {
-    setState(() {
-      _identifierController.text = identifier;
-      _passwordController.text = password;
-      _pinController.text = pin;
-      _errorMessage = null;
-    });
   }
 
   Future<void> _handleLogin() async {
@@ -62,8 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final session = await widget.authService.login(
         identifier: _identifierController.text.trim(),
-        password: _isPinMode ? null : _passwordController.text,
-        pin: _isPinMode ? _pinController.text.trim() : null,
+        password: _passwordController.text,
       );
 
       if (!mounted) return;
@@ -284,110 +267,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Authentication Mode Toggle
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF334155)),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _isPinMode = false),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: !_isPinMode ? const Color(0xFF0D9488) : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Password Login',
-                                style: TextStyle(
-                                  color: !_isPinMode ? Colors.white : Colors.white60,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _isPinMode = true),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: _isPinMode ? const Color(0xFF0D9488) : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Quick PIN Mode',
-                                style: TextStyle(
-                                  color: _isPinMode ? Colors.white : Colors.white60,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // Quick Demo Preset Selection Chips
-                  const Text(
-                    'DEMO TEST PROFILES (TAP TO AUTO-FILL):',
-                    style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      ActionChip(
-                        avatar: const Icon(Icons.medication, size: 14, color: Color(0xFF2DD4BF)),
-                        label: const Text('Pharmacist (Solomon)', style: TextStyle(fontSize: 11, color: Colors.white)),
-                        backgroundColor: const Color(0xFF1E293B),
-                        side: const BorderSide(color: Color(0xFF0D9488)),
-                        onPressed: () => _fillPreset(
-                          identifier: 'pharmacist@kaziniya.com',
-                          password: 'Pharma#2026',
-                          pin: '3456',
-                        ),
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.store, size: 14, color: Color(0xFF60A5FA)),
-                        label: const Text('Store Owner (Dr. Alemu)', style: TextStyle(fontSize: 11, color: Colors.white)),
-                        backgroundColor: const Color(0xFF1E293B),
-                        side: const BorderSide(color: Color(0xFF2563EB)),
-                        onPressed: () => _fillPreset(
-                          identifier: 'admin@kaziniya.com',
-                          password: 'Admin#2026',
-                          pin: '1234',
-                        ),
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.shield, size: 14, color: Color(0xFFFBBF24)),
-                        label: const Text('Super Admin (Atronos)', style: TextStyle(fontSize: 11, color: Colors.white)),
-                        backgroundColor: const Color(0xFF1E293B),
-                        side: const BorderSide(color: Color(0xFFD97706)),
-                        onPressed: () => _fillPreset(
-                          identifier: 'athronos21@gmail.com',
-                          password: '12242144',
-                          pin: '2144',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-
                   // Error Banner
                   if (_errorMessage != null)
                     Container(
@@ -445,83 +324,46 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Password or PIN Input
-                  if (!_isPinMode)
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: const TextStyle(color: Colors.white60, fontSize: 11),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF2DD4BF), size: 18),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            color: Colors.white54,
-                            size: 18,
-                          ),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  // Password Input
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: const TextStyle(color: Colors.white60, fontSize: 11),
+                      prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF2DD4BF), size: 18),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.white54,
+                          size: 18,
                         ),
-                        filled: true,
-                        fillColor: const Color(0xFF1E293B),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF334155)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF334155)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF0D9488), width: 1.5),
-                        ),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
-                    )
-                  else
-                    TextFormField(
-                      controller: _pinController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 4,
-                      obscureText: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, letterSpacing: 8),
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        labelText: '4-Digit Terminal PIN',
-                        labelStyle: const TextStyle(color: Colors.white60, fontSize: 11),
-                        counterText: '',
-                        prefixIcon: const Icon(Icons.dialpad, color: Color(0xFF2DD4BF), size: 18),
-                        filled: true,
-                        fillColor: const Color(0xFF1E293B),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF334155)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF334155)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF0D9488), width: 1.5),
-                        ),
+                      filled: true,
+                      fillColor: const Color(0xFF1E293B),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF334155)),
                       ),
-                      validator: (val) {
-                        if (val == null || val.trim().length != 4) {
-                          return 'Enter 4-digit numeric PIN';
-                        }
-                        return null;
-                      },
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF334155)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF0D9488), width: 1.5),
+                      ),
                     ),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 20),
 
                   // Sign In Submit Button
@@ -540,9 +382,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                           )
-                        : Text(
-                            _isPinMode ? 'UNLOCK POS TERMINAL' : 'SIGN IN TO DISPENSARY',
-                            style: const TextStyle(
+                        : const Text(
+                            'SIGN IN TO DISPENSARY',
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.8,

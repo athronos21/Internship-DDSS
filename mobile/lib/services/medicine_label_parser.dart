@@ -716,8 +716,9 @@ class MedicineLabelParser {
       var month = match.group(1)!.trim().toLowerCase();
       var year = match.group(2)!.trim();
 
-      if (_monthMap.containsKey(month.substring(0, 3))) {
-        month = _monthMap[month.substring(0, 3)]!;
+      final monthKey = month.length >= 3 ? month.substring(0, 3) : '';
+      if (monthKey.isNotEmpty && _monthMap.containsKey(monthKey)) {
+        month = _monthMap[monthKey]!;
       } else {
         month = month.replaceAll(RegExp(r'\D'), '').padLeft(2, '0');
       }

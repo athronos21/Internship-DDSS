@@ -161,7 +161,7 @@ class _PosScreenState extends State<PosScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.between,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     'Visual Medicine AI Scanner (POS)',
@@ -359,7 +359,7 @@ class _PosScreenState extends State<PosScreen> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 2),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.between,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(
@@ -377,7 +377,7 @@ class _PosScreenState extends State<PosScreen> {
                   })),
                 const Divider(color: Colors.white24, height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.between,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('TOTAL PAID:', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     Text(
@@ -552,7 +552,7 @@ class _PosScreenState extends State<PosScreen> {
               children: [
                 // Cart items summary
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.between,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [

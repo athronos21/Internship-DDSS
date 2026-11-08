@@ -13,3 +13,5 @@ scratch/
 .gemini/
 *.exe
 skills-lock.json
+.idea/
+

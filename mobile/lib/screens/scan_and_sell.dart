@@ -176,7 +176,7 @@ class _ScanAndSellScreenState extends State<ScanAndSellScreen> {
                     ),
                     const Divider(color: Colors.white12, height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.between,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Price: ETB ${_scannedMedicineResult!['suggestedSellingPrice'] ?? 25}',
